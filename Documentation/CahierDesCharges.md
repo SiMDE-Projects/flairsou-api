@@ -15,7 +15,7 @@ Pour le BDE-UTC les objectifs sont les suivants :
 ## Définition des concepts
 
 L'outil se basera sur les concepts de **comptabilité en partie double**.
-Certains éléments pourront cependant être simplifiés pour l'accécibilité de celui-ci.
+Certains éléments pourront cependant être simplifiés pour l'accessibilité de celui-ci.
 
 ### Crédit / débit (et simplification ?)
 
@@ -30,7 +30,7 @@ Dans le code, on utilisera les sémantiques de débit et de crédit (qui simplif
 On dispose de comptes "réels" (qui ont un solde et qui permettent des transactions) et des comptes "virtuels" (qui sont les seuls à pouvoir avoir des enfants mais ne peuvent pas faire de transactions).
 
 On une hiérarchie des comptes : 
-- Un compte a le même type que son père
+- Un compte a le même type que son père (sauf le compte racine)
 - Le solde d'un compte est égal à la somme des soldes des sous-comptes pour les comptes virtuels.
 
 En ce qui concerne la hérarchie des entités, chaque compte d'un enfant sera lié au compte d'un parent pour le regroupement lors des bilans.
@@ -49,6 +49,10 @@ Ne peuvent pas être modifiés directement par l'utilisateur.
 
 Débiter => Réduire
 Créditer => Augmenter
+
+A discuter :
+- laisser la possibilité aux assos d'utiliser les comptes de CP pour mettre en place des réserves ?
+- restreindre la possibilité d'utiliser les CP -> désactivé par défaut mais activable si nécessaire ?
 
 #### Comptes de passif
 
@@ -76,6 +80,12 @@ Créditer => Revenus
 **NE PAS UTILISER LES FLOAT**
 
 Transactions réparties : une transaction est un ensemble de deux ou plus opérations. Une opération est un 4-uplet (compte, débit, crédit, pointé).
+Une transaction contient également une date et un label.
+
+A discuter :
+- label au niveau transaction ou au niveau opération ?
+- pointé au niveau transaction ou au niveau opération ?
+- remplacer le bool pointé par 3 états (non pointé, pointé, rapproché) ?
 
 Règles : 
 - Sommes des débits = Somme des crédits
@@ -89,6 +99,12 @@ Un fichier au format pdf peut être associé à une transaction (factures, justi
 
 Le rapprochement s'appuie sur le relevé de comptes et les opérations pointées. Les opérations pointées ayant une date antérieure au rapprochement du compte ne peuvent plus être modifiées.
 On a besoin de : Date / solde intial / solde Final
+
+Il faut donc prévoir de stocker la date du dernier rapprochement sur chaque compte.
+
+Question :
+- est-ce qu'on permet de réinitialiser le rapprochement ?
+- est-ce qu'on gère une unique date de rapprochement ou on enregistre tous les rapprochements effectués ?
 
 ### Clôture de livre
 
@@ -110,6 +126,10 @@ Résultat
 
 1 ou 2 jolis graphiques (camembert des dépenses, etc)
 
+### Features supplémentaires
+
+Possibilité de créer un budget sur une période de temps pour estimer le flux de trésorerie (simulation du solde en fonction de dépenses/recettes prévues par période).
+
 ## Fonctionnement général
 
 On a deux types d'"entités" : 
@@ -117,6 +137,13 @@ On a deux types d'"entités" :
 - Les entités enfant n'ont pas de livre comptable
 
 Les entités parent délèguent la gestion d'une partie des comptes aux enfants (actif correspondant, recettes, dépenses...)
+
+Discussion 21/04 :
+- chaque entité a son propre livre
+- une entité parente a accès au livre de ses enfants (lecture ou lecture/écriture ?)
+- la fusion des comptes des entités filles peut se faire uniquement au moment de l'édition du bilan et n'est pas forcément nécessaire dans la gestion quotidienne
+- hiérarchie dans le bilan de type (Actifs (Pôle (...)) (Asso 1 (...)) (Asso 2 (...))) etc
+- possibilité de regrouper les sous-comptes en catégories au moment de l'édition du bilan (feature pour après ?)
 
 
 Pour la gestion spéciale BDE-UTC: mappage entre le compte CAS et l'entité (association) via les rôles sur le portail.
