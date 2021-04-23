@@ -126,9 +126,15 @@ Résultat
 
 1 ou 2 jolis graphiques (camembert des dépenses, etc)
 
-### Features supplémentaires
+### Budget
 
-Possibilité de créer un budget sur une période de temps pour estimer le flux de trésorerie (simulation du solde en fonction de dépenses/recettes prévues par période).
+Mettre en place un système de création et de suivi d'un budget de trésorerie.
+
+* Budget défini sur une période de temps
+* Découpé en plusieurs tranches (au mois, à la semaine...)
+* Définir les dépenses et recettes prévisionnelles à partir de la structure de comptes définie pour l'entité
+* Présentation du solde prévisionnel sur chaque mois à partir d'un solde initial et des cumuls de dépenses et recettes, pour vérifier que le fonds de roulement est suffisant
+* Suivi de budget avec comparaison avec les opérations réelles
 
 ## Fonctionnement général
 
