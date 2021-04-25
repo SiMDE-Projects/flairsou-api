@@ -30,6 +30,19 @@ class CompteRevenus
 class CompteDepenses
 class CompteCapitauxPropres
 
+class Budget {
+    nom: string
+}
+
+class PériodeBudget {
+    debut: Date
+    fin: Date
+}
+
+class PrévisionBudget {
+    montant: uint
+}
+
 class Transaction{
     fichier: url
     date: date
@@ -67,6 +80,11 @@ Livre "*" --* Entité
 Compte "*" --* Livre
 
 Compte *-- "*" Rapprochement
+
+Budget  *-- "*" PériodeBudget
+PrévisionBudget "*" --* PériodeBudget
+PrévisionBudget "*" --* Compte
+Budget "*" --* Livre
 
 @enduml
 
