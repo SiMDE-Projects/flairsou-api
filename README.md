@@ -54,7 +54,7 @@ Ceci permet à chaque développeur d'avoir sa base locale et de pouvoir facileme
 Si tout fonctionne, le serveur est lancé sur `localhost:8000`, il faut donc aller sur ce lien en navigateur pour voir le résultat.
 A ce stade, on devrait avoir la page par défaut de Django qui nous dit que l'installation a fonctionné.
 
-## Rèles de style
+## Règles de style
 
 ### Mise en forme des fichiers Python
 
