@@ -1,6 +1,6 @@
 *.swp
 **/migrations/*
-db.sqlite
+db.sqlite3
 htmlcov
 **/__pycache__
 .coverage
