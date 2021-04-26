@@ -9,6 +9,7 @@ Représenté et éditable sur le pad : https://md.picasoft.net/h8vvzYGWSmSiZBVJs
 
 class Entité {
     nom: string
+    utiliseCP : bool
 }
 
 class Livre {
@@ -22,6 +23,8 @@ class Compte {
     nom: string
 
     /solde
+    /virtuel
+    /enfants
 }
 
 class CompteActif
@@ -47,6 +50,8 @@ class Transaction{
     fichier: url
     date: date
     pointé: bool
+
+    /rapproché
 }
 
 class Rapprochement {
@@ -98,6 +103,7 @@ Pour l'entité, on peut raisonnablement supposer que le nom est unique.
 ```
 Entité (
     #nom : string unique
+    utiliseCP : bool
     parent => Entité nullable
 )
 ```
@@ -111,16 +117,18 @@ Livre (
 ```
 
 Un compte ne peut pas avoir deux enfants du même nom. Le livre fait également partie de la clé pour pouvoir reproduire les schémas de comptes entre plusieurs livres.
+On notera également qu'un compte a soit un parent, soit un livre mais pas les deux : le livre fait office de compte racine.
 ```
 Compte (
     #nom : string
-    #parent => Compte nullable
     type : {Actifs, Passifs, Revenus, Dépenses, CapitauxPropres}
-    #livre => Livre
+    #parent => Compte nullable
+    #livre => Livre nullable
 )
 ```
 
 Une opération ne fait pas intervenir plusieurs fois le même compte dans la même transaction.
+Une opération doit respecter `(crédit != 0) XOR (débit != 0)`. Les deux champs ne sont pas `nullable`, on leur mettra une valeur par défaut à 0.
 ```
 Opération (
     crédit : uint
@@ -131,13 +139,14 @@ Opération (
 )
 ```
 
-Il n'y a pas d'identifiant spécifique pour une transaction.
+Il n'y a pas d'identifiant spécifique pour une transaction, on met une clé artificielle.
+On notera qu'une transaction doit être équilibrée avant d'être validée en base.
 ```
 Transaction (
-	#id : int autoincrement
+    #id : int autoincrement
     date : Date
     pointé : bool
-    fichier : url / fichier
+    fichier : url / fichier nullable
 )
 ```
 
