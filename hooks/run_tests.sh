@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # fonction de test pour les fichiers python
 test_python_file()
@@ -30,6 +30,23 @@ test_python_file()
 	return $testsOK
 }
 
+# fonction de test pour les fichier js/jsx
+test_js_file()
+{
+	filename="../$1"
+	local testOK=0
+
+	npx eslint $filename
+
+	if [ $? -ne 0 ];
+	then
+		echo "Eslint a trouvé des erreurs dans le fichier $filename"
+		testsOK=1
+	fi
+
+	return $testOK
+}
+
 echo "Lancement des tests pré-commit..."
 
 # récupérer les fichiers ajoutés au staging area
@@ -50,6 +67,12 @@ do
 		py)
 			# tests pour les fichiers python
 			test_python_file $file
+			;;
+		js)
+			test_js_file $file
+			;;
+		jsx)
+			test_js_file $file
 			;;
 		*)
 			;;

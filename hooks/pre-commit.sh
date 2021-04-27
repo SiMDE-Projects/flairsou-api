@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # récupération du répertoire git
 git_wd=$(git rev-parse --show-toplevel)
