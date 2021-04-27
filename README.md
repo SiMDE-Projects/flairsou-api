@@ -139,3 +139,11 @@ yapf -i fichier.py
 
 L'option `-i` permet de faire la correction du format directement dans le fichier.
 Le fichier résultant est donc correctement formaté et peut être commit.
+
+### Mise en forme des fichier JavaScript
+
+Les fichiers `.js` et `.jsx` sont analysés dans les hooks par le linter `eslint`.
+La configuration utilisées est Airbnb/React qui est une configuration très stricte.
+
+Pour lancer à la main le linter, se rendre dans `flairsou_frontend` et lancer `npm run lint`.
+Il est également possible de demander au linter de régler une partie des problèmes avec la commande `npm run lint-fix`.
