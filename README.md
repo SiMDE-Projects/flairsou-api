@@ -54,6 +54,33 @@ Ceci permet à chaque développeur d'avoir sa base locale et de pouvoir facileme
 Si tout fonctionne, le serveur est lancé sur `localhost:8000`, il faut donc aller sur ce lien en navigateur pour voir le résultat.
 A ce stade, on devrait avoir la page par défaut de Django qui nous dit que l'installation a fonctionné.
 
+### React
+
+Pour installer React et les autres dépendances JavaScript, il faut disposer de nodejs/npm.
+
+Ensuite, dans le dossier `flairsou_frontend` :
+
+Installer les dépendances :
+
+```
+$ npm install
+```
+
+Ensuite, il faut compliler le React en JavaScript pouvant être servi par Django à un navigateur.
+Pour un environement de développement :
+
+```
+$ npm run dev
+```
+
+Pour un environement de production :
+
+```
+$ npm run prod
+```
+
+Le frontend react est alors prêt à être servi par Django.
+
 ### Git Hooks
 
 Les Hooks sont mis en place pour tester les modifications avant de valider les commits.
