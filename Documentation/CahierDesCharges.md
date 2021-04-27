@@ -139,15 +139,13 @@ Mettre en place un système de création et de suivi d'un budget de trésorerie.
 ## Fonctionnement général
 
 On a deux types d'"entités" :
-- Les entitées parent, (pôles, 1901) ont un livre comptable.
-- Les entités enfant n'ont pas de livre comptable
+- Les entitées parent, (pôles, 1901)
+- Les entités enfant (commissions, projets) qui dépendent d'un parent
 
-Les entités parent délèguent la gestion d'une partie des comptes aux enfants (actif correspondant, recettes, dépenses...)
-
-Discussion 21/04 :
+Avec le fonctionnement suivant :
 - chaque entité a son propre livre
 - une entité parente a accès au livre de ses enfants (lecture ou lecture/écriture ?)
-- la fusion des comptes des entités filles peut se faire uniquement au moment de l'édition du bilan et n'est pas forcément nécessaire dans la gestion quotidienne
+- le regroupement des comptes des entités filles peut se faire uniquement au moment de l'édition du bilan et n'est pas forcément nécessaire dans la gestion quotidienne
 - hiérarchie dans le bilan de type (Actifs (Pôle (...)) (Asso 1 (...)) (Asso 2 (...))) etc
 - possibilité de regrouper les sous-comptes en catégories au moment de l'édition du bilan (feature pour après ?)
 
