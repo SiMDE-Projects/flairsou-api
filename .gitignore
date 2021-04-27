@@ -8,3 +8,4 @@ htmlcov
 venv/
 .vscode/
 flairsou_frontend/static/flairsou_frontend/main.js
+.env

@@ -42,6 +42,13 @@ Il reste alors à installer les paquets requis :
 (venv) $ pip install -r requirements.txt
 ```
 
+Si c'est la première installation de Django, il faut créer une clé secrète dans le fichier `.env` **qu'il ne faut pas commit**.
+On peut créer la clé secrète avec la commande suivante :
+
+```
+echo "SECRET_KEY=$(python manage.py shell -c 'from django.core.management import utils; print(utils.get_random_secret_key())')" > .env
+``` 
+
 Pour vérifier si l'installation est correcte, il faut appliquer les migrations pour créer la base de données et lancer le serveur.
 Pour le moment, la base de données est configurée en local dans le fichier `db.sqlite3` (répertorié dans le `.gitignore` donc en dehors de git).
 Ceci permet à chaque développeur d'avoir sa base locale et de pouvoir facilement reprendre les choses.

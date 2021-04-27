@@ -3,3 +3,4 @@ djangorestframework==3.12.4
 pyflakes
 yapf
 coverage
+python-dotenv
