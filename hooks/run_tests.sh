@@ -5,12 +5,13 @@ test_python_file()
 {
 	# le nom du fichier doit être passé en paramètre
 	filename=$1
+	filepath="$(git rev-parse --show-toplevel)/$filename"
 
 	# par défaut, les tests sont valides (retour 0)
 	local testsOK=0
 
 	# vérification des erreurs de syntaxe / sémantique avec pyflakes
-	pyflakes $filename
+	pyflakes $filepath
 
 	if [ $? -ne 0 ];
 	then
@@ -19,7 +20,7 @@ test_python_file()
 	fi
 
 	# vérification de la mise en forme avec yapf
-	yapf -d $filename > /dev/null
+	yapf -d $filepath > /dev/null
 
 	if [ $? -ne 0 ];
 	then
