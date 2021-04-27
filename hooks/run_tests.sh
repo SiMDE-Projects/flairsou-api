@@ -33,10 +33,16 @@ test_python_file()
 # fonction de test pour les fichier js/jsx
 test_js_file()
 {
-	filename="../$1"
+	# Il faut être dans le dossier flairsou_frontend
+	cd "$(git rev-parse --show-toplevel)/flairsou_frontend"
+
+	filename=$1
+	# Le filepath est relatif à la racine du repo
+	filepath="../$1"
+	
 	local testOK=0
 
-	npx eslint $filename
+	npx eslint $filepath
 
 	if [ $? -ne 0 ];
 	then
