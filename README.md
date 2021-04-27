@@ -54,6 +54,29 @@ Ceci permet à chaque développeur d'avoir sa base locale et de pouvoir facileme
 Si tout fonctionne, le serveur est lancé sur `localhost:8000`, il faut donc aller sur ce lien en navigateur pour voir le résultat.
 A ce stade, on devrait avoir la page par défaut de Django qui nous dit que l'installation a fonctionné.
 
+### Git Hooks
+
+Les Hooks sont mis en place pour tester les modifications avant de valider les commits.
+L'idée est d'exécuter des petits tests avant de valider les commits avant de les push, comme la vérification de syntaxe ou de format.
+Les hooks sont synchronisés avec le dépôt dans le dossier `hooks` mais ils doivent être installés dans le répertoire `.git`.
+Pour cela, un script d'installation est fourni, qu'il faut exécuter depuis l'intérieur du dépôt (`git status` doit fonctionner) :
+
+```
+$ hooks/install.sh
+```
+
+Après ça, chaque commit sera testé automatiquement.
+Si les tests ne sont pas validés, le commit sera refusé.
+Les erreurs sont affichées dans la console.
+
+En cas d'absolue nécessité, il est possible de réaliser un commit sans passer par les tests avec l'option `--no-verify` :
+
+```
+git commit --no-verify -m "<message>"
+```
+
+Dans ce cas, les tests ne seront pas effectués.
+
 ## Règles de style
 
 ### Mise en forme des fichiers Python
