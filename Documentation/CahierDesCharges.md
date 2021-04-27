@@ -29,7 +29,7 @@ Dans le code, on utilisera les sémantiques de débit et de crédit (qui simplif
 
 On dispose de comptes "réels" (qui ont un solde et qui permettent des transactions) et des comptes "virtuels" (qui sont les seuls à pouvoir avoir des enfants mais ne peuvent pas faire de transactions).
 
-On une hiérarchie des comptes : 
+On une hiérarchie des comptes :
 - Un compte a le même type que son père (sauf le compte racine)
 - Le solde d'un compte est égal à la somme des soldes des sous-comptes pour les comptes virtuels.
 
@@ -45,14 +45,12 @@ Créditer => Réduire
 #### Comptes de Capitaux Propres
 
 Utilisés pour faire la cloture et les soldes initiaux.
-Ne peuvent pas être modifiés directement par l'utilisateur.
+Par défaut, les comptes de capitaux propres ne peuvent pas être modifiés par les entités (i.e. les entités ne peuvent pas créer de transactions faisant intervenir un compte de capitaux propres).
+Une option (flag) présent au niveau de l'entité pourra éventuellement activer cette fonction.
 
 Débiter => Réduire
 Créditer => Augmenter
 
-A discuter :
-- laisser la possibilité aux assos d'utiliser les comptes de CP pour mettre en place des réserves ?
-- restreindre la possibilité d'utiliser les CP -> désactivé par défaut mais activable si nécessaire ?
 
 #### Comptes de passif
 
@@ -79,15 +77,21 @@ Créditer => Revenus
 
 **NE PAS UTILISER LES FLOAT**
 
-Transactions réparties : une transaction est un ensemble de deux ou plus opérations. Une opération est un 4-uplet (compte, débit, crédit, pointé).
-Une transaction contient également une date et un label.
+Une transaction est composée de :
+- une date
+- un ensemble d'au moins deux opérations
+- un attribut booléen "pointé"
 
-A discuter :
-- label au niveau transaction ou au niveau opération ?
-- pointé au niveau transaction ou au niveau opération ?
-- remplacer le bool pointé par 3 états (non pointé, pointé, rapproché) ?
+Une opération représente l'implication d'un compte dans une transaction.
+Elle est composée de :
+- une référence à un compte
+- un montant de débit
+- un montant de crédit
+- un label
 
-Règles : 
+L'attribut "pointé" de la transaction est initialement `faux`, et est passé à `vrai` quand l'entité fait la correspondance avec ce qui est indiqué sur son relevé de compte.
+
+Règles :
 - Sommes des débits = Somme des crédits
 - Toutes les valeurs de débits et crédits sont >= 0
 - Une "opération" au sein d'une transaction a soit Débit soit Crédit nul.
@@ -97,14 +101,10 @@ Un fichier au format pdf peut être associé à une transaction (factures, justi
 
 ### Rapprochement
 
-Le rapprochement s'appuie sur le relevé de comptes et les opérations pointées. Les opérations pointées ayant une date antérieure au rapprochement du compte ne peuvent plus être modifiées.
+Le rapprochement s'appuie sur le relevé de comptes et les transactions pointées. Les transactions pointées ayant une date antérieure au rapprochement du compte ne peuvent plus être modifiées.
 On a besoin de : Date / solde intial / solde Final
 
-Il faut donc prévoir de stocker la date du dernier rapprochement sur chaque compte.
-
-Question :
-- est-ce qu'on permet de réinitialiser le rapprochement ?
-- est-ce qu'on gère une unique date de rapprochement ou on enregistre tous les rapprochements effectués ?
+Pour chaque compte, on stocke l'ensemble des rapprochements effectués.
 
 ### Clôture de livre
 
@@ -138,7 +138,7 @@ Mettre en place un système de création et de suivi d'un budget de trésorerie.
 
 ## Fonctionnement général
 
-On a deux types d'"entités" : 
+On a deux types d'"entités" :
 - Les entitées parent, (pôles, 1901) ont un livre comptable.
 - Les entités enfant n'ont pas de livre comptable
 
