@@ -42,12 +42,17 @@ Il reste alors à installer les paquets requis :
 (venv) $ pip install -r requirements.txt
 ```
 
-Si c'est la première installation de Django, il faut créer une clé secrète dans le fichier `.env` **qu'il ne faut pas commit**.
-On peut créer la clé secrète avec la commande suivante :
+Si c'est la première installation du dépôt, il faut créer un fichier de configuration `flairsou/config.py` qui contiendra les éléments sensibles ou spécifique à la plateforme cible (clé secrète, configuration des bases de données etc...).
+Le fichier `flairsou/config_template.py` est pré-rempli pour une configuration de développement.
+Il faut donc le copier (`cp flairsou/config_template.py flairsou/config.py`) et apporter les modifications nécessaires.
+La modification de la clé secrète est impérative.
+On peut créer la clé secrète avec la commande suivante, exécutée depuis la racine du projet :
 
 ```
-echo "SECRET_KEY=$(python manage.py shell -c 'from django.core.management import utils; print(utils.get_random_secret_key())')" > .env
-``` 
+$ python manage.py shell -c 'from django.core.management import utils; print(utils.get_random_secret_key())'
+```
+Le résultat doit être collé au niveau de la ligne `SECRET_KEY = "<coller ici>"` du fichier de configuration.
+Attention à bien conserver les double-quotes !
 
 Pour vérifier si l'installation est correcte, il faut appliquer les migrations pour créer la base de données et lancer le serveur.
 Pour le moment, la base de données est configurée en local dans le fichier `db.sqlite3` (répertorié dans le `.gitignore` donc en dehors de git).
