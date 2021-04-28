@@ -102,9 +102,14 @@ Un fichier au format pdf peut être associé à une transaction (factures, justi
 ### Rapprochement
 
 Le rapprochement s'appuie sur le relevé de comptes et les transactions pointées. Les transactions pointées ayant une date antérieure au rapprochement du compte ne peuvent plus être modifiées.
-On a besoin de : Date / solde intial / solde Final
 
-Pour chaque compte, on stocke l'ensemble des rapprochements effectués.
+Pour chaque compte, on stocke l'ensemble des rapprochements effectués, comprenant la date d'effet du rapprochement (i.e. la date du relevé de compte) et le solde final.
+
+Lors de la création du rapprochement, on affichera également le solde initial pour comparer avec le relevé.
+Le solde initial correspond au solde final du dernier rapprochement effectué.
+Si aucun rapprochement n'a encore été effectué pour ce compte, le solde initial est de 0.
+
+Aucune transaction ne peut être enregistrée à une date antérieure au dernier rapprochement effectué.
 
 ### Clôture de livre
 

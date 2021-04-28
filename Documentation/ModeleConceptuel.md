@@ -56,6 +56,7 @@ class Transaction{
 
 class Rapprochement {
     date: date
+    solde: uint
 }
 
 class Opération {
@@ -155,5 +156,6 @@ On ne peut pas rapprocher plusieurs fois le même compte à la même date.
 Rapprochement (
     #compte => Compte
     #date : Date
+    solde : uint
 )
 ```
