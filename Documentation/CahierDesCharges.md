@@ -30,7 +30,7 @@ Dans le code, on utilisera les sémantiques de débit et de crédit (qui simplif
 On dispose de comptes "réels" (qui ont un solde et qui permettent des transactions) et des comptes "virtuels" (qui sont les seuls à pouvoir avoir des enfants mais ne peuvent pas faire de transactions).
 
 On une hiérarchie des comptes :
-- Un compte a le même type que son père (sauf le compte racine)
+- Un compte a le même type que son père s'il en a un
 - Le solde d'un compte est égal à la somme des soldes des sous-comptes pour les comptes virtuels.
 
 En ce qui concerne la hérarchie des entités, chaque compte d'un enfant sera lié au compte d'un parent pour le regroupement lors des bilans.
