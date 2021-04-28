@@ -4,7 +4,7 @@
 
 # Environment
 venv/
-.env
+flairsou/config.py
 
 # IDE Specific
 .vscode/

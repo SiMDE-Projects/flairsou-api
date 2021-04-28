@@ -67,6 +67,13 @@ testsOK=0
 # avant de renvoyer la valeur
 for file in $files
 do
+	# on ne commit pas la configuration privée !
+	if [ "$file" == "flairsou/config.py" ];
+	then
+		echo "-> ERREUR : Le fichier $file ne doit pas être commit !!!!"
+		testsOK=1
+	fi
+
 	# récupération de l'extension du fichier
 	extension=$(echo $file | cut -f 2 -d '.')
 
@@ -75,10 +82,7 @@ do
 			# tests pour les fichiers python
 			test_python_file $file
 			;;
-		js)
-			test_js_file $file
-			;;
-		jsx)
+		js | jsx)
 			test_js_file $file
 			;;
 		*)
