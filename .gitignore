@@ -1,1 +1,24 @@
+# Auto-generated deps and cache
+**/node_modules
+**/__pycache__
+
+# Environment
+venv/
+flairsou/config.py
+
+# IDE Specific
+.vscode/
 *.swp
+
+# Database
+db.sqlite3
+
+# Reports
+.coverage
+htmlcov
+
+# Compiled outputs
+flairsou_frontend/static/flairsou_frontend/main.js
+
+# TEMP TODO REMOVE AFTER DEV
+**/migrations/*
