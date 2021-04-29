@@ -15,7 +15,7 @@ Pour le BDE-UTC les objectifs sont les suivants :
 ## Définition des concepts
 
 L'outil se basera sur les concepts de **comptabilité en partie double**.
-Certains éléments pourront cependant être simplifiés pour l'accécibilité de celui-ci.
+Certains éléments pourront cependant être simplifiés pour l'accessibilité de celui-ci.
 
 ### Crédit / débit (et simplification ?)
 
@@ -29,8 +29,8 @@ Dans le code, on utilisera les sémantiques de débit et de crédit (qui simplif
 
 On dispose de comptes "réels" (qui ont un solde et qui permettent des transactions) et des comptes "virtuels" (qui sont les seuls à pouvoir avoir des enfants mais ne peuvent pas faire de transactions).
 
-On une hiérarchie des comptes : 
-- Un compte a le même type que son père
+On une hiérarchie des comptes :
+- Un compte a le même type que son père s'il en a un
 - Le solde d'un compte est égal à la somme des soldes des sous-comptes pour les comptes virtuels.
 
 En ce qui concerne la hérarchie des entités, chaque compte d'un enfant sera lié au compte d'un parent pour le regroupement lors des bilans.
@@ -45,10 +45,12 @@ Créditer => Réduire
 #### Comptes de Capitaux Propres
 
 Utilisés pour faire la cloture et les soldes initiaux.
-Ne peuvent pas être modifiés directement par l'utilisateur.
+Par défaut, les comptes de capitaux propres ne peuvent pas être modifiés par les entités (i.e. les entités ne peuvent pas créer de transactions faisant intervenir un compte de capitaux propres).
+Une option (flag) présent au niveau de l'entité pourra éventuellement activer cette fonction.
 
 Débiter => Réduire
 Créditer => Augmenter
+
 
 #### Comptes de passif
 
@@ -75,9 +77,21 @@ Créditer => Revenus
 
 **NE PAS UTILISER LES FLOAT**
 
-Transactions réparties : une transaction est un ensemble de deux ou plus opérations. Une opération est un 4-uplet (compte, débit, crédit, pointé).
+Une transaction est composée de :
+- une date
+- un ensemble d'au moins deux opérations
+- un attribut booléen "pointé"
 
-Règles : 
+Une opération représente l'implication d'un compte dans une transaction.
+Elle est composée de :
+- une référence à un compte
+- un montant de débit
+- un montant de crédit
+- un label
+
+L'attribut "pointé" de la transaction est initialement `faux`, et est passé à `vrai` quand l'entité fait la correspondance avec ce qui est indiqué sur son relevé de compte.
+
+Règles :
 - Sommes des débits = Somme des crédits
 - Toutes les valeurs de débits et crédits sont >= 0
 - Une "opération" au sein d'une transaction a soit Débit soit Crédit nul.
@@ -87,8 +101,15 @@ Un fichier au format pdf peut être associé à une transaction (factures, justi
 
 ### Rapprochement
 
-Le rapprochement s'appuie sur le relevé de comptes et les opérations pointées. Les opérations pointées ayant une date antérieure au rapprochement du compte ne peuvent plus être modifiées.
-On a besoin de : Date / solde intial / solde Final
+Le rapprochement s'appuie sur le relevé de comptes et les transactions pointées. Les transactions pointées ayant une date antérieure au rapprochement du compte ne peuvent plus être modifiées.
+
+Pour chaque compte, on stocke l'ensemble des rapprochements effectués, comprenant la date d'effet du rapprochement (i.e. la date du relevé de compte) et le solde final.
+
+Lors de la création du rapprochement, on affichera également le solde initial pour comparer avec le relevé.
+Le solde initial correspond au solde final du dernier rapprochement effectué.
+Si aucun rapprochement n'a encore été effectué pour ce compte, le solde initial est de 0.
+
+Aucune transaction ne peut être enregistrée à une date antérieure au dernier rapprochement effectué.
 
 ### Clôture de livre
 
@@ -110,13 +131,28 @@ Résultat
 
 1 ou 2 jolis graphiques (camembert des dépenses, etc)
 
+### Budget
+
+Mettre en place un système de création et de suivi d'un budget de trésorerie.
+
+* Budget défini sur une période de temps
+* Découpé en plusieurs tranches (au mois, à la semaine...)
+* Définir les dépenses et recettes prévisionnelles à partir de la structure de comptes définie pour l'entité
+* Présentation du solde prévisionnel sur chaque mois à partir d'un solde initial et des cumuls de dépenses et recettes, pour vérifier que le fonds de roulement est suffisant
+* Suivi de budget avec comparaison avec les opérations réelles
+
 ## Fonctionnement général
 
-On a deux types d'"entités" : 
-- Les entitées parent, (pôles, 1901) ont un livre comptable.
-- Les entités enfant n'ont pas de livre comptable
+On a deux types d'"entités" :
+- Les entitées parent, (pôles, 1901)
+- Les entités enfant (commissions, projets) qui dépendent d'un parent
 
-Les entités parent délèguent la gestion d'une partie des comptes aux enfants (actif correspondant, recettes, dépenses...)
+Avec le fonctionnement suivant :
+- chaque entité a son propre livre
+- une entité parente a accès au livre de ses enfants (lecture ou lecture/écriture ?)
+- le regroupement des comptes des entités filles peut se faire uniquement au moment de l'édition du bilan et n'est pas forcément nécessaire dans la gestion quotidienne
+- hiérarchie dans le bilan de type (Actifs (Pôle (...)) (Asso 1 (...)) (Asso 2 (...))) etc
+- possibilité de regrouper les sous-comptes en catégories au moment de l'édition du bilan (feature pour après ?)
 
 
 Pour la gestion spéciale BDE-UTC: mappage entre le compte CAS et l'entité (association) via les rôles sur le portail.
