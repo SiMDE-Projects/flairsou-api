@@ -40,7 +40,7 @@ test_js_file()
 	filename=$1
 	# Le filepath est relatif à la racine du repo
 	filepath="../$1"
-	
+
 	local testOK=0
 
 	npx eslint $filepath
