@@ -1,6 +1,6 @@
 from django.test import TestCase
 from django.db.utils import IntegrityError
-from flairsou_api.models import Entity
+from flairsou_api.models import Entity, Book
 
 
 class EntityTestCase(TestCase):
@@ -19,3 +19,16 @@ class EntityTestCase(TestCase):
         self.assertRaises(IntegrityError,
                           Entity.objects.create,
                           name="BDE-UTC")
+
+
+class BookTestCase(TestCase):
+    def setUp(self):
+        self.BDE = Entity.objects.create(name="BDE-UTC")
+        Book.objects.create(name="Comptes", entity=self.BDE)
+
+    def test_unique_constraint(self):
+        # Vérification de la contrainte d'unicité
+        self.assertRaises(IntegrityError,
+                          Book.objects.create,
+                          name="Comptes",
+                          entity=self.BDE)

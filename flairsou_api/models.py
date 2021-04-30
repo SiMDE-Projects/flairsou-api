@@ -24,3 +24,34 @@ class Entity(models.Model):
                                on_delete=models.PROTECT,
                                blank=True,
                                null=True)
+
+
+class Book(models.Model):
+    """
+    Modèle de livre de comptes.
+
+    Attributes
+    ----------
+
+    name : CharField
+        Champ de texte qui enregistre le nom du livre.
+
+    entity : ForeignKey
+        Clé étrangère vers l'entité qui possède le livre.
+
+    Le couple (name, entity) est unique dans la table : une entité ne peut pas avoir
+    plusieurs livres du même nom.
+    """
+    name = models.CharField("Book name",
+                            max_length=64,
+                            blank=False,
+                            null=False)
+    entity = models.ForeignKey(Entity,
+                               on_delete=models.CASCADE,
+                               blank=False,
+                               null=False)
+
+    class Meta:
+        # définition de la clé privée comme une contrainte d'unicité sur deux champs
+        # (Django ne peut pas gérer des clés privées sur plusieurs colonnes)
+        unique_together = (("name", "entity"), )
