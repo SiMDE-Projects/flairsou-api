@@ -109,19 +109,23 @@ class Account(models.Model):
                              null=True)
 
     class Meta:
-        # la contrainte d'unicité (name, parent, book) est séparée en deux contraintes
-        # car SQL considère que NULL != NULL, on a donc deux contraintes :
-        # 1 - (name, parent) : pas deux comptes du même nom sous le même parent
-        # 2 - (name, book) : pas deux comptes du même nom dans le même livre
-        unique_together = (
-            ('name', 'parent'),
-            ('name', 'book'),
-        )
+        constraints = []
+
+        # (name, parent) : pas deux comptes du même nom sous le même parent
+        constraints.append(
+            models.UniqueConstraint(
+                fields=['name', 'parent'],
+                name="%(app_label)s_%(class)s_unique_name_in_parent"))
+
+        # (name, book) : pas deux comptes du même nom dans le même livre
+        constraints.append(
+            models.UniqueConstraint(
+                fields=['name', 'book'],
+                name="%(app_label)s_%(class)s_unique_name_in_book"))
 
         # contrainte pour vérifier qu'un seul des deux champs 'parent' ou 'book' est rempli
-        constraints = [
+        constraints.append(
             models.CheckConstraint(
                 name="%(app_label)s_%(class)s_book_or_parent",
                 check=(models.Q(parent__isnull=False, book__isnull=True)
-                       | models.Q(parent__isnull=True, book__isnull=False))),
-        ]
+                       | models.Q(parent__isnull=True, book__isnull=False))))
