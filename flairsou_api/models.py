@@ -52,9 +52,13 @@ class Book(models.Model):
                                null=False)
 
     class Meta:
+        constraints = []
         # définition de la clé privée comme une contrainte d'unicité sur deux champs
         # (Django ne peut pas gérer des clés privées sur plusieurs colonnes)
-        unique_together = (("name", "entity"), )
+        constraints.append(
+            models.UniqueConstraint(
+                fields=['name', 'entity'],
+                name="%(app_label)s_%(class)s_unique_name_in_enity"))
 
 
 class Account(models.Model):
