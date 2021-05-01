@@ -55,3 +55,47 @@ class Book(models.Model):
         # définition de la clé privée comme une contrainte d'unicité sur deux champs
         # (Django ne peut pas gérer des clés privées sur plusieurs colonnes)
         unique_together = (("name", "entity"), )
+
+
+class Account(models.Model):
+    """
+    Modèle de compte
+    """
+    class AccountType(models.IntegerChoices):
+        ASSET = 0  # Actifs
+        LIABILITY = 1  # Passifs
+        INCOME = 2  # Revenus
+        EXPENSE = 3  # Dépenses
+        EQUITY = 4  # Capitaux Propres
+
+    name = models.CharField("Account name",
+                            max_length=64,
+                            blank=False,
+                            null=False)
+    accountType = models.IntegerField(choices=AccountType.choices)
+    parent = models.ForeignKey('self',
+                               on_delete=models.CASCADE,
+                               blank=True,
+                               null=True)
+    book = models.ForeignKey(Book,
+                             on_delete=models.CASCADE,
+                             blank=True,
+                             null=True)
+
+    class Meta:
+        # la contrainte d'unicité (name, parent, book) est séparée en deux contraintes
+        # car SQL considère que NULL != NULL, on a donc deux contraintes :
+        # 1 - (name, parent) : pas deux comptes du même nom sous le même parent
+        # 2 - (name, book) : pas deux comptes du même nom dans le même livre
+        unique_together = (
+            ('name', 'parent'),
+            ('name', 'book'),
+        )
+
+        # contrainte pour vérifier qu'un seul des deux champs 'parent' ou 'book' est rempli
+        constraints = [
+            models.CheckConstraint(
+                name="%(app_label)s_%(class)s_book_or_parent",
+                check=(models.Q(parent__isnull=False, book__isnull=True)
+                       | models.Q(parent__isnull=True, book__isnull=False))),
+        ]
