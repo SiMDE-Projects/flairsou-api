@@ -1,7 +1,8 @@
 from django.test import TestCase
 from django.db.utils import IntegrityError
 from django.db import transaction
-from flairsou_api.models import Entity, Book, Account
+from flairsou_api.models import Entity, Book, Account, Transaction, Operation
+import datetime
 
 
 class EntityTestCase(TestCase):
@@ -64,8 +65,41 @@ class UniqueConstraintsTestCase(TestCase):
                                        parent=self.assetAccount,
                                        book=self.bdeBook)
 
+        # teste la double création d'un compte dans un livre
         with self.assertRaises(IntegrityError):
             with transaction.atomic():
                 Account.objects.create(name="Actifs",
                                        accountType=Account.AccountType.ASSET,
                                        book=self.bdeBook)
+
+    def test_constraints_operation(self):
+        transactionObj = Transaction.objects.create(
+            date=datetime.date(2021, 5, 1))
+
+        # on crée une opération avec deux montants non nuls, ça ne doit pas marcher
+        with self.assertRaises(IntegrityError):
+            with transaction.atomic():
+                Operation.objects.create(credit=10,
+                                         debit=10,
+                                         account=self.assetAccount,
+                                         transaction=transactionObj)
+
+        # on crée une opération avec deux montants nuls, ça ne doit pas marcher
+        with self.assertRaises(IntegrityError):
+            with transaction.atomic():
+                Operation.objects.create(credit=0,
+                                         debit=0,
+                                         account=self.assetAccount,
+                                         transaction=transactionObj)
+
+        # on crée deux opérations avec le même compte, ça ne doit pas marcher
+        with self.assertRaises(IntegrityError):
+            with transaction.atomic():
+                Operation.objects.create(credit=10,
+                                         debit=0,
+                                         account=self.assetAccount,
+                                         transaction=transactionObj)
+                Operation.objects.create(credit=0,
+                                         debit=10,
+                                         account=self.assetAccount,
+                                         transaction=transactionObj)

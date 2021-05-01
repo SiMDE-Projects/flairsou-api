@@ -141,3 +141,76 @@ class Account(models.Model):
                     models.Q(parent__isnull=False, accountType__isnull=True)
                     |  # pas de parent => on a un type
                     models.Q(parent__isnull=True, accountType__isnull=False))))
+
+
+class Transaction(models.Model):
+    """
+    Modèle de transaction.
+
+    Attributes
+    ----------
+
+    date : DateField
+        Date de la transaction.
+
+    checked : BooleanField
+        Champ qui indique si la transaction est pointée ou non.
+
+    invoice : FileField
+        Champ permettant de stocker un fichier associé à la transaction.
+    """
+    date = models.DateField("Date")
+    checked = models.BooleanField("Checked", default=False)
+    invoice = models.FileField(
+        "Invoice",
+        upload_to="uploads/",  # TODO régler le chemin d'envoi
+        blank=False,
+        null=True)
+
+
+class Operation(models.Model):
+    """
+    Modèle d'opération.
+
+    Attributes
+    ----------
+
+    credit : PositiveIntegerField
+        Champ d'entier positif représentant le crédit de l'opération
+
+    debit : PositiveIntegerField
+        Champ d'entier positif représentant le débit de l'opération
+
+    label : CharField
+        Champ de texte pour enregistrer le label de l'opération.
+
+    account : ForeignKey
+        Clé étrangère vers le compte affecté par l'opération
+
+    transaction : ForeignKey
+        Clé étrangère vers la transaction associée à l'opération
+    """
+    credit = models.PositiveIntegerField("Credit")
+    debit = models.PositiveIntegerField("Debit")
+    label = models.CharField("Operation label",
+                             max_length=128,
+                             blank=False,
+                             null=True)
+    account = models.ForeignKey(Account, on_delete=models.PROTECT)
+    transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE)
+
+    class Meta:
+        constraints = []
+
+        # un compte ne peut pas être dans deux opérations de la même transaction
+        constraints.append(
+            models.UniqueConstraint(
+                name="%(app_label)s_%(class)s_unique_account_transaction",
+                fields=['account', 'transaction']))
+
+        # on doit remplir crédit ou débit mais pas les deux
+        constraints.append(
+            models.CheckConstraint(
+                name="%(app_label)s_%(class)s_debit_xor_credit",
+                check=(models.Q(credit=0, debit__gt=0))
+                | models.Q(credit__gt=0, debit=0)))
