@@ -59,7 +59,29 @@ class Book(models.Model):
 
 class Account(models.Model):
     """
-    Modèle de compte
+    Modèle de compte.
+
+    Attributes
+    ----------
+
+    name : CharField
+        Champ de texte qui enregistre le nom du compte.
+
+    accountType : IntegerField
+        Valeur entière correspondant au type de compte, comme défini dans la
+        sous-classe AccountType.
+
+    parent : ForeignKey
+        Clé étrangère vers l'instance Account parente.
+
+    book : ForeignKey
+        Clé étrangère vers l'instance Book référente.
+
+    Contraintes :
+    * Un compte doit avoir un parent ou un livre, mais pas les deux.
+    * Deux comptes avec le même parent ne peuvent pas avoir le même nom
+    * Deux comptes avec le même livre ne peuvent pas avoir le même nom
+    * Si un compte a un parent, son type doit être le même que celui du parent
     """
     class AccountType(models.IntegerChoices):
         ASSET = 0  # Actifs
