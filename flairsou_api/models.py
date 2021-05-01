@@ -22,7 +22,7 @@ class Entity(models.Model):
     use_equity = models.BooleanField("Use Equity Accounts", default=False)
     parent = models.ForeignKey('self',
                                on_delete=models.PROTECT,
-                               blank=True,
+                               blank=False,
                                null=True)
 
 
@@ -98,14 +98,16 @@ class Account(models.Model):
                             max_length=64,
                             blank=False,
                             null=False)
-    accountType = models.IntegerField(choices=AccountType.choices)
+    accountType = models.IntegerField(choices=AccountType.choices,
+                                      blank=False,
+                                      null=True)
     parent = models.ForeignKey('self',
                                on_delete=models.CASCADE,
-                               blank=True,
+                               blank=False,
                                null=True)
     book = models.ForeignKey(Book,
                              on_delete=models.CASCADE,
-                             blank=True,
+                             blank=False,
                              null=True)
 
     class Meta:
@@ -129,3 +131,13 @@ class Account(models.Model):
                 name="%(app_label)s_%(class)s_book_or_parent",
                 check=(models.Q(parent__isnull=False, book__isnull=True)
                        | models.Q(parent__isnull=True, book__isnull=False))))
+
+        # un compte doit avoir un type seulement s'il n'a pas de parent
+        constraints.append(
+            models.CheckConstraint(
+                name="%(app_label)s_%(class)s_type_if_book_only",
+                check=(
+                    # on a un parent => pas de type
+                    models.Q(parent__isnull=False, accountType__isnull=True)
+                    |  # pas de parent => on a un type
+                    models.Q(parent__isnull=True, accountType__isnull=False))))

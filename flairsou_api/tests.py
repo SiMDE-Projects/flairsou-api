@@ -16,6 +16,25 @@ class EntityTestCase(TestCase):
         self.assertEqual(PAE.parent, BDE)
 
 
+class AccountTestCase(TestCase):
+    def setUp(self):
+        BDE = Entity.objects.create(name="BDE-UTC")
+        bookBDE = Book.objects.create(name="Comptes", entity=BDE)
+        self.assets = Account.objects.create(
+            name="Actifs", accountType=Account.AccountType.ASSET, book=bookBDE)
+
+    def test_type_constraint(self):
+        # on crée un sous-compte au compte actif
+        # ceci doit fonctionner
+        accountSG = Account.objects.create(name="SG", parent=self.assets)
+
+        # on vérifie qu'on ne peut pas créer de compte de dépenses sous le compte accountSG
+        with self.assertRaises(IntegrityError):
+            Account.objects.create(name="Pizzas",
+                                   parent=accountSG,
+                                   accountType=Account.AccountType.EXPENSE)
+
+
 # fonction de test pour les différentes contraintes de base de données
 class UniqueConstraintsTestCase(TestCase):
     def setUp(self):
@@ -28,9 +47,8 @@ class UniqueConstraintsTestCase(TestCase):
 
     def test_unique_constraints_entity(self):
         # teste la double création d'une entité BDE
-        self.assertRaises(IntegrityError,
-                          Entity.objects.create,
-                          name="BDE-UTC")
+        with self.assertRaises(IntegrityError):
+            Entity.objects.create(name="BDE-UTC")
 
     def test_unique_constraints_book(self):
         # teste la double création d'un livre pour le BDE avec le même nom
