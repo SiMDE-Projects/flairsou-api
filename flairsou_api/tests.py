@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.db.utils import IntegrityError
 from django.db import transaction
-from flairsou_api.models import Entity, Book, Account, Transaction, Operation
+from flairsou_api.models import Entity, Book, Account, Transaction, Operation, Reconciliation
 import datetime
 
 
@@ -103,3 +103,15 @@ class UniqueConstraintsTestCase(TestCase):
                                          debit=10,
                                          account=self.assetAccount,
                                          transaction=transactionObj)
+
+    def test_constraints_reconciliation(self):
+        # on tente de rapprocher deux fois le même compte à la même date
+        Reconciliation.objects.create(account=self.assetAccount,
+                                      date=datetime.date(2021, 4, 30),
+                                      solde=42)
+
+        with self.assertRaises(IntegrityError):
+            with transaction.atomic():
+                Reconciliation.objects.create(account=self.assetAccount,
+                                              date=datetime.date(2021, 4, 30),
+                                              solde=256)
