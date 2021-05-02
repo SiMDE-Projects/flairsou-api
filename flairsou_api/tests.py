@@ -7,8 +7,8 @@ import datetime
 
 class EntityTestCase(TestCase):
     def setUp(self):
-        BDE = Entity.objects.create(name="BDE-UTC")
-        Entity.objects.create(name="PAE-UTC", parent=BDE)
+        BDE = Entity.objects.create(name="BDE-UTC", uuid=1)
+        Entity.objects.create(name="PAE-UTC", parent=BDE, uuid=2)
 
     def test_parent(self):
         # Vérification de la bonne prise en compte du parent
@@ -19,7 +19,7 @@ class EntityTestCase(TestCase):
 
 class AccountTestCase(TestCase):
     def setUp(self):
-        BDE = Entity.objects.create(name="BDE-UTC")
+        BDE = Entity.objects.create(name="BDE-UTC", uuid=1)
         bookBDE = Book.objects.create(name="Comptes", entity=BDE)
         self.assets = Account.objects.create(
             name="Actifs", accountType=Account.AccountType.ASSET, book=bookBDE)
@@ -39,7 +39,7 @@ class AccountTestCase(TestCase):
 # fonction de test pour les différentes contraintes de base de données
 class UniqueConstraintsTestCase(TestCase):
     def setUp(self):
-        self.BDE = Entity.objects.create(name="BDE-UTC")
+        self.BDE = Entity.objects.create(name="BDE-UTC", uuid=1)
         self.bdeBook = Book.objects.create(name="Comptes", entity=self.BDE)
         self.assetAccount = Account.objects.create(
             name="Actifs",
