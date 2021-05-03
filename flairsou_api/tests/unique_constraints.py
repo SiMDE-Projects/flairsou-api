@@ -5,37 +5,6 @@ from flairsou_api.models import Entity, Book, Account, Transaction, Operation, R
 import datetime
 
 
-class EntityTestCase(TestCase):
-    def setUp(self):
-        BDE = Entity.objects.create(name="BDE-UTC", uuid=1)
-        Entity.objects.create(name="PAE-UTC", parent=BDE, uuid=2)
-
-    def test_parent(self):
-        # Vérification de la bonne prise en compte du parent
-        BDE = Entity.objects.get(name="BDE-UTC")
-        PAE = Entity.objects.get(name="PAE-UTC")
-        self.assertEqual(PAE.parent, BDE)
-
-
-class AccountTestCase(TestCase):
-    def setUp(self):
-        BDE = Entity.objects.create(name="BDE-UTC", uuid=1)
-        bookBDE = Book.objects.create(name="Comptes", entity=BDE)
-        self.assets = Account.objects.create(
-            name="Actifs", accountType=Account.AccountType.ASSET, book=bookBDE)
-
-    def test_type_constraint(self):
-        # on crée un sous-compte au compte actif
-        # ceci doit fonctionner
-        accountSG = Account.objects.create(name="SG", parent=self.assets)
-
-        # on vérifie qu'on ne peut pas créer de compte de dépenses sous le compte accountSG
-        with self.assertRaises(IntegrityError):
-            Account.objects.create(name="Pizzas",
-                                   parent=accountSG,
-                                   accountType=Account.AccountType.EXPENSE)
-
-
 # fonction de test pour les différentes contraintes de base de données
 class UniqueConstraintsTestCase(TestCase):
     def setUp(self):
