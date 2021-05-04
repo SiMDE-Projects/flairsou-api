@@ -18,7 +18,7 @@ db.sqlite3
 htmlcov
 
 # Compiled outputs
-flairsou_frontend/static/flairsou_frontend/main.js
+flairsou_frontend/static/flairsou_frontend/
 
 # TEMP TODO REMOVE AFTER DEV
 **/migrations/*
