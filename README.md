@@ -8,10 +8,11 @@ Le projet s'organise à haut niveau comme suit :
 
 ```
 .
-├── Documentation    => toute la documentation
-├── flairsou         => projet Django de base
-├── flairsou_api     => application Django pour l'API
-└── requirements.txt => paquets python requis (voir la section d'installation)
+├── Documentation     => toute la documentation
+├── flairsou          => projet Django de base
+├── flairsou_api      => application Django pour l'API
+├── flairsou_frontend => application Django pour le front avec React
+└── requirements.txt  => paquets python requis (voir la section d'installation)
 ```
 
 ## Installation
@@ -59,6 +60,7 @@ Pour le moment, la base de données est configurée en local dans le fichier `db
 Ceci permet à chaque développeur d'avoir sa base locale et de pouvoir facilement reprendre les choses.
 
 ```
+(venv) $ python manage.py makemigrations flairsou_api
 (venv) $ python manage.py migrate
 (venv) $ python manage.py runserver
 ```
