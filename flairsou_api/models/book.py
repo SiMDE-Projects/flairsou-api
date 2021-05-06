@@ -1,9 +1,10 @@
 from django.db import models
 
 from .entity import Entity
+from .timestamped import TimeStampedModel
 
 
-class Book(models.Model):
+class Book(TimeStampedModel):
     """
     Modèle de livre de comptes.
 

@@ -1,9 +1,10 @@
 from django.db import models
 
 from .account import Account
+from .timestamped import TimeStampedModel
 
 
-class Reconciliation(models.Model):
+class Reconciliation(TimeStampedModel):
     """
     Modèle de rapprochement.
 

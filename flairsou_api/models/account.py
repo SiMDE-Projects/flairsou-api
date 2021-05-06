@@ -1,9 +1,10 @@
 from django.db import models
 
 from .book import Book
+from .timestamped import TimeStampedModel
 
 
-class Account(models.Model):
+class Account(TimeStampedModel):
     """
     Modèle de compte.
 

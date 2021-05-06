@@ -1,7 +1,9 @@
 from django.db import models
 
+from .timestamped import TimeStampedModel
 
-class Entity(models.Model):
+
+class Entity(TimeStampedModel):
     """
     Modèle d'entité.
 

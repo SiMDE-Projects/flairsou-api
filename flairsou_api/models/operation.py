@@ -1,10 +1,11 @@
 from django.db import models
 
 from .account import Account
+from .timestamped import TimeStampedModel
 from .transaction import Transaction
 
 
-class Operation(models.Model):
+class Operation(TimeStampedModel):
     """
     Modèle d'opération.
 

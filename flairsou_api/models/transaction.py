@@ -1,7 +1,9 @@
 from django.db import models
 
+from .timestamped import TimeStampedModel
 
-class Transaction(models.Model):
+
+class Transaction(TimeStampedModel):
     """
     Modèle de transaction.
 
