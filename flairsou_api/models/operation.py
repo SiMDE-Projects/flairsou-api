@@ -1,8 +1,6 @@
 from django.db import models
 
-from .account import Account
 from .timestamped import TimeStampedModel
-from .transaction import Transaction
 
 
 class Operation(TimeStampedModel):
@@ -33,8 +31,8 @@ class Operation(TimeStampedModel):
                              max_length=128,
                              blank=False,
                              null=True)
-    account = models.ForeignKey(Account, on_delete=models.PROTECT)
-    transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE)
+    account = models.ForeignKey('Account', on_delete=models.PROTECT)
+    transaction = models.ForeignKey('Transaction', on_delete=models.CASCADE)
 
     class Meta:
         constraints = []

@@ -1,6 +1,5 @@
 from django.db import models
 
-from .account import Account
 from .timestamped import TimeStampedModel
 
 
@@ -22,7 +21,7 @@ class Reconciliation(TimeStampedModel):
         Solde rapproché du compte à la date de fin de période, qui doit correspondre
         à celui indiqué sur le relevé de banque.
     """
-    account = models.ForeignKey(Account, on_delete=models.CASCADE)
+    account = models.ForeignKey('Account', on_delete=models.CASCADE)
     date = models.DateField("Date")
     solde = models.PositiveIntegerField("solde")
 

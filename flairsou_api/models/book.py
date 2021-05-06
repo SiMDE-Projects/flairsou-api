@@ -1,6 +1,5 @@
 from django.db import models
 
-from .entity import Entity
 from .timestamped import TimeStampedModel
 
 
@@ -24,7 +23,7 @@ class Book(TimeStampedModel):
                             max_length=64,
                             blank=False,
                             null=False)
-    entity = models.ForeignKey(Entity,
+    entity = models.ForeignKey('Entity',
                                on_delete=models.CASCADE,
                                blank=False,
                                null=False)

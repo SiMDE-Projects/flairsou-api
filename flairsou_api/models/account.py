@@ -1,6 +1,5 @@
 from django.db import models
 
-from .book import Book
 from .timestamped import TimeStampedModel
 
 
@@ -48,7 +47,7 @@ class Account(TimeStampedModel):
                                on_delete=models.CASCADE,
                                blank=False,
                                null=True)
-    book = models.ForeignKey(Book,
+    book = models.ForeignKey('Book',
                              on_delete=models.CASCADE,
                              blank=False,
                              null=True)
