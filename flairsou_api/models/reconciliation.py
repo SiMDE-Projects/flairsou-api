@@ -23,7 +23,7 @@ class Reconciliation(TimeStampedModel):
     """
     account = models.ForeignKey('Account', on_delete=models.CASCADE)
     date = models.DateField("Date")
-    solde = models.PositiveIntegerField("solde")
+    solde = models.IntegerField("solde")
 
     class Meta:
         constraints = []
