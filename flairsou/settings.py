@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'flairsou_api.apps.FlairsouApiConfig',  # API app
     'flairsou_frontend',
-    'softdelete'
+    'softdelete',
+    'django_extensions',
 ]
 
 MIDDLEWARE = [
