@@ -17,6 +17,11 @@ class Account(TimeStampedModel):
         Valeur entière correspondant au type de compte, comme défini dans la
         sous-classe AccountType.
 
+    virtual : BooleanField
+        Valeur booléenne indiquant si le compte est virtuel ou non. Un compte virtuel
+        ne peut pas enregistrer de transactions. Un compte non-virtuel ne peut pas
+        avoir de sous-comptes.
+
     parent : ForeignKey
         Clé étrangère vers l'instance Account parente.
 
@@ -43,6 +48,7 @@ class Account(TimeStampedModel):
     accountType = models.IntegerField(choices=AccountType.choices,
                                       blank=False,
                                       null=True)
+    virtual = models.BooleanField('virtual', default=False)
     parent = models.ForeignKey('self',
                                on_delete=models.CASCADE,
                                blank=False,
