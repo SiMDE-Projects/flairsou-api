@@ -24,7 +24,7 @@ class Entity(TimeStampedModel):
         Clé étrangère vers une autre instance de Entity, qui représente l'entité parente
         de l'entité courante
     """
-    uuid = models.PositiveIntegerField("uuid", primary_key=True)
+    uuid = models.UUIDField("uuid", primary_key=True, editable=False)
     name = models.CharField("Entity name", max_length=64)
     use_equity = models.BooleanField("Use Equity Accounts", default=False)
     parent = models.ForeignKey('self',
