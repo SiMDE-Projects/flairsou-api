@@ -89,3 +89,8 @@ class Account(TimeStampedModel):
                     models.Q(parent__isnull=False, accountType__isnull=True)
                     |  # pas de parent => on a un type
                     models.Q(parent__isnull=True, accountType__isnull=False))))
+
+        constraints.append(
+            models.CheckConstraint(
+                check=~models.Q(name=''),
+                name="%(app_label)s_%(class)s_name_not_null"))
