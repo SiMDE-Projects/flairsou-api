@@ -1,5 +1,6 @@
 from django.db import models
 
+from flairsou import config
 from .timestamped import TimeStampedModel
 
 
@@ -23,6 +24,6 @@ class Transaction(TimeStampedModel):
     checked = models.BooleanField("Checked", default=False)
     invoice = models.FileField(
         "Invoice",
-        upload_to="uploads/",  # TODO régler le chemin d'envoi
+        upload_to=config.UPLOAD_PATH,  # TODO régler le chemin d'envoi
         blank=False,
         null=True)
