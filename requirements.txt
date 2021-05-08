@@ -1,6 +1,9 @@
 django==3.2
 djangorestframework==3.12.4
+django-softdelete
+django-extensions
 pyflakes
 yapf
 coverage
 python-dotenv
+IPython
