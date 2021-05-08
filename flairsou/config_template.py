@@ -27,4 +27,4 @@ DATABASES = {
 
 ALLOWED_HOSTS = []
 
-UPLOAD_PATH = '/uploads'
+UPLOAD_PATH = 'uploads/'
