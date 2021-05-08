@@ -39,3 +39,9 @@ class Entity(TimeStampedModel):
         constraints.append(
             models.UniqueConstraint(
                 fields=['name'], name="%(app_label)s_%(class)s_unique_name"))
+
+        # le nom ne peut pas être vide
+        constraints.append(
+            models.CheckConstraint(
+                check=~models.Q(name=''),
+                name="%(app_label)s_%(class)s_name_not_null"))
