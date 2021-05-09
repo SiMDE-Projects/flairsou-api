@@ -53,6 +53,6 @@ jobs:
         run: npm run dev
         working-directory: flairsou_frontend
 
-      -name: Prod build
+      - name: Prod build
         run: npm run prod
         working-directory: flairsou_frontend
