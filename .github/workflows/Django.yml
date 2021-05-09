@@ -27,8 +27,8 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           
-      - name: Black Check
-        uses: jpetrucciani/black-check@20.8b1
+      #- name: Black Check
+      #  uses: jpetrucciani/black-check@20.8b1
         
   test:
     runs-on: ubuntu-latest
