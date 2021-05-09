@@ -25,6 +25,10 @@ class Reconciliation(TimeStampedModel):
     date = models.DateField("Date")
     solde = models.IntegerField("solde")
 
+    def __str__(self):
+        return "Reconciliation of account {} on {}".format(
+            self.account, self.date)
+
     class Meta:
         constraints = []
 
