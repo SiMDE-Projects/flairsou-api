@@ -27,6 +27,7 @@ jobs:
 
       # Runs a single command using the runners shell
       - name: Pipenv
+        uses: VaultVulp/action-pipenv@v2.0.1
         with:
           command: |
             install
