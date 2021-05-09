@@ -25,12 +25,6 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      # Runs a single command using the runners shell
-      - name: Pipenv install
-        uses: VaultVulp/action-pipenv@v2.0.1
-        with:
-          command: install
-
       # Runs a set of commands using the runners shell
       - name: Copy config_template file
         run: cp flairsou/config_template.py flairsou/config.py
@@ -53,6 +47,11 @@ jobs:
     needs: [setup]
     
     steps:
+      - name: Pipenv install
+        uses: VaultVulp/action-pipenv@v2.0.1
+        with:
+          command: install
+          
       - name: Run pipenv test script
         uses: VaultVulp/action-pipenv@v2.0.1
         with:
