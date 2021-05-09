@@ -18,7 +18,7 @@ jobs:
   # This workflow contains a single job called "setup"
   setup:
     # The type of runner that the job will run on
-    runs-on: debian-latest
+    runs-on: ubuntu-latest
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -38,7 +38,7 @@ jobs:
         run: cp flairsou/config_template.py flairsou/config.py
   
   lint:
-    runs-on: debian-latest
+    runs-on: ubuntu-latest
     needs: [setup]
     
     steps:
@@ -51,7 +51,7 @@ jobs:
         uses: jpetrucciani/black-check@20.8b1
         
   test:
-    runs-on: debian-latest
+    runs-on: ubuntu-latest
     needs: [setup]
     
     steps:
