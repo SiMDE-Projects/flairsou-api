@@ -1,0 +1,58 @@
+name: React CI
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'flairsou_frontend/**'
+      - '!flairsou_frontend/**.py'
+      - '!flairsou_frontend/templates/**'
+      - '!flairsou_frontend/static/**'
+      - '!flairsou_frontend/migrations/**'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'flairsou_frontend/**'
+      - '!flairsou_frontend/**.py'
+      - '!flairsou_frontend/templates/**'
+      - '!flairsou_frontend/static/**'
+      - '!flairsou_frontend/migrations/**'
+
+  workflow_dispatch:
+
+jobs:
+  npm-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: action/setup-node@v2
+        with:
+          node-version: '12'
+
+      - name: Install deps
+        run: npm install
+        working-directory: flairsou_frontend
+
+      - name: lint
+        run: npm run lint
+        working-directory: flairsou_frontend
+
+  npm-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: action/setup-node@v2
+        with:
+          node-version: '12'
+
+      - name: Install deps
+        run: npm install
+        working-directory: flairsou_frontend
+
+      - name: Dev build
+        run: npm run dev
+        working-directory: flairsou_frontend
+
+      -name: Prod build
+        run: npm run prod
+        working-directory: flairsou_frontend
