@@ -31,8 +31,7 @@ jobs:
         with:
           command: |
             install
-            shell
-        run: pipenv shell
+            pipenv shell
 
       # Runs a set of commands using the runners shell
       - name: Copy config_template file
