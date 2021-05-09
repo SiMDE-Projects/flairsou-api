@@ -58,6 +58,11 @@ class Account(TimeStampedModel):
                              blank=False,
                              null=True)
 
+    def __str__(self):
+        if self.parent_id is not None:
+            return "{}-{}".format(self.parent, self.name)
+        return "{}-{}".format(self.book, self.name)
+
     class Meta:
         constraints = []
 

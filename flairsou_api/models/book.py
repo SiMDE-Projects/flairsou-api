@@ -28,6 +28,9 @@ class Book(TimeStampedModel):
                                blank=False,
                                null=False)
 
+    def __str__(self):
+        return "{}-{}".format(self.entity, self.name)
+
     class Meta:
         constraints = []
         # définition de la clé privée comme une contrainte d'unicité sur deux champs

@@ -34,6 +34,10 @@ class Operation(TimeStampedModel):
     account = models.ForeignKey('Account', on_delete=models.PROTECT)
     transaction = models.ForeignKey('Transaction', on_delete=models.CASCADE)
 
+    def __str__(self):
+        return "Account: {}, label: {}, transaction: {}".format(
+            self.account, self.label, self.transaction)
+
     class Meta:
         constraints = []
 

@@ -27,3 +27,6 @@ class Transaction(TimeStampedModel):
         upload_to=config.UPLOAD_PATH,  # TODO régler le chemin d'envoi
         blank=False,
         null=True)
+
+    def __str__(self):
+        return "{} on {}".format(self.pk, self.date)
