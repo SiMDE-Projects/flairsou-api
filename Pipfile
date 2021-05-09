@@ -16,7 +16,7 @@ django-extensions = "*"
 Django = ">=3.2"
 
 [requires]
-python_version = "3.8"
+python_version = "3.9"
 
 [scripts]
 test = "./test.sh"
