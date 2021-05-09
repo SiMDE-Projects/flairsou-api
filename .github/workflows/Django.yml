@@ -27,11 +27,10 @@ jobs:
 
       # Runs a single command using the runners shell
       - name: Pipenv
-        uses: VaultVulp/action-pipenv@v2.0.1
         with:
           command: |
-            pipenv install
-            pipenv shell
+            install
+            shell
 
       # Runs a set of commands using the runners shell
       - name: Copy config_template file
