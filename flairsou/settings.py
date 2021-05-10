@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'flairsou_frontend',
     'softdelete',
     'django_extensions',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
