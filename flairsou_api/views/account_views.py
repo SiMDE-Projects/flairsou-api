@@ -8,7 +8,7 @@ import flairsou_api.serializers as fs
 class AccountList(mixins.ListModelMixin, mixins.CreateModelMixin,
                   generics.GenericAPIView):
     """
-    Vue qui fournit la liste des comptes créés et qui permet de créer un 
+    Vue qui fournit la liste des comptes créés et qui permet de créer un
     nouveau compte dans la base.
     """
     queryset = fm.Account.objects.all()
