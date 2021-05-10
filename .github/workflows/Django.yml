@@ -53,8 +53,8 @@ jobs:
       - name: Copy config_template file
         run: cp flairsou/config_template.py flairsou/config.py
 
-      - name: Install python3.8 & pipenv
-        run: sudo apt update && sudo apt install -y python3.8 pipenv
+      - name: Install pipenv
+        run: python3 -m pip install pipenv
 
       - name: Pipenv sync
         run : pipenv sync
