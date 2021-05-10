@@ -17,3 +17,6 @@ Django = ">=3.2"
 
 [requires]
 python_version = "3.8"
+
+[scripts]
+test = "./test.sh"
