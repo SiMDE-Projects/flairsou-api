@@ -30,10 +30,10 @@ Son paradigme de gestion des paquets s'approche de celui de `npm` :
 
 #### Installation de l'environement
 
-Pour installer les dépendances, il suffit de taper la commande suivante :
+Pour installer les dépendances (versionnées dans Pipfile.lock), il suffit de taper la commande suivante :
 
 ```
-$ pipenv install
+$ pipenv sync
 ```
 
 `pipenv` crée alors tout seul le `virtualenv` et installe les paquets en suivant les fichiers `Pipfile` et `Pipfile.lock`.
