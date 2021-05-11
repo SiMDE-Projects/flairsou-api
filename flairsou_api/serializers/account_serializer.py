@@ -30,8 +30,8 @@ class AccountSerializer(serializers.ModelSerializer):
         # un livre ou un parent mais pas les deux
         if parent is not None and book is not None:
             raise serializers.ValidationError(
-                """Un compte ne peut pas être rattaché à un parent et à un livre
-                 en même temps""")
+                'Un compte ne peut pas être rattaché à un parent et à un '
+                'livre en même temps')
 
         # si parent alors pas de type
         if parent is not None and accountType is not None:
@@ -40,20 +40,20 @@ class AccountSerializer(serializers.ModelSerializer):
 
         if create:
             # ces points doivent être vérifiés uniquement à la création
-            #  et pas à la mise à jour
+            # et pas à la mise à jour
 
             # vérification d'un autre compte de même nom sous le parent
             if parent is not None:
                 if parent.account_set.filter(name=name).count() > 0:
                     raise serializers.ValidationError(
-                        """Un compte avec ce nom existe déjà dans le compte
-                         parent""")
+                        'Un compte avec ce nom existe déjà dans le compte '
+                        'parent')
 
             # vérification d'un autre compte de même nom sous le livre
             if book is not None:
                 if book.account_set.filter(name=name).count() > 0:
                     raise serializers.ValidationError(
-                        """Un compte avec ce nom existe déjà dans le
-                        livre parent""")
+                        'Un compte avec ce nom existe déjà dans le livre '
+                        'parent')
 
         return data
