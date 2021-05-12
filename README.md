@@ -33,8 +33,10 @@ Son paradigme de gestion des paquets s'approche de celui de `npm` :
 Pour installer les dépendances (versionnées dans Pipfile.lock), il suffit de taper la commande suivante :
 
 ```
-$ pipenv sync
+$ pipenv sync [--dev]
 ```
+
+L'option `--dev` est à utiliser dans un environement de développement pour installer les dépendances de développement.
 
 `pipenv` crée alors tout seul le `virtualenv` et installe les paquets en suivant les fichiers `Pipfile` et `Pipfile.lock`.
 Contrairement à la gestion « habituelle », le `virtualenv` n'est pas créé dans le répertoire courant, mais dans `~/.local/share/virtualenvs`.
