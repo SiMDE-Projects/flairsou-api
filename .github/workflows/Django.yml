@@ -37,7 +37,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Lint using flake8
-        uses: huetremy/lintly-flake8-github-action@v1.0
+        uses: huetremy/lintly-flake8-github-action@master
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           
