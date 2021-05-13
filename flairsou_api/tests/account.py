@@ -104,3 +104,23 @@ class AccountAPITestCase(APITestCase):
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Account.objects.count(), 2)
+
+    def test_update_account(self):
+        # on crée un compte à modifier
+        url = reverse('flairsou_api:account-list')
+        data = {
+            "name": "Actifs",
+            "accountType": Account.AccountType.ASSET,
+            "virtual": True,
+            "parent": None,
+            "book": self.book.pk
+        }
+        self.client.post(url, data, format='json')
+
+        url = reverse('flairsou_api:account-detail', kwargs={'pk': 1})
+
+        # on teste la modification du nom du compte
+        data['name'] = "Actifs mobiliers"
+        response = self.client.put(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(Account.objects.get(id=1).name, data['name'])
