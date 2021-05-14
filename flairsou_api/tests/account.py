@@ -32,6 +32,12 @@ class AccountAPITestCase(APITestCase):
     def setUp(self):
         self.BDE = Entity.objects.create(name="BDE-UTC", uuid=1)
         self.book = Book.objects.create(name="Comptes", entity=self.BDE)
+        self.accountModif = Account.objects.create(
+            name="Dépenses",
+            accountType=Account.AccountType.EXPENSE,
+            virtual=True,
+            parent=None,
+            book=self.book)
 
     def test_create_account(self):
         # on crée un nouveau compte
@@ -45,8 +51,8 @@ class AccountAPITestCase(APITestCase):
         }
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(Account.objects.count(), 1)
-        self.assertEqual(Account.objects.get().name, 'Actifs')
+        self.assertEqual(Account.objects.count(), 2)
+        self.assertEqual(Account.objects.get(id=2).name, 'Actifs')
 
         # on veut créer un autre compte sous le compte actif
         # si on donne un parent et un book, l'API doit refuser
@@ -69,7 +75,7 @@ class AccountAPITestCase(APITestCase):
                                 code='invalid')
                 ]
             })
-        self.assertEqual(Account.objects.count(), 1)
+        self.assertEqual(Account.objects.count(), 2)
 
         # si on donne un parent et un type, l'API doit refuser
         data = {
@@ -90,7 +96,7 @@ class AccountAPITestCase(APITestCase):
                         code='invalid')
                 ]
             })
-        self.assertEqual(Account.objects.count(), 1)
+        self.assertEqual(Account.objects.count(), 2)
 
         # si on fait une bonne saisie, l'API doit accepter et créer
         # le compte
@@ -103,30 +109,50 @@ class AccountAPITestCase(APITestCase):
         }
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(Account.objects.count(), 2)
+        self.assertEqual(Account.objects.count(), 3)
 
-    def test_update_account(self):
-        # on crée un compte à modifier
-        url = reverse('flairsou_api:account-list')
+    def test_update_account_name(self):
+        url = reverse('flairsou_api:account-detail', kwargs={'pk': 1})
+
         data = {
-            "name": "Actifs",
-            "accountType": Account.AccountType.ASSET,
+            "name": "Dépenses chères",
+            "accountType": Account.AccountType.EXPENSE,
             "virtual": True,
             "parent": None,
             "book": self.book.pk
         }
-        self.client.post(url, data, format='json')
-
-        url = reverse('flairsou_api:account-detail', kwargs={'pk': 1})
 
         # on teste la modification du nom du compte
-        data['name'] = "Actifs mobiliers"
         response = self.client.put(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(Account.objects.get(id=1).name, data['name'])
 
-        # on teste la modification du book : l'API doit refuser
+    def test_update_account_book(self):
+        # on teste la modification du livre vers un autre livre :
+        # l'API doit refuser
+        url = reverse('flairsou_api:account-detail', kwargs={'pk': 1})
         book2 = Book.objects.create(name="Comptes 2", entity=self.BDE)
-        data['book'] = book2.pk
+
+        data = {
+            "name": "Dépenses",
+            "accountType": Account.AccountType.EXPENSE,
+            "virtual": True,
+            "parent": None,
+            "book": book2.pk
+        }
+        response = self.client.put(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_update_account_type(self):
+        # on teste la modification du type : l'API doit refuser
+        url = reverse('flairsou_api:account-detail', kwargs={'pk': 1})
+
+        data = {
+            "name": "Dépenses",
+            "accountType": Account.AccountType.INCOME,
+            "virtual": True,
+            "parent": None,
+            "book": self.book.pk
+        }
         response = self.client.put(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

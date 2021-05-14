@@ -77,3 +77,14 @@ class AccountSerializer(serializers.ModelSerializer):
         # validation globale au niveau objet qui va vérifier qu'il
         # y a bien exactement un des deux champs remplis
         return value
+
+    def validate_accountType(self, value):
+        """
+        Validation du type d'un compte.
+        La modification du type d'un compte n'est pas autorisée.
+        """
+        if self.is_update_request() and value != self.instance.accountType:
+            raise serializers.ValidationError(
+                'Le type du compte ne peut pas être modifié')
+
+        return value
