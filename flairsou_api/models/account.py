@@ -18,9 +18,9 @@ class Account(TimeStampedModel):
         sous-classe AccountType.
 
     virtual : BooleanField
-        Valeur booléenne indiquant si le compte est virtuel ou non. Un compte virtuel
-        ne peut pas enregistrer de transactions. Un compte non-virtuel ne peut pas
-        avoir de sous-comptes.
+        Valeur booléenne indiquant si le compte est virtuel ou non. Un compte
+        virtuel ne peut pas enregistrer de transactions. Un compte non-virtuel
+        ne peut pas avoir de sous-comptes.
 
     parent : ForeignKey
         Clé étrangère vers l'instance Account parente.
@@ -78,7 +78,8 @@ class Account(TimeStampedModel):
                 fields=['name', 'book'],
                 name="%(app_label)s_%(class)s_unique_name_in_book"))
 
-        # contrainte pour vérifier qu'un seul des deux champs 'parent' ou 'book' est rempli
+        # contrainte pour vérifier qu'un seul des deux champs 'parent' ou
+        # 'book' est rempli
         constraints.append(
             models.CheckConstraint(
                 name="%(app_label)s_%(class)s_book_or_parent",

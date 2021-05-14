@@ -45,7 +45,8 @@ class UniqueConstraintsTestCase(TestCase):
         transactionObj = Transaction.objects.create(
             date=datetime.date(2021, 5, 1))
 
-        # on crée une opération avec deux montants non nuls, ça ne doit pas marcher
+        # on crée une opération avec deux montants non nuls,
+        # ça ne doit pas marcher
         with self.assertRaises(IntegrityError):
             with transaction.atomic():
                 Operation.objects.create(credit=10,
