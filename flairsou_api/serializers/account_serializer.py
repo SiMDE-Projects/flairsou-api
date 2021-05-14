@@ -33,6 +33,11 @@ class AccountSerializer(serializers.ModelSerializer):
                 'Un compte ne peut pas être rattaché à un parent et à un '
                 'livre en même temps')
 
+        # le parent et le livre ne peuvent pas être null en même temps
+        if parent is None and book is None:
+            raise serializers.ValidationError(
+                'Un compte doit être rattaché à un parent ou un livre')
+
         # si parent alors pas de type
         if parent is not None and accountType is not None:
             raise serializers.ValidationError(
