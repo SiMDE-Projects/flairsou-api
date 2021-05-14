@@ -8,6 +8,12 @@ class AccountSerializer(serializers.ModelSerializer):
         model = Account
         fields = ['pk', 'name', 'accountType', 'virtual', 'parent', 'book']
 
+    def is_update_request(self):
+        return self.context['request'].method == 'PUT'
+
+    def is_create_request(self):
+        return self.context['request'].method == 'POST'
+
     def validate(self, data):
         """
         Validation de l'objet compte au moment de la sérialisation
@@ -18,14 +24,6 @@ class AccountSerializer(serializers.ModelSerializer):
         accountType = data['accountType']
         parent = data['parent']
         book = data['book']
-
-        # si la requête est POST, on fait les tests pour la création d'un
-        # nouveau compte, on va donc vérifier des contraintes d'existence
-        # en bdd qui ne doivent pas être vérifiées pour une mise à jour.
-        if self.context['request'].method == 'POST':
-            create: bool = True
-        else:
-            create: bool = False
 
         # un livre ou un parent mais pas les deux
         if parent is not None and book is not None:
@@ -43,7 +41,7 @@ class AccountSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'Un compte rattaché à un parent doit avoir un type null')
 
-        if create:
+        if self.is_create_request():
             # ces points doivent être vérifiés uniquement à la création
             # et pas à la mise à jour
 
@@ -69,7 +67,7 @@ class AccountSerializer(serializers.ModelSerializer):
         Ici, on valide qu'à la mise à jour, on n'autorise pas le
         changement du book vers une autre valeur non null.
         """
-        if self.context['request'].method == 'PUT':
+        if self.is_update_request():
             if value is not None and value != self.instance.book:
                 raise serializers.ValidationError(
                     'Le livre ne peut pas être modifié')
