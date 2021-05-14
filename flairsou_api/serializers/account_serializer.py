@@ -88,3 +88,30 @@ class AccountSerializer(serializers.ModelSerializer):
                 'Le type du compte ne peut pas être modifié')
 
         return value
+
+    def validate_virtual(self, value):
+        """
+        Validation du flag virtuel sur le compte.
+        On vérifie à la mise à jour que :
+        - si le compte devient virtuel, il ne doit pas avoir de
+        transactions
+        - si le compte devient non-virtuel, il ne doit pas avoir de
+        sous-comptes
+        """
+
+        if self.is_update_request() and value != self.instance.virtual:
+            if value is True and self.instance.operation_set.count() > 0:
+                # si le compte devient virtuel, il ne doit pas avoir
+                # d'opérations associées
+                raise serializers.ValidationError(
+                    'Un compte avec des transactions '
+                    'ne peut pas devenir virtuel')
+
+            if value is False and self.instance.account_set.count() > 0:
+                # si le compte devient réel, il ne doit pas avoir
+                # de sous-comptes
+                raise serializers.ValidationError(
+                    'Un compte avec des sous-comptes '
+                    'ne peut pas devenir non-virtuel')
+
+        return value

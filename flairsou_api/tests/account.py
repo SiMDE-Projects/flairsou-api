@@ -5,7 +5,9 @@ from rest_framework import status
 from rest_framework.exceptions import ErrorDetail
 from django.urls import reverse
 
-from flairsou_api.models import Account, Book, Entity
+import datetime
+
+from flairsou_api.models import Account, Book, Entity, Transaction, Operation
 
 
 class AccountTestCase(TestCase):
@@ -154,5 +156,61 @@ class AccountAPITestCase(APITestCase):
             "parent": None,
             "book": self.book.pk
         }
+        response = self.client.put(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_update_account_virtual(self):
+        # on teste la modification du statut virtuel d'un compte
+        url = reverse('flairsou_api:account-detail', kwargs={'pk': 1})
+
+        # de base, si rien n'est attaché au compte, ça doit fonctionner
+        data = {
+            "name": "Dépenses",
+            "accountType": Account.AccountType.EXPENSE,
+            "virtual": False,
+            "parent": None,
+            "book": self.book.pk
+        }
+        response = self.client.put(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # le compte est maintenant non virtuel, on lui ajoute une transaction
+        assets = Account.objects.create(name="Actifs",
+                                        accountType=Account.AccountType.ASSET,
+                                        book=self.book,
+                                        parent=None,
+                                        virtual=False)
+        tr = Transaction.objects.create(date=datetime.date.today(),
+                                        checked=False)
+        Operation.objects.create(credit=200,
+                                 debit=0,
+                                 transaction=tr,
+                                 account=self.accountModif,
+                                 label="test")
+        Operation.objects.create(credit=0,
+                                 debit=200,
+                                 transaction=tr,
+                                 account=assets,
+                                 label="test")
+
+        # si on veut repasser le compte en virtuel, ça ne doit pas marcher
+        data['virtual'] = True
+        response = self.client.put(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        # on supprime la transaction, maintenant la modification doit
+        # fonctionner
+        tr.delete()
+        response = self.client.put(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # on ajoute un sous-compte au compte Dépenses, on ne doit pas pouvoir
+        # repasser le compte de dépenses en non-virtuel
+        Account.objects.create(name="Subventions",
+                               accountType=None,
+                               parent=self.accountModif,
+                               book=None,
+                               virtual=False)
+        data['virtual'] = False
         response = self.client.put(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
