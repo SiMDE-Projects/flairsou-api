@@ -124,3 +124,9 @@ class AccountAPITestCase(APITestCase):
         response = self.client.put(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(Account.objects.get(id=1).name, data['name'])
+
+        # on teste la modification du book : l'API doit refuser
+        book2 = Book.objects.create(name="Comptes 2", entity=self.BDE)
+        data['book'] = book2.pk
+        response = self.client.put(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

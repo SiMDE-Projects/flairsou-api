@@ -62,3 +62,20 @@ class AccountSerializer(serializers.ModelSerializer):
                         'parent')
 
         return data
+
+    def validate_book(self, value):
+        """
+        Validation de l'attriut Book au moment de la sérialisation
+        Ici, on valide qu'à la mise à jour, on n'autorise pas le
+        changement du book vers une autre valeur non null.
+        """
+        if self.context['request'].method == 'PUT':
+            if value is not None and value != self.instance.book:
+                raise serializers.ValidationError(
+                    'Le livre ne peut pas être modifié')
+
+        # si le book passe à None, c'est peut-être qu'on rattache le
+        # compte à un compte plutôt qu'au livre, auquel cas c'est la
+        # validation globale au niveau objet qui va vérifier qu'il
+        # y a bien exactement un des deux champs remplis
+        return value
