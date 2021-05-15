@@ -231,3 +231,22 @@ class AccountAPITestCase(APITestCase):
         data['virtual'] = False
         response = self.client.put(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_add_subaccount(self):
+        # l'ajout d'un sous-compte à un compte non-virtuel doit être
+        # refusé par l'API
+        acc = Account.objects.create(name="Passifs",
+                                     virtual=False,
+                                     accountType=Account.AccountType.LIABILITY,
+                                     book=self.book,
+                                     parent=None)
+        data = {
+            "name": "Réserves",
+            "accountType": None,
+            "virtual": False,
+            "parent": acc.pk,
+            "book": None
+        }
+        url = reverse('flairsou_api:account-list')
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

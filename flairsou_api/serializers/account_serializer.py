@@ -149,3 +149,11 @@ class AccountSerializer(serializers.ModelSerializer):
                     'ne peut pas devenir non-virtuel')
 
         return value
+
+    def validate_parent(self, parent: Account):
+        if parent is not None:
+            if not parent.virtual:
+                raise serializers.ValidationError(
+                    'Le compte parent doit être virtuel')
+
+        return parent
