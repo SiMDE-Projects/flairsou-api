@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from flairsou_api.models import Account
+from flairsou_api.models import Account, Book
 
 
 class AccountSerializer(serializers.ModelSerializer):
@@ -14,17 +14,7 @@ class AccountSerializer(serializers.ModelSerializer):
     def is_create_request(self):
         return self.context['request'].method == 'POST'
 
-    def validate(self, data):
-        """
-        Validation de l'objet compte au moment de la sérialisation
-        Permet de renvoyer les erreurs au front avant de passer à la
-        base de données
-        """
-        name = data['name']
-        accountType = data['accountType']
-        parent = data['parent']
-        book = data['book']
-
+    def check_one_parent_xor_one_book(self, parent: Account, book: Book):
         # un livre ou un parent mais pas les deux
         if parent is not None and book is not None:
             raise serializers.ValidationError(
@@ -36,28 +26,58 @@ class AccountSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'Un compte doit être rattaché à un parent ou un livre')
 
+    def check_if_parent_no_type(self, parent: Account,
+                                accountType: Account.AccountType):
         # si parent alors pas de type
         if parent is not None and accountType is not None:
             raise serializers.ValidationError(
                 'Un compte rattaché à un parent doit avoir un type null')
 
+    def check_name_unique_in_parent(self, parent: Account, name: str):
+        """
+        Vérifie que le nom proposé pour le compte n'existe pas déjà sous le
+        compte parent. Ce test n'est effectué que sur une requête de création
+        de compte.
+        """
         if self.is_create_request():
-            # ces points doivent être vérifiés uniquement à la création
-            # et pas à la mise à jour
-
-            # vérification d'un autre compte de même nom sous le parent
             if parent is not None:
                 if parent.account_set.filter(name=name).count() > 0:
                     raise serializers.ValidationError(
                         'Un compte avec ce nom existe déjà dans le compte '
                         'parent')
 
-            # vérification d'un autre compte de même nom sous le livre
+    def check_name_unique_in_book(self, book: Book, name: str):
+        """
+        Vérifie que le nom proposé pour le compte n'existe pas déjà sous
+        le livre associé. Ce test n'est effectué que sur une requête de
+        création de compte.
+        """
+        if self.is_create_request():
             if book is not None:
                 if book.account_set.filter(name=name).count() > 0:
                     raise serializers.ValidationError(
                         'Un compte avec ce nom existe déjà dans le livre '
                         'parent')
+
+    def validate(self, data):
+        """
+        Validation de l'objet compte au moment de la sérialisation.
+        Permet de renvoyer les erreurs au front avant de passer à la
+        base de données. La méthode exécute les différentes vérifications
+        à effectuer.
+        """
+        name = data['name']
+        accountType = data['accountType']
+        parent = data['parent']
+        book = data['book']
+
+        self.check_one_parent_xor_one_book(parent, book)
+
+        self.check_if_parent_no_type(parent, accountType)
+
+        self.check_name_unique_in_parent(parent, name)
+
+        self.check_name_unique_in_book(book, name)
 
         return data
 
