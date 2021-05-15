@@ -59,6 +59,29 @@ class AccountSerializer(serializers.ModelSerializer):
                         'Un compte avec ce nom existe déjà dans le livre '
                         'parent')
 
+    def check_type_change_parent(self, accountType: Account.AccountType,
+                                 parent: Account):
+        """
+        Vérification du type lors de la mise à jour avec éventuellement un
+        changement du compte parent : on s'assure que le type global reste le
+        même lors de la mise à jour
+        """
+        if self.is_update_request():
+            # récupération du type avant la mise à jour
+            current_type = self.instance.get_type()
+
+            # détermination du nouveau type
+            if accountType is not None:
+                new_type = accountType
+            else:
+                # si le nouveau type est None, on a un parent associé, on
+                # récupère le type hérité
+                new_type = parent.get_type()
+
+            if current_type != new_type:
+                raise serializers.ValidationError(
+                    'Un compte ne peut pas changer de type')
+
     def validate(self, data):
         """
         Validation de l'objet compte au moment de la sérialisation.
@@ -79,6 +102,8 @@ class AccountSerializer(serializers.ModelSerializer):
 
         self.check_name_unique_in_book(book, name)
 
+        self.check_type_change_parent(accountType, parent)
+
         return data
 
     def validate_book(self, value):
@@ -96,17 +121,6 @@ class AccountSerializer(serializers.ModelSerializer):
         # compte à un compte plutôt qu'au livre, auquel cas c'est la
         # validation globale au niveau objet qui va vérifier qu'il
         # y a bien exactement un des deux champs remplis
-        return value
-
-    def validate_accountType(self, value):
-        """
-        Validation du type d'un compte.
-        La modification du type d'un compte n'est pas autorisée.
-        """
-        if self.is_update_request() and value != self.instance.accountType:
-            raise serializers.ValidationError(
-                'Le type du compte ne peut pas être modifié')
-
         return value
 
     def validate_virtual(self, value):

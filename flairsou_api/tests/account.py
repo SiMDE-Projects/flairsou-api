@@ -159,6 +159,23 @@ class AccountAPITestCase(APITestCase):
         response = self.client.put(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+        # si on crée un autre compte de dépense virtuel, le changement de type
+        # vers None doit fonctionner
+        dep2 = Account.objects.create(name="Dépenses 2",
+                                      accountType=Account.AccountType.EXPENSE,
+                                      virtual=True,
+                                      parent=None,
+                                      book=self.book)
+        data = {
+            "name": "Dépenses",
+            "accountType": None,
+            "virtual": True,
+            "parent": dep2.pk,
+            "book": None
+        }
+        response = self.client.put(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
     def test_update_account_virtual(self):
         # on teste la modification du statut virtuel d'un compte
         url = reverse('flairsou_api:account-detail', kwargs={'pk': 1})
