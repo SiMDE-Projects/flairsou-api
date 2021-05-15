@@ -6,7 +6,7 @@ from flairsou_api.models import Account, Book
 class AccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = Account
-        fields = ['pk', 'name', 'accountType', 'virtual', 'parent', 'book']
+        fields = ['pk', 'name', 'account_type', 'virtual', 'parent', 'book']
 
     def is_update_request(self):
         return self.context['request'].method == 'PUT'
@@ -27,9 +27,9 @@ class AccountSerializer(serializers.ModelSerializer):
                 'Un compte doit être rattaché à un parent ou un livre')
 
     def check_if_parent_no_type(self, parent: Account,
-                                accountType: Account.AccountType):
+                                account_type: Account.AccountType):
         # si parent alors pas de type
-        if parent is not None and accountType is not None:
+        if parent is not None and account_type is not None:
             raise serializers.ValidationError(
                 'Un compte rattaché à un parent doit avoir un type null')
 
@@ -59,7 +59,7 @@ class AccountSerializer(serializers.ModelSerializer):
                         'Un compte avec ce nom existe déjà dans le livre '
                         'parent')
 
-    def check_type_change_parent(self, accountType: Account.AccountType,
+    def check_type_change_parent(self, account_type: Account.AccountType,
                                  parent: Account):
         """
         Vérification du type lors de la mise à jour avec éventuellement un
@@ -71,8 +71,8 @@ class AccountSerializer(serializers.ModelSerializer):
             current_type = self.instance.get_type()
 
             # détermination du nouveau type
-            if accountType is not None:
-                new_type = accountType
+            if account_type is not None:
+                new_type = account_type
             else:
                 # si le nouveau type est None, on a un parent associé, on
                 # récupère le type hérité
@@ -90,19 +90,19 @@ class AccountSerializer(serializers.ModelSerializer):
         à effectuer.
         """
         name = data['name']
-        accountType = data['accountType']
+        account_type = data['account_type']
         parent = data['parent']
         book = data['book']
 
         self.check_one_parent_xor_one_book(parent, book)
 
-        self.check_if_parent_no_type(parent, accountType)
+        self.check_if_parent_no_type(parent, account_type)
 
         self.check_name_unique_in_parent(parent, name)
 
         self.check_name_unique_in_book(book, name)
 
-        self.check_type_change_parent(accountType, parent)
+        self.check_type_change_parent(account_type, parent)
 
         return data
 

@@ -13,7 +13,7 @@ class Account(TimeStampedModel):
     name : CharField
         Champ de texte qui enregistre le nom du compte.
 
-    accountType : IntegerField
+    account_type : IntegerField
         Valeur entière correspondant au type de compte, comme défini dans la
         sous-classe AccountType.
 
@@ -45,9 +45,9 @@ class Account(TimeStampedModel):
                             max_length=64,
                             blank=False,
                             null=False)
-    accountType = models.IntegerField(choices=AccountType.choices,
-                                      blank=False,
-                                      null=True)
+    account_type = models.IntegerField(choices=AccountType.choices,
+                                       blank=False,
+                                       null=True)
     virtual = models.BooleanField('virtual', default=False)
     parent = models.ForeignKey('self',
                                on_delete=models.CASCADE,
@@ -92,9 +92,10 @@ class Account(TimeStampedModel):
                 name="%(app_label)s_%(class)s_type_if_book_only",
                 check=(
                     # on a un parent => pas de type
-                    models.Q(parent__isnull=False, accountType__isnull=True)
+                    models.Q(parent__isnull=False, account_type__isnull=True)
                     |  # pas de parent => on a un type
-                    models.Q(parent__isnull=True, accountType__isnull=False))))
+                    models.Q(parent__isnull=True,
+                             account_type__isnull=False))))
 
         constraints.append(
             models.CheckConstraint(
@@ -111,4 +112,4 @@ class Account(TimeStampedModel):
         if self.parent is not None:
             return self.parent.get_type()
         else:
-            return self.accountType
+            return self.account_type

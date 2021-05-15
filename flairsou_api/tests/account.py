@@ -15,7 +15,9 @@ class AccountTestCase(TestCase):
         BDE = Entity.objects.create(name="BDE-UTC", uuid=1)
         bookBDE = Book.objects.create(name="Comptes", entity=BDE)
         self.assets = Account.objects.create(
-            name="Actifs", accountType=Account.AccountType.ASSET, book=bookBDE)
+            name="Actifs",
+            account_type=Account.AccountType.ASSET,
+            book=bookBDE)
 
     def test_type_constraint(self):
         # on crée un sous-compte au compte actif
@@ -27,7 +29,7 @@ class AccountTestCase(TestCase):
         with self.assertRaises(IntegrityError):
             Account.objects.create(name="Pizzas",
                                    parent=accountSG,
-                                   accountType=Account.AccountType.EXPENSE)
+                                   account_type=Account.AccountType.EXPENSE)
 
 
 class AccountAPITestCase(APITestCase):
@@ -36,7 +38,7 @@ class AccountAPITestCase(APITestCase):
         self.book = Book.objects.create(name="Comptes", entity=self.BDE)
         self.accountModif = Account.objects.create(
             name="Dépenses",
-            accountType=Account.AccountType.EXPENSE,
+            account_type=Account.AccountType.EXPENSE,
             virtual=True,
             parent=None,
             book=self.book)
@@ -46,7 +48,7 @@ class AccountAPITestCase(APITestCase):
         url = reverse('flairsou_api:account-list')
         data = {
             "name": "Actifs",
-            "accountType": Account.AccountType.ASSET,
+            "account_type": Account.AccountType.ASSET,
             "virtual": True,
             "parent": None,
             "book": self.book.pk
@@ -61,7 +63,7 @@ class AccountAPITestCase(APITestCase):
         acc = Account.objects.get(id=1)
         data = {
             "name": "SG",
-            "accountType": Account.AccountType.ASSET,
+            "account_type": Account.AccountType.ASSET,
             "virtual": True,
             "parent": acc.pk,
             "book": self.book.pk
@@ -82,7 +84,7 @@ class AccountAPITestCase(APITestCase):
         # si on donne un parent et un type, l'API doit refuser
         data = {
             "name": "SG",
-            "accountType": Account.AccountType.ASSET,
+            "account_type": Account.AccountType.ASSET,
             "virtual": True,
             "parent": acc.pk,
             "book": None
@@ -104,7 +106,7 @@ class AccountAPITestCase(APITestCase):
         # le compte
         data = {
             "name": "SG",
-            "accountType": None,
+            "account_type": None,
             "virtual": True,
             "parent": acc.pk,
             "book": None
@@ -118,7 +120,7 @@ class AccountAPITestCase(APITestCase):
 
         data = {
             "name": "Dépenses chères",
-            "accountType": Account.AccountType.EXPENSE,
+            "account_type": Account.AccountType.EXPENSE,
             "virtual": True,
             "parent": None,
             "book": self.book.pk
@@ -137,7 +139,7 @@ class AccountAPITestCase(APITestCase):
 
         data = {
             "name": "Dépenses",
-            "accountType": Account.AccountType.EXPENSE,
+            "account_type": Account.AccountType.EXPENSE,
             "virtual": True,
             "parent": None,
             "book": book2.pk
@@ -151,7 +153,7 @@ class AccountAPITestCase(APITestCase):
 
         data = {
             "name": "Dépenses",
-            "accountType": Account.AccountType.INCOME,
+            "account_type": Account.AccountType.INCOME,
             "virtual": True,
             "parent": None,
             "book": self.book.pk
@@ -162,13 +164,13 @@ class AccountAPITestCase(APITestCase):
         # si on crée un autre compte de dépense virtuel, le changement de type
         # vers None doit fonctionner
         dep2 = Account.objects.create(name="Dépenses 2",
-                                      accountType=Account.AccountType.EXPENSE,
+                                      account_type=Account.AccountType.EXPENSE,
                                       virtual=True,
                                       parent=None,
                                       book=self.book)
         data = {
             "name": "Dépenses",
-            "accountType": None,
+            "account_type": None,
             "virtual": True,
             "parent": dep2.pk,
             "book": None
@@ -183,7 +185,7 @@ class AccountAPITestCase(APITestCase):
         # de base, si rien n'est attaché au compte, ça doit fonctionner
         data = {
             "name": "Dépenses",
-            "accountType": Account.AccountType.EXPENSE,
+            "account_type": Account.AccountType.EXPENSE,
             "virtual": False,
             "parent": None,
             "book": self.book.pk
@@ -193,7 +195,7 @@ class AccountAPITestCase(APITestCase):
 
         # le compte est maintenant non virtuel, on lui ajoute une transaction
         assets = Account.objects.create(name="Actifs",
-                                        accountType=Account.AccountType.ASSET,
+                                        account_type=Account.AccountType.ASSET,
                                         book=self.book,
                                         parent=None,
                                         virtual=False)
@@ -224,7 +226,7 @@ class AccountAPITestCase(APITestCase):
         # on ajoute un sous-compte au compte Dépenses, on ne doit pas pouvoir
         # repasser le compte de dépenses en non-virtuel
         Account.objects.create(name="Subventions",
-                               accountType=None,
+                               account_type=None,
                                parent=self.accountModif,
                                book=None,
                                virtual=False)
@@ -235,14 +237,15 @@ class AccountAPITestCase(APITestCase):
     def test_add_subaccount(self):
         # l'ajout d'un sous-compte à un compte non-virtuel doit être
         # refusé par l'API
-        acc = Account.objects.create(name="Passifs",
-                                     virtual=False,
-                                     accountType=Account.AccountType.LIABILITY,
-                                     book=self.book,
-                                     parent=None)
+        acc = Account.objects.create(
+            name="Passifs",
+            virtual=False,
+            account_type=Account.AccountType.LIABILITY,
+            book=self.book,
+            parent=None)
         data = {
             "name": "Réserves",
-            "accountType": None,
+            "account_type": None,
             "virtual": False,
             "parent": acc.pk,
             "book": None

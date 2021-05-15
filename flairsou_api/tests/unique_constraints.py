@@ -1,7 +1,8 @@
 from django.test import TestCase
 from django.db.utils import IntegrityError
 from django.db import transaction
-from flairsou_api.models import Entity, Book, Account, Transaction, Operation, Reconciliation
+from flairsou_api.models import Entity, Book, Account, Transaction, \
+        Operation, Reconciliation
 import datetime
 
 
@@ -13,7 +14,7 @@ class UniqueConstraintsTestCase(TestCase):
         self.assetAccount = Account.objects.create(
             name="Actifs",
             book=self.bdeBook,
-            accountType=Account.AccountType.ASSET)
+            account_type=Account.AccountType.ASSET)
 
     def test_unique_constraints_entity(self):
         # teste la double création d'une entité BDE
@@ -30,7 +31,7 @@ class UniqueConstraintsTestCase(TestCase):
         with self.assertRaises(IntegrityError):
             with transaction.atomic():
                 Account.objects.create(name="SoGé",
-                                       accountType=Account.AccountType.ASSET,
+                                       account_type=Account.AccountType.ASSET,
                                        parent=self.assetAccount,
                                        book=self.bdeBook)
 
@@ -38,7 +39,7 @@ class UniqueConstraintsTestCase(TestCase):
         with self.assertRaises(IntegrityError):
             with transaction.atomic():
                 Account.objects.create(name="Actifs",
-                                       accountType=Account.AccountType.ASSET,
+                                       account_type=Account.AccountType.ASSET,
                                        book=self.bdeBook)
 
     def test_constraints_operation(self):
