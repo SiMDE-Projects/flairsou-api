@@ -8,39 +8,63 @@ Le projet s'organise à haut niveau comme suit :
 
 ```
 .
-├── Documentation    => toute la documentation
-├── flairsou         => projet Django de base
-├── flairsou_api     => application Django pour l'API
-└── requirements.txt => paquets python requis (voir la section d'installation)
+├── Documentation     => toute la documentation
+├── flairsou          => projet Django de base
+├── flairsou_api      => application Django pour l'API
+├── flairsou_frontend => application Django pour le front avec React
+└── Pipfile           => paquets python requis (voir la section d'installation)
 ```
 
 ## Installation
 
 ### Partie Python/Django
 
-Pour installer Django et les autres dépendances Python, il est recommandé de créer un environnement virtuel à la racine du projet :
+L'installation des dépendances Python et l'environement virtuel sont gérés par [pipenv](https://pypi.org/project/pipenv/).
+Il faut donc l'installer sur sa machine (depuis son gestionnaire de paquets, sinon voir [la documentation](https://pipenv.pypa.io/en/latest/#install-pipenv-today)).
+
+`pipenv` est une alternative au couple `virtualenv` + `pip` géré à la main (bien qu'il utilise ces deux outils).
+Son paradigme de gestion des paquets s'approche de celui de `npm` :
+
+- Les dépendances du projet ainsi que leurs versions minimales sont ensuite listées dans le fichier `Pipenv` (que l'on éditera pas à la main sauf raison spécifique).
+- Les versions exactes des paquets utilisés sont spécifiées dans `Pipfile.lock`. Ceci permet de s'assurer que tous les environements de développement et de production disposent des mêmes versions des paquets. On pourra ensuite les mettre à jour avec `pipenv`.
+
+#### Installation de l'environement
+
+Pour installer les dépendances (versionnées dans Pipfile.lock), il suffit de taper la commande suivante :
 
 ```
-$ virtualenv venv
+$ pipenv sync [--dev]
 ```
 
-Ici, `venv` correspond au nom de l'environnement virtuel.
-Il peut être renommé mais `venv` est déjà répertorié dans le `.gitignore` pour ne pas être commit.
+L'option `--dev` est à utiliser dans un environement de développement pour installer les dépendances de développement.
 
-L'environnement virtuel est ensuite activé par la commande :
-
-```
-$ source venv/bin/activate
-(venv) $ => prêt pour les prochaines commandes
-```
-
-Cette commande doit être exécutée à chaque fois qu'on veut utiliser les paquets python (appliquer les migrations, lancer le serveur...).
-
-Il reste alors à installer les paquets requis :
+`pipenv` crée alors tout seul le `virtualenv` et installe les paquets en suivant les fichiers `Pipfile` et `Pipfile.lock`.
+Contrairement à la gestion « habituelle », le `virtualenv` n'est pas créé dans le répertoire courant, mais dans `~/.local/share/virtualenvs`.
+Pour le charger, on utilisera la commande suivante :
 
 ```
-(venv) $ pip install -r requirements.txt
+$ pipenv shell
 ```
+
+Une fois dans l'environement, le nom de celui-ci `(flairsou)` sera ajouté au prompt.
+On peut sortir de l'environement en utilisant la commande `exit` (ou `Ctrl+d`).
+
+#### Ajout de paquet
+
+Comme `npm`, `pipenv` fait la différence entre les paquets de développement et les dépendances du projet :
+
+- Les dépendances sont les paquets requis pour un fonctionnement normal de l'application. Par exemple, `Django` est une dépendance : flairsou ne fonctionnera pas sans.
+- Les paquets de développement sont les différents outils utilisés pour le développement, mais qui ne sont pas requis pour utiliser l'application. Ainsi, s'il est obligatoire de disposer de `pyflakes` ou de `yapf` lors du développement, ces paquets sont inutiles en production.
+
+Pour installer un paquet, il faut d'abord se demander s'il s'agit d'une dépendance ou d'un paquet utile uniquement pour le développement. La commande d'installation est ensuite :
+
+```
+$ pipenv install [--dev] <nom-paquet>
+```
+
+Où `--dev` est l'option à ajouter si l'on veut spécifier que le paquet est un paquet de développement. Le virtualenv n'a pas nécéssairement besoin d'être chargé pour que cela fonctionne si l'on se trouve dans le dossier contenant le `Pipfile`.
+
+#### Mise en place du projet
 
 Si c'est la première installation du dépôt, il faut créer un fichier de configuration `flairsou/config.py` qui contiendra les éléments sensibles ou spécifique à la plateforme cible (clé secrète, configuration des bases de données etc...).
 Le fichier `flairsou/config_template.py` est pré-rempli pour une configuration de développement.
@@ -49,7 +73,7 @@ La modification de la clé secrète est impérative.
 On peut créer la clé secrète avec la commande suivante, exécutée depuis la racine du projet :
 
 ```
-$ python manage.py shell -c 'from django.core.management import utils; print(utils.get_random_secret_key())'
+(flairsou) $ python manage.py shell -c 'from django.core.management import utils; print(utils.get_random_secret_key())'
 ```
 Le résultat doit être collé au niveau de la ligne `SECRET_KEY = "<coller ici>"` du fichier de configuration.
 Attention à bien conserver les double-quotes !
@@ -59,8 +83,9 @@ Pour le moment, la base de données est configurée en local dans le fichier `db
 Ceci permet à chaque développeur d'avoir sa base locale et de pouvoir facilement reprendre les choses.
 
 ```
-(venv) $ python manage.py migrate
-(venv) $ python manage.py runserver
+(flairsou) $ python manage.py makemigrations flairsou_api
+(flairsou) $ python manage.py migrate
+(flairsou) $ python manage.py runserver
 ```
 
 Si tout fonctionne, le serveur est lancé sur `localhost:8000`, il faut donc aller sur ce lien en navigateur pour voir le résultat.
