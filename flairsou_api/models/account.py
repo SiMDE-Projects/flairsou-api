@@ -100,3 +100,15 @@ class Account(TimeStampedModel):
             models.CheckConstraint(
                 check=~models.Q(name=''),
                 name="%(app_label)s_%(class)s_name_not_null"))
+
+    def get_type(self):
+        """
+        Renvoie le type d'un compte
+        - si le compte est associé à un parent, renvoie le type hérité du
+        parent récursivement
+        - sinon, renvoie le type directement associé au compte
+        """
+        if self.parent is not None:
+            return self.parent.get_type()
+        else:
+            return self.accountType
