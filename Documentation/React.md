@@ -57,6 +57,9 @@ Les règles et la configuration utilisées sont celles du plugin `airbnb` pour R
 Ces règles **prévalent** sur toutes les autres et sont les premières à devoir être appliquées.
 Ainsi, un commit dont le code ne respecterait pas les règles du linter sera rejeté par les `hooks` git, puis ensuite par la CI sur github.
 
+Il est possible de manière **exceptionnelle et raisonnée** de désactiver une règle pour un fichier ou une ligne particulière.
+Il est alors apprécié qu'une explication soit donnée pour justifier le caractère nécessaire de la désactivation.
+
 ### Utilisation des fonctions fléchées
 
 ### Gestion des états dans l'application
