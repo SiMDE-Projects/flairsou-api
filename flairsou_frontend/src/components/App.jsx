@@ -8,9 +8,11 @@
 import React from 'react';
 import { BrowserRouter, Redirect, Route } from 'react-router-dom';
 import PropTypes from 'prop-types';
-
 import { connect } from 'react-redux';
+
 import PageContainer from './containers/PageContainer';
+
+import HomePage from './pages/HomePage';
 
 const PrivateRoute = ({ component: Component, userIdentified, ...rest }) => (
   <Route
@@ -48,14 +50,7 @@ const App = ({ userIdentified }) => (
   <BrowserRouter>
     <PageContainer>
       <>
-        <Route
-          path="/"
-          component={() => (
-            <>
-              Hello, this is home page
-            </>
-          )}
-        />
+        <Route path="/" component={HomePage} />
         <PrivateRoute
           path="/private"
           component={() => (
