@@ -35,11 +35,13 @@ PrivateRoute.propTypes = {
     PropTypes.func,
   ]).isRequired,
   userIdentified: PropTypes.bool.isRequired,
-  location: Redirect.propTypes.state.from,
+  location: PropTypes.shape({
+    pathname: PropTypes.string.isRequired,
+  }),
 };
 
 PrivateRoute.defaultProps = {
-  location: Redirect.defaultProps.state.from,
+  location: null,
 };
 
 const App = ({ userIdentified }) => (
