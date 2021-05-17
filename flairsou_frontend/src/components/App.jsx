@@ -13,6 +13,7 @@ import { connect } from 'react-redux';
 import PageContainer from './containers/PageContainer';
 
 import HomePage from './pages/HomePage';
+import TestPage from './pages/TestPublicPage';
 
 const PrivateRoute = ({ component: Component, userIdentified, ...rest }) => (
   <Route
@@ -50,7 +51,8 @@ const App = ({ userIdentified }) => (
   <BrowserRouter>
     <PageContainer>
       <>
-        <Route path="/" component={HomePage} />
+        <Route path="/" exact component={HomePage} />
+        <Route path="/test" component={TestPage} />
         <PrivateRoute
           path="/private"
           component={() => (

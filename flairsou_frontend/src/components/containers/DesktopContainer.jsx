@@ -21,7 +21,7 @@ const DesktopContainer = ({ children, location }) => {
           inverted
           textAlign="center"
           style={{ padding: '1em 0em' }}
-          horizontal
+          vertical
         >
           <Menu
             fixed={fixed ? 'top' : null}

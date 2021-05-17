@@ -9,6 +9,9 @@ const MenuItems = ({ activeItem, onClick }) => (
     <Menu.Item as={Link} to="/" name="/" active={activeItem === '/'} onClick={onClick}>
       Home
     </Menu.Item>
+    <Menu.Item as={Link} to="/test" name="/test" active={activeItem === '/test'} onClick={onClick}>
+      TestPage
+    </Menu.Item>
   </>
 );
 
