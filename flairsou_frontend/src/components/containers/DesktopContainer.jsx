@@ -21,7 +21,7 @@ const DesktopContainer = ({ children, location }) => {
           inverted
           textAlign="center"
           style={{ padding: '1em 0em' }}
-          vertical
+          horizontal
         >
           <Menu
             fixed={fixed ? 'top' : null}
@@ -30,6 +30,9 @@ const DesktopContainer = ({ children, location }) => {
             secondary={!fixed}
             size="large"
           >
+            <Container>
+              <Menu.Header as="h1" style={{ padding: '0em 1em' }}>Flairsou</Menu.Header>
+            </Container>
             <Container>
               <MenuItems fixed={fixed} activeItem={location.pathname} />
             </Container>

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import {
-  Menu, Sidebar, Segment, Container, Icon,
+  Menu, Sidebar, Segment, Icon,
 } from 'semantic-ui-react';
 
 import MenuItems from '../menu/MenuItems';
@@ -28,17 +28,13 @@ const MobileContainer = ({ children, location }) => {
         >
           <Segment
             inverted
-            textAlign="center"
-            style={{ padding: '1em 0em' }}
             vertical
           >
-            <Container>
-              <Menu inverted pointing secondary size="large">
-                <Menu.Item onClick={() => setSidebarOpen(!sidebarOpen)}>
-                  <Icon name="sidebar" />
-                </Menu.Item>
-              </Menu>
-            </Container>
+            <Menu inverted pointing secondary size="large">
+              <Menu.Item onClick={() => setSidebarOpen(!sidebarOpen)}>
+                <Icon name="sidebar" />
+              </Menu.Item>
+            </Menu>
           </Segment>
 
           {children}
