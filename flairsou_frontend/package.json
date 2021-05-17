@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "webpack --mode development --watch --entry ./src/index.js --output-path ./static/flairsou_frontend",
-    "prod": "webpack --mode production --entry ./src/index.js --output-path ./static/flairsou_frontend",
+    "build": "webpack --mode production --entry ./src/index.js --output-path ./static/flairsou_frontend",
+    "build-dev": "webpack --mode development --entry ./src/index.js --output-path ./static/flairsou_frontend",
     "lint": "eslint src/**/*.js src/**/*.jsx",
     "lint-fix": "eslint src/**/*.js src/**/*.jsx --fix",
     "test": "echo \"Error: no test specified\" && exit 1"
