@@ -29,10 +29,12 @@ class Account(TimeStampedModel):
         Clé étrangère vers l'instance Book référente.
 
     Contraintes :
-    * Un compte doit avoir un parent ou un livre, mais pas les deux.
     * Deux comptes avec le même parent ne peuvent pas avoir le même nom
     * Deux comptes avec le même livre ne peuvent pas avoir le même nom
-    * Si un compte a un parent, son type doit être le même que celui du parent
+    * Un compte doit obligatoirement être rattaché à un livre. Si le compte a
+    un père, il doit être rattaché au même livre que son père.
+    * Un compte doit obligatoirement avoir un type. Si le compte a un père,
+    il doit avoir le même type que son père.
     """
     class AccountType(models.IntegerChoices):
         ASSET = 0  # Actifs
@@ -47,7 +49,7 @@ class Account(TimeStampedModel):
                             null=False)
     account_type = models.IntegerField(choices=AccountType.choices,
                                        blank=False,
-                                       null=True)
+                                       null=False)
     virtual = models.BooleanField('virtual', default=False)
     parent = models.ForeignKey('self',
                                on_delete=models.CASCADE,
@@ -56,7 +58,7 @@ class Account(TimeStampedModel):
     book = models.ForeignKey('Book',
                              on_delete=models.CASCADE,
                              blank=False,
-                             null=True)
+                             null=False)
 
     def __str__(self):
         if self.parent_id is not None:
@@ -78,38 +80,7 @@ class Account(TimeStampedModel):
                 fields=['name', 'book'],
                 name="%(app_label)s_%(class)s_unique_name_in_book"))
 
-        # contrainte pour vérifier qu'un seul des deux champs 'parent' ou
-        # 'book' est rempli
-        constraints.append(
-            models.CheckConstraint(
-                name="%(app_label)s_%(class)s_book_or_parent",
-                check=(models.Q(parent__isnull=False, book__isnull=True)
-                       | models.Q(parent__isnull=True, book__isnull=False))))
-
-        # un compte doit avoir un type seulement s'il n'a pas de parent
-        constraints.append(
-            models.CheckConstraint(
-                name="%(app_label)s_%(class)s_type_if_book_only",
-                check=(
-                    # on a un parent => pas de type
-                    models.Q(parent__isnull=False, account_type__isnull=True)
-                    |  # pas de parent => on a un type
-                    models.Q(parent__isnull=True,
-                             account_type__isnull=False))))
-
         constraints.append(
             models.CheckConstraint(
                 check=~models.Q(name=''),
                 name="%(app_label)s_%(class)s_name_not_null"))
-
-    def get_type(self):
-        """
-        Renvoie le type d'un compte
-        - si le compte est associé à un parent, renvoie le type hérité du
-        parent récursivement
-        - sinon, renvoie le type directement associé au compte
-        """
-        if self.parent is not None:
-            return self.parent.get_type()
-        else:
-            return self.account_type
