@@ -9,8 +9,7 @@ import datetime
 # fonction de test pour les différentes contraintes de base de données
 class UniqueConstraintsTestCase(TestCase):
     def setUp(self):
-        self.BDE = Entity.objects.create(name="BDE-UTC", uuid=1)
-        self.bdeBook = Book.objects.create(name="Comptes", entity=self.BDE)
+        self.bdeBook = Book.objects.create(name="Comptes", entity=1)
         self.assetAccount = Account.objects.create(
             name="Actifs",
             book=self.bdeBook,
@@ -24,7 +23,7 @@ class UniqueConstraintsTestCase(TestCase):
     def test_unique_constraints_book(self):
         # teste la double création d'un livre pour le BDE avec le même nom
         with self.assertRaises(IntegrityError):
-            Book.objects.create(name="Comptes", entity=self.BDE)
+            Book.objects.create(name="Comptes", entity=1)
 
     def test_unique_constraints_account(self):
         # teste la double création d'un compte dans un livre
@@ -38,8 +37,8 @@ class UniqueConstraintsTestCase(TestCase):
         transactionObj = Transaction.objects.create(
             date=datetime.date(2021, 5, 1))
 
-        # on crée une opération avec deux montants non nuls,
-        # ça ne doit pas marcher
+        # on crée une opération avec deux montants non nuls, ça ne doit pas
+        # marcher
         with self.assertRaises(IntegrityError):
             with transaction.atomic():
                 Operation.objects.create(credit=10,

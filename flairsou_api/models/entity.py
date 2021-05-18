@@ -10,19 +10,19 @@ class Entity(TimeStampedModel):
     Attributes
     ----------
     uuid : PositiveIntegerField
-        Champ entier servant à lier l'entité avec une autre base de données (LDAP par exemple).
-        Clé primaire de la relation.
+        Champ entier servant à lier l'entité avec une autre base de données
+        (LDAP par exemple). Clé primaire de la relation.
 
     name : CharField
         Champ de texte qui enregistre le nom de l'entité. Unique dans la table
 
     use_equity : BooleanField
-        Champ booléen qui indique si l'entité est autorisée à utiliser les comptes de capitaux
-        propres directement ou non.
+        Champ booléen qui indique si l'entité est autorisée à utiliser les
+        comptes de capitaux propres directement ou non.
 
     parent : ForeignKey
-        Clé étrangère vers une autre instance de Entity, qui représente l'entité parente
-        de l'entité courante
+        Clé étrangère vers une autre instance de Entity, qui représente
+        l'entité parente de l'entité courante
     """
     uuid = models.UUIDField("uuid", primary_key=True, editable=False)
     name = models.CharField("Entity name", max_length=64)

@@ -3,14 +3,12 @@ from rest_framework import status
 from django.urls import reverse
 
 import datetime
-
-from flairsou_api.models import Account, Book, Entity, Transaction, Operation
+from flairsou_api.models import Account, Book, Transaction, Operation
 
 
 class AccountAPITestCase(APITestCase):
     def setUp(self):
-        self.BDE = Entity.objects.create(name="BDE-UTC", uuid=1)
-        self.book = Book.objects.create(name="Comptes", entity=self.BDE)
+        self.book = Book.objects.create(name="Comptes", entity=1)
         self.assets = Account.objects.create(
             name="Actifs",
             account_type=Account.AccountType.ASSET,
@@ -115,7 +113,7 @@ class AccountAPITestCase(APITestCase):
         # on teste la modification du livre vers un autre livre :
         # l'API doit refuser
         url = reverse('flairsou_api:account-detail', kwargs={'pk': 1})
-        book2 = Book.objects.create(name="Comptes 2", entity=self.BDE)
+        book2 = Book.objects.create(name="Comptes 2", entity=1)
 
         data = {
             "name": "Dépenses",
