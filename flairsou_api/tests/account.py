@@ -243,3 +243,55 @@ class AccountAPITestCase(APITestCase):
         url = reverse('flairsou_api:account-list')
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+
+class AccountFilterAPITestCase(APITestCase):
+    """
+    Classe de test pour le filtrage des comptes par book
+    """
+    def setUp(self):
+        book1 = Book.objects.create(name="Comptes", entity=1)
+        book2 = Book.objects.create(name="Comptes 2", entity=1)
+        Account.objects.create(name="Actifs",
+                               account_type=Account.AccountType.ASSET,
+                               virtual=True,
+                               parent=None,
+                               book=book1)
+        Account.objects.create(name="Passifs",
+                               account_type=Account.AccountType.LIABILITY,
+                               virtual=True,
+                               parent=None,
+                               book=book1)
+        deps = Account.objects.create(name="Dépenses",
+                                      account_type=Account.AccountType.EXPENSE,
+                                      virtual=True,
+                                      parent=None,
+                                      book=book1)
+        Account.objects.create(name="Pizzas",
+                               account_type=Account.AccountType.EXPENSE,
+                               virtual=True,
+                               parent=deps,
+                               book=book1)
+        Account.objects.create(name="2Actifs",
+                               account_type=Account.AccountType.ASSET,
+                               virtual=True,
+                               parent=None,
+                               book=book2)
+        rec = Account.objects.create(name="2Recettes",
+                                     account_type=Account.AccountType.INCOME,
+                                     virtual=True,
+                                     parent=None,
+                                     book=book2)
+        Account.objects.create(name="2Cotisations",
+                               account_type=Account.AccountType.INCOME,
+                               virtual=True,
+                               parent=rec,
+                               book=book2)
+
+    def test_filter_by_book(self):
+        # on récupère les comptes liés au book 1
+        url = reverse('flairsou_api:account-list')
+        response = self.client.get(url + "?book=1", format='json')
+        self.assertEqual(len(response.data), 4)
+        response = self.client.get(url + "?book=2", format='json')
+        self.assertEqual(len(response.data), 3)
