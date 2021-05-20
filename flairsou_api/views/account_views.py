@@ -14,6 +14,20 @@ class AccountList(mixins.ListModelMixin, mixins.CreateModelMixin,
     queryset = fm.Account.objects.all()
     serializer_class = fs.AccountSerializer
 
+    def get_queryset(self):
+        """
+        Adapte la queryset en fonction de la requête qui a été passée.
+        Les filtres possibles sont :
+        - book : clé primaire sur le livre associé aux comptes à retourner
+        """
+        queryset = fm.Account.objects.all()
+
+        book_pk = self.request.query_params.get('book')
+        if book_pk is not None:
+            queryset = queryset.filter(book__pk=book_pk)
+
+        return queryset
+
     def get(self, request, *args, **kwargs):
         """
         Sur une requête GET, renvoie la liste de tous les comptes
