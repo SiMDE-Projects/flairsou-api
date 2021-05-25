@@ -13,7 +13,7 @@ class UniqueConstraintsTestCase(TestCase):
         self.assetAccount = Account.objects.create(
             name="Actifs",
             book=self.bdeBook,
-            accountType=Account.AccountType.ASSET)
+            account_type=Account.AccountType.ASSET)
 
     def test_unique_constraints_entity(self):
         # teste la double création d'une entité BDE
@@ -26,19 +26,11 @@ class UniqueConstraintsTestCase(TestCase):
             Book.objects.create(name="Comptes", entity=1)
 
     def test_unique_constraints_account(self):
-        # teste la création d'un compte avec un livre ET un parent
-        with self.assertRaises(IntegrityError):
-            with transaction.atomic():
-                Account.objects.create(name="SoGé",
-                                       accountType=Account.AccountType.ASSET,
-                                       parent=self.assetAccount,
-                                       book=self.bdeBook)
-
         # teste la double création d'un compte dans un livre
         with self.assertRaises(IntegrityError):
             with transaction.atomic():
                 Account.objects.create(name="Actifs",
-                                       accountType=Account.AccountType.ASSET,
+                                       account_type=Account.AccountType.ASSET,
                                        book=self.bdeBook)
 
     def test_constraints_operation(self):
