@@ -41,7 +41,8 @@ class Operation(TimeStampedModel):
     class Meta:
         constraints = []
 
-        # un compte ne peut pas être dans deux opérations de la même transaction
+        # un compte ne peut pas être dans deux opérations de la même
+        # transaction
         constraints.append(
             models.UniqueConstraint(
                 name="%(app_label)s_%(class)s_unique_account_transaction",
