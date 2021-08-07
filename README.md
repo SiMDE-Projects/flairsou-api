@@ -107,16 +107,19 @@ Ensuite, il faut compliler le React en JavaScript pouvant être servi par Django
 Pour un environement de développement :
 
 ```
-$ npm run dev
+$ npm run build-dev
 ```
 
 Pour un environement de production :
 
 ```
-$ npm run prod
+$ npm run build
 ```
 
 Le frontend react est alors prêt à être servi par Django.
+
+Il est aussi possible pour le développement d'utililser la commande `npm run dev`.
+Dans ce cas, le compilateur est lancé avec l'option `--watch` : il recompilera automatiquement les fichiers modifiés, pour ne pas avoir à lancer la commande à chaque changement.
 
 ### Git Hooks
 
