@@ -2,7 +2,8 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 from django.urls import reverse
 
-import datetime, uuid
+import datetime
+import uuid
 from flairsou_api.models import Account, Book, Transaction, Operation
 
 
