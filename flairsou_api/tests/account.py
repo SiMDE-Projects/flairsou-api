@@ -113,7 +113,7 @@ class AccountAPITestCase(APITestCase):
         # on teste la modification du livre vers un autre livre :
         # l'API doit refuser
         url = reverse('flairsou_api:account-detail', kwargs={'pk': 1})
-        book2 = Book.objects.create(name="Comptes 2", entity=1)
+        book2 = Book.objects.create(name="Comptes 2", entity=2)
 
         data = {
             "name": "Dépenses",
@@ -251,7 +251,7 @@ class AccountFilterAPITestCase(APITestCase):
     """
     def setUp(self):
         book1 = Book.objects.create(name="Comptes", entity=1)
-        book2 = Book.objects.create(name="Comptes 2", entity=1)
+        book2 = Book.objects.create(name="Comptes 2", entity=2)
         Account.objects.create(name="Actifs",
                                account_type=Account.AccountType.ASSET,
                                virtual=True,
