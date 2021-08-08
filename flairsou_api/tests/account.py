@@ -2,13 +2,14 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 from django.urls import reverse
 
-import datetime
+import datetime, uuid
 from flairsou_api.models import Account, Book, Transaction, Operation
 
 
 class AccountAPITestCase(APITestCase):
     def setUp(self):
-        self.book = Book.objects.create(name="Comptes", entity=1)
+        self.book = Book.objects.create(name="Comptes",
+                                        entity=uuid.UUID(int=1))
         self.assets = Account.objects.create(
             name="Actifs",
             account_type=Account.AccountType.ASSET,
@@ -113,7 +114,7 @@ class AccountAPITestCase(APITestCase):
         # on teste la modification du livre vers un autre livre :
         # l'API doit refuser
         url = reverse('flairsou_api:account-detail', kwargs={'pk': 1})
-        book2 = Book.objects.create(name="Comptes 2", entity=2)
+        book2 = Book.objects.create(name="Comptes 2", entity=uuid.UUID(int=2))
 
         data = {
             "name": "Dépenses",
@@ -250,8 +251,8 @@ class AccountFilterAPITestCase(APITestCase):
     Classe de test pour le filtrage des comptes par book
     """
     def setUp(self):
-        book1 = Book.objects.create(name="Comptes", entity=1)
-        book2 = Book.objects.create(name="Comptes 2", entity=2)
+        book1 = Book.objects.create(name="Comptes", entity=uuid.UUID(int=1))
+        book2 = Book.objects.create(name="Comptes 2", entity=uuid.UUID(int=2))
         Account.objects.create(name="Actifs",
                                account_type=Account.AccountType.ASSET,
                                virtual=True,
