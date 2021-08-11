@@ -39,9 +39,11 @@ class OperationDetail(mixins.RetrieveModelMixin, generics.GenericAPIView):
 ##############################
 
 
-class TransactionList(mixins.ListModelMixin, generics.GenericAPIView):
+class TransactionList(mixins.ListModelMixin, mixins.CreateModelMixin,
+                      generics.GenericAPIView):
     """
-    Vue qui fournit pour le moment la liste des transactions créés.
+    Vue qui fournit la liste des transactions créés et qui permet de créer
+    une nouvelle transaction.
     """
     serializer_class = fs.TransactionSerializer
 
@@ -61,6 +63,9 @@ class TransactionList(mixins.ListModelMixin, generics.GenericAPIView):
         Sur une requête GET, renvoie la liste de toutes les transactions
         """
         return self.list(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
 
 
 class TransactionDetail(mixins.RetrieveModelMixin, generics.GenericAPIView):

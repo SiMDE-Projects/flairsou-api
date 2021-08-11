@@ -1,6 +1,8 @@
 from .flairsou_serializers import FlairsouModelSerializer
 from flairsou_api.models import Transaction, Operation
 
+from django.db import transaction
+
 
 class OperationSerializer(FlairsouModelSerializer):
     """
@@ -29,16 +31,33 @@ class TransactionSerializer(FlairsouModelSerializer):
         model = Transaction
         fields = ['pk', 'date', 'checked', 'invoice', 'operations']
 
-    # TODO
-    # voir ici :
-    # https://www.django-rest-framework.org/api-guide/serializers/#writable-nested-representations
-    # mettre le tout dans une transaction db pour éviter les incohérences
+    def validate(self, data):
+        """
+        Validation de la transaction au niveau global
+        * vérification de l'équilibre des opérations
+        * vérification d'une seule opération par compte
+        """
+        #TODO
+        return data
+
     def create(self, validated_data):
         """
         Fonction de création d'un objet Transaction et des objets Operation
-        associés
+        associés. On a validé les données dans l'étape de validation, on peut
+        simplement faire la création ici.
         """
-        pass
+        operations = validated_data.pop('operations')
+        with transaction.atomic():
+            # on crée la transaction pour avoir la référence
+            tr = Transaction.objects.create(**validated_data)
+
+            # pour chaque opération, on crée l'objet correspondant
+            for op in operations:
+                # on ajoute la transaction dans le dictionnaire de l'opération
+                op['transaction'] = tr
+                Operation.objects.create(**op)
+
+        return tr
 
     def update(self, instance, validated_data):
         """
