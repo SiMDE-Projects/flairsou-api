@@ -1,5 +1,5 @@
 from .flairsou_serializers import FlairsouModelSerializer
-from flairsou_api.models import Transaction, Operation
+from flairsou_api.models import Transaction, Operation, Account
 
 from django.db import transaction
 
@@ -39,6 +39,38 @@ class TransactionSerializer(FlairsouModelSerializer):
         """
         #TODO
         return data
+
+    def validate_date(self, date):
+        """
+        Vérifie que la date saisie pour la transaction est postérieure au
+        dernier rapprochement des comptes associés
+        """
+        import pdb
+        pdb.set_trace()
+        for op in self.initial_data['operations']:
+            try:
+                # récupérer le compte associé
+                # TODO : que faire quand le compte n'existe pas ?
+                # => validation opérations
+                account = Account.objects.get(id=int(op['account']))
+            except:
+                # si le compte n'est pas valide, alors on passe à
+                # l'opération suivante, ça sera géré dans la validation
+                # des opérations
+                continue
+
+            if account.reconciliation_set.count() > 0:
+                # si des rapprochements ont été effectués, on vérifie que
+                # la date de la transaction est bien après la date du dernier
+                # rapprochement, sinon on lève une exception
+                last_reconc_date = account.reconciliation_set.order_by(
+                    'date').last().date
+                if date < last_reconc_date:
+                    raise self.ValidationError(
+                        'Les transactions ne peuvent pas être antiérieures'
+                        ' au dernier rapprochement')
+
+        return date
 
     def create(self, validated_data):
         """
