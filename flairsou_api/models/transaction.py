@@ -2,6 +2,7 @@ from django.db import models
 
 from flairsou import config
 from .timestamped import TimeStampedModel
+from .operation import Operation
 
 
 class Transaction(TimeStampedModel):
@@ -36,3 +37,20 @@ class Transaction(TimeStampedModel):
         Renvoie la liste des opérations associées à la transaction courante
         """
         return self.operation_set.all()
+
+    def filter_by_entity(entity: str):
+        """
+        Filtre les transactions associées à une entité particulière
+
+        entity est un str représentant un UUID valide
+        """
+        # récupération de toutes les opérations associées à cette entité
+        operations = Operation.objects.filter(account__book__entity=entity)
+
+        # récupération des transactions liées aux opérations
+        transactions = operations.values('transaction').distinct()
+
+        # construction du queryset correspondant aux transactions concernées
+        queryset = Transaction.objects.filter(id__in=transactions)
+
+        return queryset
