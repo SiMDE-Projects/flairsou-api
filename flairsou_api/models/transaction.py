@@ -30,3 +30,9 @@ class Transaction(TimeStampedModel):
 
     def __str__(self):
         return "{} on {}".format(self.pk, self.date)
+
+    def operations(self):
+        """
+        Renvoie la liste des opérations associées à la transaction courante
+        """
+        return self.operation_set.all()
