@@ -21,7 +21,7 @@ class BookList(mixins.ListModelMixin, mixins.CreateModelMixin,
         """
         queryset = fm.Book.objects.all()
 
-        entity = self.request.query_params.get('entity')
+        entity = self.kwargs['uuid']
         if entity is not None:
             queryset = queryset.filter(entity=entity)
 

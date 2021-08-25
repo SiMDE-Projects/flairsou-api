@@ -10,10 +10,9 @@ urlpatterns = [
     path('accounts/<int:pk>/',
          views.AccountDetail.as_view(),
          name="account-detail"),
-    # regexp pour filtrer l'UUID correctement, sinon la ligne suivante n'est
-    # pas prise en compte
-    re_path(r'books/(?P<entity>\d{8}-\d{4}-\d{4}-\d{4}-\d{12})?$',
-            views.BookList.as_view(),
-            name="book-list"),
+    path('books/', views.BookList.as_view(), name="book-list"),
+    path('books/byEntity/<uuid:uuid>/',
+         views.BookList.as_view(),
+         name="book-list-filter"),
     path('books/<int:pk>/', views.BookDetail.as_view(), name="book-detail"),
 ]
