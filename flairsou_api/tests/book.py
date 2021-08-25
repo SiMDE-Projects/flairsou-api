@@ -11,6 +11,14 @@ class BookAPITestCase(APITestCase):
         self.book = Book.objects.create(name="Comptes BDE",
                                         entity=uuid.UUID(int=1))
 
+    def test_get_all_books(self):
+        """
+        Vérifie que la route globale fonctionne
+        """
+        url = reverse('flairsou_api:book-list')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
     def test_filter_book_by_pk(self):
         """
         Vérifie que le filtrage des livres par clé primaire fonctionne
