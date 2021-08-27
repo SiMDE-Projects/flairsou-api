@@ -292,8 +292,9 @@ class AccountFilterAPITestCase(APITestCase):
 
     def test_filter_by_book(self):
         # on récupère les comptes liés au book 1
-        url = reverse('flairsou_api:account-list')
-        response = self.client.get(url + "?book=1", format='json')
+        url = reverse('flairsou_api:account-list-filter', kwargs={'book': 1})
+        response = self.client.get(url, format='json')
         self.assertEqual(len(response.data), 4)
-        response = self.client.get(url + "?book=2", format='json')
+        url = reverse('flairsou_api:account-list-filter', kwargs={'book': 2})
+        response = self.client.get(url, format='json')
         self.assertEqual(len(response.data), 3)
