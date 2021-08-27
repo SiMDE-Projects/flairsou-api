@@ -1,18 +1,11 @@
-from rest_framework import serializers
-
+from .flairsou_serializers import FlairsouModelSerializer
 from flairsou_api.models import Account, Book
 
 
-class AccountSerializer(serializers.ModelSerializer):
+class AccountSerializer(FlairsouModelSerializer):
     class Meta:
         model = Account
         fields = ['pk', 'name', 'account_type', 'virtual', 'parent', 'book']
-
-    def is_update_request(self):
-        return self.context['request'].method == 'PUT'
-
-    def is_create_request(self):
-        return self.context['request'].method == 'POST'
 
     def check_same_book_parent(self, parent: Account, book: Book):
         """
@@ -21,7 +14,7 @@ class AccountSerializer(serializers.ModelSerializer):
         """
         if parent is not None:
             if book != parent.book:
-                raise serializers.ValidationError(
+                raise self.ValidationError(
                     'Un compte doit être rattaché au même livre que son père')
 
     def check_same_type_parent(self, parent: Account,
@@ -32,7 +25,7 @@ class AccountSerializer(serializers.ModelSerializer):
         """
         if parent is not None:
             if account_type != parent.account_type:
-                raise serializers.ValidationError(
+                raise self.ValidationError(
                     'Un compte doit avoir le même type que son père')
 
     def check_name_unique_in_parent(self, parent: Account, name: str):
@@ -44,7 +37,7 @@ class AccountSerializer(serializers.ModelSerializer):
         if self.is_create_request():
             if parent is not None:
                 if parent.account_set.filter(name=name).count() > 0:
-                    raise serializers.ValidationError(
+                    raise self.ValidationError(
                         'Un compte avec ce nom existe déjà dans le compte '
                         'parent')
 
@@ -57,7 +50,7 @@ class AccountSerializer(serializers.ModelSerializer):
         if self.is_create_request():
             if book is not None:
                 if book.account_set.filter(name=name).count() > 0:
-                    raise serializers.ValidationError(
+                    raise self.ValidationError(
                         'Un compte avec ce nom existe déjà dans le livre '
                         'parent')
 
@@ -90,8 +83,7 @@ class AccountSerializer(serializers.ModelSerializer):
         """
         if self.is_update_request():
             if book != self.instance.book:
-                raise serializers.ValidationError(
-                    'Le livre ne peut pas être modifié')
+                raise self.ValidationError('Le livre ne peut pas être modifié')
 
         return book
 
@@ -102,8 +94,7 @@ class AccountSerializer(serializers.ModelSerializer):
         """
         if self.is_update_request():
             if account_type != self.instance.account_type:
-                raise serializers.ValidationError(
-                    'Le type ne peut pas être modifié')
+                raise self.ValidationError('Le type ne peut pas être modifié')
 
         return account_type
 
@@ -120,23 +111,21 @@ class AccountSerializer(serializers.ModelSerializer):
             if virtual is True and self.instance.operation_set.count() > 0:
                 # si le compte devient virtuel, il ne doit pas avoir
                 # d'opérations associées
-                raise serializers.ValidationError(
-                    'Un compte avec des transactions '
-                    'ne peut pas devenir virtuel')
+                raise self.ValidationError('Un compte avec des transactions '
+                                           'ne peut pas devenir virtuel')
 
             if virtual is False and self.instance.account_set.count() > 0:
                 # si le compte devient réel, il ne doit pas avoir
                 # de sous-comptes
-                raise serializers.ValidationError(
-                    'Un compte avec des sous-comptes '
-                    'ne peut pas devenir non-virtuel')
+                raise self.ValidationError('Un compte avec des sous-comptes '
+                                           'ne peut pas devenir non-virtuel')
 
         return virtual
 
     def validate_parent(self, parent: Account):
         if parent is not None:
             if not parent.virtual:
-                raise serializers.ValidationError(
+                raise self.ValidationError(
                     'Le compte parent doit être virtuel')
 
         return parent

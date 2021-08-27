@@ -22,8 +22,8 @@ class Book(TimeStampedModel):
         comptes de capitaux propres directement ou non (pour la configuration
         BDE-UTC).
 
-    Le couple (name, entity) est unique dans la table : une entité ne peut pas
-    avoir plusieurs livres du même nom.
+    L'entité est unique dans la base, une entité ne possède qu'un seul livre
+    de comptes.
     """
     name = models.CharField("Book name",
                             max_length=64,
@@ -42,5 +42,5 @@ class Book(TimeStampedModel):
         # colonnes)
         constraints.append(
             models.UniqueConstraint(
-                fields=['name', 'entity'],
-                name="%(app_label)s_%(class)s_unique_name_in_entity"))
+                fields=['entity'],
+                name="%(app_label)s_%(class)s_one_book_per_entity"))
