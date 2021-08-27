@@ -1,12 +1,13 @@
-from django.urls import path, re_path
+from django.urls import path
 
 from . import views
 
 app_name = 'flairsou_api'
 urlpatterns = [
-    re_path(r'accounts/(?P<book>\d+)?$',
-            views.AccountList.as_view(),
-            name="account-list"),
+    path('accounts/', views.AccountList.as_view(), name="account-list"),
+    path('accounts/byBook/<int:book>/',
+         views.AccountList.as_view(),
+         name="account-list-filter"),
     path('accounts/<int:pk>/',
          views.AccountDetail.as_view(),
          name="account-detail"),

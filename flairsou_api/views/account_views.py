@@ -21,7 +21,7 @@ class AccountList(mixins.ListModelMixin, mixins.CreateModelMixin,
         """
         queryset = fm.Account.objects.all()
 
-        book_pk = self.request.query_params.get('book')
+        book_pk = self.kwargs.get('book')
         if book_pk is not None:
             queryset = queryset.filter(book__pk=book_pk)
 
