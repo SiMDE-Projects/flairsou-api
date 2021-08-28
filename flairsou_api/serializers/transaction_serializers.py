@@ -37,7 +37,7 @@ class TransactionSerializer(FlairsouModelSerializer):
         * vérification de l'équilibre des opérations
         * vérification d'une seule opération par compte
         """
-        #TODO
+        # TODO
         return data
 
     def validate_date(self, date):
@@ -45,18 +45,16 @@ class TransactionSerializer(FlairsouModelSerializer):
         Vérifie que la date saisie pour la transaction est postérieure au
         dernier rapprochement des comptes associés
         """
-        import pdb
-        pdb.set_trace()
         for op in self.initial_data['operations']:
             try:
                 # récupérer le compte associé
                 # TODO : que faire quand le compte n'existe pas ?
                 # => validation opérations
                 account = Account.objects.get(id=int(op['account']))
-            except:
+            except Account.DoesNotExist:
                 # si le compte n'est pas valide, alors on passe à
-                # l'opération suivante, ça sera géré dans la validation
-                # des opérations
+                # l'opération suivante, le compte invalide est relevé
+                # lors de la validation des opérations
                 continue
 
             if account.reconciliation_set.count() > 0:
