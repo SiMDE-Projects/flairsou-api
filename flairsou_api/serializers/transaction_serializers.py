@@ -12,6 +12,24 @@ class OperationSerializer(FlairsouModelSerializer):
         model = Operation
         fields = ['credit', 'debit', 'label', 'account']
 
+    def validate(self, data):
+        """
+        Validation de l'opération au niveau global.
+        """
+
+        # vérifie que credit et debit sont correctement définis (un seul
+        # des deux montants >= 0)
+        if data['credit'] != 0 and data['debit'] != 0:
+            data['credit'] -= data['debit']
+            data['debit'] = 0
+
+        if data['credit'] < 0 or data['debit'] < 0:
+            tmp = data['debit']
+            data['debit'] = -data['credit']
+            data['credit'] = -tmp
+
+        return data
+
 
 class TransactionSerializer(FlairsouModelSerializer):
     """
