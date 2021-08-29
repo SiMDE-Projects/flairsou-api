@@ -37,7 +37,9 @@ class TransactionSerializer(FlairsouModelSerializer):
         * vérification de l'équilibre des opérations
         * vérification d'une seule opération par compte
         """
-        # TODO
+        if not self.check_transaction_balanced(data):
+            raise self.ValidationError('La transaction n\'est pas équilibrée.')
+
         return data
 
     def validate_date(self, date):
@@ -69,6 +71,20 @@ class TransactionSerializer(FlairsouModelSerializer):
                         ' au dernier rapprochement')
 
         return date
+
+    def check_transaction_balanced(self, data):
+        """
+        Vérifie que la transaction en cours de validation (data) est
+        correctement équilibrée
+        """
+        debits = 0
+        credits = 0
+
+        for op in data['operations']:
+            debits += op['debit']
+            credits += op['credit']
+
+        return debits == credits
 
     def create(self, validated_data):
         """
