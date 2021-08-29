@@ -33,12 +33,19 @@ class TransactionSerializer(FlairsouModelSerializer):
 
     def validate(self, data):
         """
-        Validation de la transaction au niveau global
-        * vérification de l'équilibre des opérations
-        * vérification d'une seule opération par compte
+        Validation de la transaction au niveau global. Chaque fonction de
+        validation lève une ValidationError si les données ne sont pas
+        correctes.
+        data = {'date': Date, 'checked': boolean, 'invoice': file,
+        'operations' : list({'credit': int, 'debit': int, 'label': str,
+            'account': Account})}
         """
-        if not self.check_transaction_balanced(data):
-            raise self.ValidationError('La transaction n\'est pas équilibrée.')
+
+        # vérification de l'équilibre des opérations
+        self.check_transaction_balanced(data)
+
+        # vérification d'une seule opération par compte
+        self.check_one_op_per_account(data)
 
         return data
 
@@ -50,8 +57,6 @@ class TransactionSerializer(FlairsouModelSerializer):
         for op in self.initial_data['operations']:
             try:
                 # récupérer le compte associé
-                # TODO : que faire quand le compte n'existe pas ?
-                # => validation opérations
                 account = Account.objects.get(id=int(op['account']))
             except Account.DoesNotExist:
                 # si le compte n'est pas valide, alors on passe à
@@ -84,7 +89,23 @@ class TransactionSerializer(FlairsouModelSerializer):
             debits += op['debit']
             credits += op['credit']
 
-        return debits == credits
+        if debits != credits:
+            raise self.ValidationError('La transaction n\'est pas équilibrée.')
+
+    def check_one_op_per_account(self, data):
+        """
+        Vérifie qu'un compte n'apparaît pas plusieurs fois dans
+        la même transaction
+        """
+        accounts = []
+
+        for op in data['operations']:
+            if op['account'] in accounts:
+                raise self.ValidationError(
+                    'Le compte {} apparaît plusieurs fois dans la transaction'.
+                    format(op['account']))
+            else:
+                accounts.append(op['account'])
 
     def create(self, validated_data):
         """
