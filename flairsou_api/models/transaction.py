@@ -54,3 +54,20 @@ class Transaction(TimeStampedModel):
         queryset = Transaction.objects.filter(id__in=transactions)
 
         return queryset
+
+    def is_reconciliated(self) -> bool:
+        """
+        Indique si la transaction actuelle est rapprochée ou non, c'est à dire
+        si elle est associée à un compte qui a été rapproché après la date de
+        la transaction
+        """
+        for op in self.operations():
+            # vérifie la date de rapprochement de chaque compte
+            # de la transaction
+            if op.account.reconciliation_set.count() > 0:
+                last_reconc_date = op.account.reconciliation_set.order_by(
+                    'date').last().date
+                if self.date < last_reconc_date:
+                    return True
+
+        return False
