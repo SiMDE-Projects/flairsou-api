@@ -10,7 +10,7 @@ class OperationSerializer(FlairsouModelSerializer):
     """
     class Meta:
         model = Operation
-        fields = ['credit', 'debit', 'label', 'account']
+        fields = ['pk', 'credit', 'debit', 'label', 'account']
 
     def validate(self, data):
         """
@@ -89,9 +89,11 @@ class TransactionSerializer(FlairsouModelSerializer):
                 last_reconc_date = account.reconciliation_set.order_by(
                     'date').last().date
                 if date < last_reconc_date:
-                    raise self.ValidationError(
-                        'Les transactions ne peuvent pas être antiérieures'
-                        ' au dernier rapprochement')
+                    if self.instance is None:
+                        # l'erreur ne concerne que la création
+                        raise self.ValidationError(
+                            'Les transactions ne peuvent pas être antiérieures'
+                            ' au dernier rapprochement')
 
         return date
 
@@ -144,8 +146,59 @@ class TransactionSerializer(FlairsouModelSerializer):
 
         return tr
 
-    def update(self, instance, validated_data):
+    def update(self, instance: Transaction, validated_data):
         """
-        Fonction de mise à jour d'un objet Transaction
+        Fonction de mise à jour d'un objet Transaction et des objets Operation
+        associés. On met à jour les éléments propres de la transaction, et on
+        vérifie si chaque opération initiale est toujours présente. Si c'est
+        le cas, on les met à jour, et sinon on supprime.
         """
-        pass
+
+        # on refuse la modification d'une transaction rapprochée
+        if instance.is_reconciliated():
+            raise self.ValidationError('Une transaction rapprochée '
+                                       'ne peut pas être modifiée')
+
+        # extrait les opérations du dict
+        new_ops = validated_data.pop('operations')
+
+        with transaction.atomic():
+            # mise à jour des données propres à la transaction
+            Transaction.objects.filter(id=instance.id).update(**validated_data)
+
+            # récupération de la nouvelle instance
+            instance = Transaction.objects.get(id=instance.id)
+
+            # vérification des opérations
+
+            # opérations pré-existantes
+            previous_ops = list(instance.operation_set.all())
+
+            # listes pour garder trace des opérations mises à jour
+            updated_previous = list(False for x in previous_ops)
+            updated_new = list(False for x in new_ops)
+
+            for inew, new_op in enumerate(new_ops):
+                for iprev, prev_op in enumerate(previous_ops):
+                    if new_op['account'] == prev_op.account:
+                        # l'opération new_op correspond à une opération
+                        # précédente
+                        Operation.objects.filter(id=prev_op.id).update(
+                            **new_op)
+
+                        # l'opération est mise à jour
+                        updated_previous[iprev] = True
+                        updated_new[inew] = True
+
+            # on crée les opérations restantes s'il en reste
+            for inew, new_op in enumerate(new_ops):
+                if not updated_new[inew]:
+                    new_op['transaction'] = instance
+                    Operation.objects.create(**new_op)
+
+            # on supprime les opérations précédentes s'il en reste
+            for iprev, prev_op in enumerate(previous_ops):
+                if not updated_previous[iprev]:
+                    Operation.objects.filter(id=prev_op.id).delete()
+
+        return instance

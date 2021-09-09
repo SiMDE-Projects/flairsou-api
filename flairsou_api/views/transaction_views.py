@@ -68,7 +68,8 @@ class TransactionList(mixins.ListModelMixin, mixins.CreateModelMixin,
         return self.create(request, *args, **kwargs)
 
 
-class TransactionDetail(mixins.RetrieveModelMixin, generics.GenericAPIView):
+class TransactionDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
+                        generics.GenericAPIView):
     """
     Vue qui fournit le détail d'une transaction par son identifiant
     """
@@ -80,3 +81,9 @@ class TransactionDetail(mixins.RetrieveModelMixin, generics.GenericAPIView):
         Sur une requête GET, renvoie le détail de la transaction demandée
         """
         return self.retrieve(request, *args, **kwargs)
+
+    def put(self, request, *args, **kwargs):
+        """
+        Sur une requete PUT, met à jour la transaction
+        """
+        return self.update(request, *args, **kwargs)
