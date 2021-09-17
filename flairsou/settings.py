@@ -131,8 +131,8 @@ REST_FRAMEWORK = {
 }
 
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'Your Project API',
-    'DESCRIPTION': 'Your project description',
-    'VERSION': '1.0.0',
-    # OTHER SETTINGS
+    'TITLE': 'Flairsou API',
+    'DESCRIPTION': 'Documentation de l\'API '
+    'de Flairsou, outil de gestion de trésorerie pour les associations',
+    'VERSION': '0.0.1',
 }
