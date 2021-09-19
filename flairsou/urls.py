@@ -19,5 +19,6 @@ from django.urls import path, re_path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('flairsou_api.urls')),
+    path('mock_portail/', include('mock_portail.urls')),
     re_path(r'^.*/?', include('flairsou_frontend.urls')),
 ]
