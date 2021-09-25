@@ -4,10 +4,13 @@ from . import views
 
 app_name = 'flairsou_api'
 urlpatterns = [
-    path('accounts/', views.AccountList.as_view(), name="account-list"),
+    # sur accounts/ on a uniquement la création des comptes
+    path('accounts/', views.AccountCreation.as_view(), name="account-create"),
+    # on a ensuite les routes de listing par filtre
     path('accounts/byBook/<int:book>/',
-         views.AccountList.as_view(),
-         name="account-list-filter"),
+         views.AccountListFilter.as_view(),
+         name="account-filter-by-book"),
+    # et la route de détails d'un compte particulier
     path('accounts/<int:pk>/',
          views.AccountDetail.as_view(),
          name="account-detail"),

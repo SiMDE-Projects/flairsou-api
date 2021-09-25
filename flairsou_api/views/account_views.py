@@ -5,11 +5,22 @@ import flairsou_api.models as fm
 import flairsou_api.serializers as fs
 
 
-class AccountList(mixins.ListModelMixin, mixins.CreateModelMixin,
-                  generics.GenericAPIView):
+class AccountCreation(mixins.CreateModelMixin, generics.GenericAPIView):
     """
-    Vue qui fournit la liste des comptes créés et qui permet de créer un
-    nouveau compte dans la base.
+    Vue qui qui permet de créer un nouveau compte dans la base.
+    """
+    serializer_class = fs.AccountSerializer
+
+    def post(self, request, *args, **kwargs):
+        """
+        Crée un nouveau compte
+        """
+        return self.create(request, *args, **kwargs)
+
+
+class AccountListFilter(mixins.ListModelMixin, generics.GenericAPIView):
+    """
+    Vue qui permet de récupérer une liste de comptes par rapport à un filtrage
     """
     serializer_class = fs.AccountSerializer
 
@@ -29,15 +40,9 @@ class AccountList(mixins.ListModelMixin, mixins.CreateModelMixin,
 
     def get(self, request, *args, **kwargs):
         """
-        Sur une requête GET, renvoie la liste de tous les comptes
+        Renvoie la liste des comptes en fonction du filtre utilisé
         """
         return self.list(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        """
-        Sur une requête POST, crée un nouveau compte
-        """
-        return self.create(request, *args, **kwargs)
 
 
 class AccountDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,

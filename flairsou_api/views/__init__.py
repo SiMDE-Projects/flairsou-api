@@ -1,9 +1,10 @@
-from .account_views import AccountDetail, AccountList
+from .account_views import AccountDetail, AccountCreation, AccountListFilter
 from .book_views import BookDetail, BookList
 
 __all__ = [
     AccountDetail,
-    AccountList,
+    AccountListFilter,
+    AccountCreation,
     BookDetail,
     BookList,
 ]
