@@ -37,7 +37,7 @@ class BookAPITestCase(APITestCase):
         Vérifie que le filtrage des livres par entité fonctionne
         """
         url = reverse('flairsou_api:book-filter-by-entity',
-                      kwargs={'uuid': self.book.entity})
+                      kwargs={'entity': self.book.entity})
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)

@@ -34,7 +34,7 @@ class BookListFilter(mixins.ListModelMixin, generics.GenericAPIView):
         """
         queryset = fm.Book.objects.all()
 
-        entity = self.kwargs.get('uuid')
+        entity = self.kwargs.get('entity')
         if entity is not None:
             queryset = queryset.filter(entity=entity)
 
@@ -44,7 +44,7 @@ class BookListFilter(mixins.ListModelMixin, generics.GenericAPIView):
         """
         Renvoie la liste des livres en fonction du filtre utilisé.
         Filtrages possibles :
-        - par entité : {uuid} => UUID de l'entité utilisée pour le filtre
+        - par entité : {entity} => UUID de l'entité utilisée pour le filtre
         """
         return self.list(request, *args, **kwargs)
 
