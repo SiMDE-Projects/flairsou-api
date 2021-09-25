@@ -14,9 +14,12 @@ urlpatterns = [
     path('accounts/<int:pk>/',
          views.AccountDetail.as_view(),
          name="account-detail"),
-    path('books/', views.BookList.as_view(), name="book-list"),
+    # sur books/ on a uniquement la création des livres
+    path('books/', views.BookCreation.as_view(), name="book-create"),
+    # on a ensuite les routes de listing par filtre
     path('books/byEntity/<uuid:uuid>/',
-         views.BookList.as_view(),
-         name="book-list-filter"),
+         views.BookListFilter.as_view(),
+         name="book-filter-by-entity"),
+    # et la route de détails sur un livre particulier
     path('books/<int:pk>/', views.BookDetail.as_view(), name="book-detail"),
 ]

@@ -5,11 +5,22 @@ import flairsou_api.models as fm
 import flairsou_api.serializers as fs
 
 
-class BookList(mixins.ListModelMixin, mixins.CreateModelMixin,
-               generics.GenericAPIView):
+class BookCreation(mixins.CreateModelMixin, generics.GenericAPIView):
     """
-    Vue qui fournit la liste des livres créés et qui permet de créer un
-    nouveau livre dans la base.
+    Vue permettant la création d'un nouveau livre de comptes
+    """
+    serializer_class = fs.BookSerializer
+
+    def post(self, request, *args, **kwargs):
+        """
+        Création d'un nouveau livre
+        """
+        return self.create(request, *args, **kwargs)
+
+
+class BookListFilter(mixins.ListModelMixin, generics.GenericAPIView):
+    """
+    Vue qui fournit une liste de livres à partir d'un certain filtre
     """
     serializer_class = fs.BookSerializer
 
@@ -32,12 +43,6 @@ class BookList(mixins.ListModelMixin, mixins.CreateModelMixin,
         Sur une requête GET, renvoie la liste de tous les livres
         """
         return self.list(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        """
-        Sur une requête POST, crée un nouveau livre
-        """
-        return self.create(request, *args, **kwargs)
 
 
 class BookDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
