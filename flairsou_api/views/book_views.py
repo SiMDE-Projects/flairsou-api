@@ -13,7 +13,9 @@ class BookCreation(mixins.CreateModelMixin, generics.GenericAPIView):
 
     def post(self, request, *args, **kwargs):
         """
-        Création d'un nouveau livre
+        Crée un nouveau livre avec les paramètres suivants :
+        - "name" : nom du livre à créer
+        - "entity" : UUID correspondant à l'entité possédant le livre
         """
         return self.create(request, *args, **kwargs)
 
@@ -28,7 +30,7 @@ class BookListFilter(mixins.ListModelMixin, generics.GenericAPIView):
         """
         Adapte la queryset en fonction de la requête qui a été passée.
         Les filtres possibles sont :
-        - entity : uuid de l'entité associée aux livres à retourner
+        - entity : UUID de l'entité associée aux livres à retourner
         """
         queryset = fm.Book.objects.all()
 
@@ -40,7 +42,9 @@ class BookListFilter(mixins.ListModelMixin, generics.GenericAPIView):
 
     def get(self, request, *args, **kwargs):
         """
-        Sur une requête GET, renvoie la liste de tous les livres
+        Renvoie la liste des livres en fonction du filtre utilisé.
+        Filtrages possibles :
+        - par entité : {uuid} => UUID de l'entité utilisée pour le filtre
         """
         return self.list(request, *args, **kwargs)
 
@@ -56,18 +60,24 @@ class BookDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
 
     def get(self, request, *args, **kwargs):
         """
-        Sur une requête GET, renvoie le détail du livre
+        Renvoie le détail du livre passé en paramètre
+        - id : clé primaire du livre à récupérer
         """
         return self.retrieve(request, *args, **kwargs)
 
     def put(self, request, *args, **kwargs):
         """
-        Sur une requete PUT, met à jour le livre
+        Met à jour le livre passé en paramètre
+        - id : clé primaire du livre à modifier
         """
         return self.update(request, *args, **kwargs)
 
     def delete(self, request, *args, **kwargs):
         """
-        Sur une requête DELETE, supprime le livre
+        Supprime le livre passé en paramètre
+        - id : clé primaire du livre à supprimer
+
+        Attention : cette opération supprime tous les comptes associés à
+        ce livre, et toutes les transactions associées à ces comptes !
         """
         return self.destroy(request, *args, **kwargs)

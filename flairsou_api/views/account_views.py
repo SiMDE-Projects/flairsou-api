@@ -13,7 +13,17 @@ class AccountCreation(mixins.CreateModelMixin, generics.GenericAPIView):
 
     def post(self, request, *args, **kwargs):
         """
-        Crée un nouveau compte
+        Crée un nouveau compte avec les attributs suivants :
+        - "name" : nom du compte
+        - "account_type" : type du compte
+            - 0 : Actif
+            - 1 : Passif
+            - 2 : Revenus
+            - 3 : Dépenses
+            - 4 : Capitaux Propres
+        - "virtual" : booléen indiquant si le compte est virtuel ou non
+        - "parent" : clé primaire du compte parent, peut être null
+        - "book" : clé primaire du livre associé, obligatoire
         """
         return self.create(request, *args, **kwargs)
 
@@ -40,7 +50,9 @@ class AccountListFilter(mixins.ListModelMixin, generics.GenericAPIView):
 
     def get(self, request, *args, **kwargs):
         """
-        Renvoie la liste des comptes en fonction du filtre utilisé
+        Renvoie la liste des comptes en fonction du filtre utilisé.
+        Filtrages possibles :
+        - par livre : {book} => clé primaire du livre à utiliser en filtre
         """
         return self.list(request, *args, **kwargs)
 
@@ -56,18 +68,21 @@ class AccountDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
 
     def get(self, request, *args, **kwargs):
         """
-        Sur une requête GET, renvoie la liste des comptes
+        Renvoie le détail du compte passé en paramètre
+        - id : clé primaire du compte à récupérer
         """
         return self.retrieve(request, *args, **kwargs)
 
     def put(self, request, *args, **kwargs):
         """
-        Sur une requee PUT, met à jour le compte
+        Met à jour le compte passé en paramètre
+        - id : clé primaire du compte à mettre à jour
         """
         return self.update(request, *args, **kwargs)
 
     def delete(self, request, *args, **kwargs):
         """
-        Sur une requête DELETE, supprime le compte
+        Supprime le compte passé en paramètre
+        - id : clé primaire du compte à supprimer
         """
         return self.destroy(request, *args, **kwargs)
