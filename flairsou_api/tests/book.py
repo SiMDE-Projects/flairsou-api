@@ -11,13 +11,14 @@ class BookAPITestCase(APITestCase):
         self.book = Book.objects.create(name="Comptes BDE",
                                         entity=uuid.UUID(int=1))
 
-    def test_get_all_books(self):
+    def test_get_forbidden_on_create(self):
         """
-        Vérifie que la route globale fonctionne
+        Vérifie qu'on ne peut pas faire de requête GET sur la route de création
         """
-        url = reverse('flairsou_api:book-list')
+        url = reverse('flairsou_api:book-create')
         response = self.client.get(url, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def test_filter_book_by_pk(self):
         """
@@ -35,8 +36,8 @@ class BookAPITestCase(APITestCase):
         """
         Vérifie que le filtrage des livres par entité fonctionne
         """
-        url = reverse('flairsou_api:book-list-filter',
-                      kwargs={'uuid': self.book.entity})
+        url = reverse('flairsou_api:book-filter-by-entity',
+                      kwargs={'entity': self.book.entity})
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
