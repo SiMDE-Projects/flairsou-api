@@ -15,7 +15,7 @@ class BookAPITestCase(APITestCase):
         """
         Vérifie que la création de livre fonctionne
         """
-        url = reverse('flairsou_api:book-list')
+        url = reverse('flairsou_api:book-create')
         data = {
             'name': 'BDE-UTC',
             'entity': '00000000-0000-0000-0000-000000000002'
