@@ -2,6 +2,7 @@ from .account import AccountAPITestCase, AccountFilterAPITestCase
 from .book import BookAPITestCase
 from .entity import EntityTestCase
 from .unique_constraints import UniqueConstraintsTestCase
+from .transaction import TransactionAPITestCase
 
 __all__ = [
     AccountAPITestCase,
@@ -9,4 +10,5 @@ __all__ = [
     BookAPITestCase,
     EntityTestCase,
     UniqueConstraintsTestCase,
+    TransactionAPITestCase,
 ]

@@ -22,4 +22,15 @@ urlpatterns = [
          name="book-filter-by-entity"),
     # et la route de détails sur un livre particulier
     path('books/<int:pk>/', views.BookDetail.as_view(), name="book-detail"),
+    # urls operations pour le dev, à retirer ensuite
+    path('operations/', views.OperationList.as_view(), name="operation-list"),
+    path('operations/<int:pk>/',
+         views.OperationDetail.as_view(),
+         name="operation-detail"),
+    path('transactions/',
+         views.TransactionList.as_view(),
+         name="transaction-list"),
+    path('transactions/<int:pk>/',
+         views.TransactionDetail.as_view(),
+         name="transaction-detail"),
 ]
