@@ -11,6 +11,24 @@ class BookAPITestCase(APITestCase):
         self.book = Book.objects.create(name="Comptes BDE",
                                         entity=uuid.UUID(int=1))
 
+    def test_create_book(self):
+        """
+        Vérifie que la création de livre fonctionne
+        """
+        url = reverse('flairsou_api:book-create')
+        data = {
+            'name': 'BDE-UTC',
+            'entity': '00000000-0000-0000-0000-000000000002'
+        }
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # le deuxième test ne doit pas fonctionner car on crée deux livres pour
+        # la même entité
+        data['name'] = 'BDE-UTC-2'
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
     def test_get_forbidden_on_create(self):
         """
         Vérifie qu'on ne peut pas faire de requête GET sur la route de création
