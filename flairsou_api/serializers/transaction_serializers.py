@@ -17,6 +17,11 @@ class OperationSerializer(FlairsouModelSerializer):
         Validation de l'opération au niveau global.
         """
 
+        # vérifie que l'opération est liée à un compte non virtuel
+        if data['account'].virtual:
+            raise self.ValidationError('Les opérations doivent être '
+                                       'associées à des comptes non virtuels')
+
         # vérifie que credit et debit sont correctement définis (un seul
         # des deux montants >= 0)
         if data['credit'] != 0 and data['debit'] != 0:
