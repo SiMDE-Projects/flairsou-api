@@ -65,6 +65,9 @@ class TransactionSerializer(FlairsouModelSerializer):
         # vérification d'une seule opération par compte
         self.check_one_op_per_account(data)
 
+        # vérification que toutes les opérations appartiennent au même livre
+        self.check_all_ops_same_book(data)
+
         return data
 
     def validate_date(self, date):
@@ -126,6 +129,21 @@ class TransactionSerializer(FlairsouModelSerializer):
                     format(op['account']))
             else:
                 accounts.append(op['account'])
+
+    def check_all_ops_same_book(self, data):
+        """
+        Vérifie que les comptes liés à toutes les opérations sont associés
+        au même livre
+        """
+        book = None
+        for op in data['operations']:
+            if book is None:
+                book = op['account'].book
+                continue
+
+            if book != op['account'].book:
+                raise self.ValidationError('Les opérations doivent être '
+                                           'liées au même livre')
 
     def create(self, validated_data):
         """
