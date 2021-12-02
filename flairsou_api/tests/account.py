@@ -34,7 +34,7 @@ class AccountAPITestCase(APITestCase):
         nbAccounts = Account.objects.count()
 
         # on crée un compte sans book : l'API refuse
-        url = reverse('flairsou_api:account-list')
+        url = reverse('flairsou_api:account-create')
         data = {
             "name": "SG",
             "account_type": Account.AccountType.ASSET,
@@ -50,7 +50,7 @@ class AccountAPITestCase(APITestCase):
         nbAccounts = Account.objects.count()
 
         # on crée un sous-compte avec le mauvais type : l'API refuse
-        url = reverse('flairsou_api:account-list')
+        url = reverse('flairsou_api:account-create')
         data = {
             "name": "SG",
             "account_type": Account.AccountType.ASSET,  # sous-compte ASSET
@@ -66,7 +66,7 @@ class AccountAPITestCase(APITestCase):
         nbAccounts = Account.objects.count()
 
         # on crée un nouveau compte rattaché au book principal
-        url = reverse('flairsou_api:account-list')
+        url = reverse('flairsou_api:account-create')
         data = {
             "name": "Recettes",
             "account_type": Account.AccountType.INCOME,
@@ -145,7 +145,7 @@ class AccountAPITestCase(APITestCase):
     def test_change_parent(self):
         # on teste le changement de parent
         # on crée un nouveau sous-compte
-        url = reverse('flairsou_api:account-list')
+        url = reverse('flairsou_api:account-create')
         data = {
             "name": "Pizzas",
             "account_type": Account.AccountType.EXPENSE,
@@ -242,9 +242,15 @@ class AccountAPITestCase(APITestCase):
             "parent": self.liabilities.pk,
             "book": self.book.pk
         }
-        url = reverse('flairsou_api:account-list')
+        url = reverse('flairsou_api:account-create')
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_get_forbidden_on_create(self):
+        url = reverse('flairsou_api:account-create')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 class AccountFilterAPITestCase(APITestCase):
@@ -292,9 +298,11 @@ class AccountFilterAPITestCase(APITestCase):
 
     def test_filter_by_book(self):
         # on récupère les comptes liés au book 1
-        url = reverse('flairsou_api:account-list-filter', kwargs={'book': 1})
+        url = reverse('flairsou_api:account-filter-by-book',
+                      kwargs={'book': 1})
         response = self.client.get(url, format='json')
         self.assertEqual(len(response.data), 4)
-        url = reverse('flairsou_api:account-list-filter', kwargs={'book': 2})
+        url = reverse('flairsou_api:account-filter-by-book',
+                      kwargs={'book': 2})
         response = self.client.get(url, format='json')
         self.assertEqual(len(response.data), 3)
