@@ -129,3 +129,9 @@ class AccountSerializer(FlairsouModelSerializer):
                     'Le compte parent doit être virtuel')
 
         return parent
+
+
+class AccountBalanceSerializer(FlairsouModelSerializer):
+    class Meta:
+        model = Account
+        fields = ['pk', 'balance']

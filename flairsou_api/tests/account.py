@@ -1,6 +1,5 @@
 from rest_framework.test import APITestCase
 from rest_framework import status
-from django.test import TestCase
 from django.urls import reverse
 
 import datetime
@@ -8,7 +7,7 @@ import uuid
 from flairsou_api.models import Account, Book, Transaction, Operation
 
 
-class AccountTestCase(TestCase):
+class AccountTestCase(APITestCase):
     def setUp(self):
         book = Book.objects.create(name="Comptes", entity=uuid.UUID(int=1))
         self.assets = Account.objects.create(
@@ -56,9 +55,17 @@ class AccountTestCase(TestCase):
                                  account=self.expenses,
                                  transaction=tr2)
 
+        # vérification de la fonction de calcul du solde
         self.assertEqual(self.assets.balance, 50.0)
         self.assertEqual(self.income.balance, 100.0)
         self.assertEqual(self.expenses.balance, 50.0)
+
+        # vérification de la réponse de l'API
+        url = reverse('flairsou_api:account-balance', kwargs={'pk': 1})
+        response = self.client.get(url, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['balance'], 50.0)
 
 
 class AccountAPITestCase(APITestCase):
