@@ -7,7 +7,7 @@ import uuid
 from flairsou_api.models import Account, Book, Transaction, Operation
 
 
-class AccountTestCase(APITestCase):
+class AccountBalanceTestCase(APITestCase):
     def setUp(self):
         book = Book.objects.create(name="Comptes", entity=uuid.UUID(int=1))
         self.assets = Account.objects.create(
