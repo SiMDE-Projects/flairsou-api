@@ -60,7 +60,7 @@ class Account(TimeStampedModel):
                              blank=False,
                              null=False)
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self.parent_id is not None:
             return "{}-{}".format(self.parent, self.name)
         return "{}-{}".format(self.book, self.name)
@@ -84,3 +84,34 @@ class Account(TimeStampedModel):
             models.CheckConstraint(
                 check=~models.Q(name=''),
                 name="%(app_label)s_%(class)s_name_not_null"))
+
+    @property
+    def solde(self) -> float:
+        """
+        Calcule le solde du compte
+        """
+
+        if self.virtual:
+            solde = 0
+            for acc in self.account_set.all():
+                solde += acc.solde()
+        else:
+            # comptabilise les crédits et les débits associés au compte
+            # (en centimes)
+            credits: int = 0
+            debits: int = 0
+            for op in self.operation_set.all():
+                credits += op.credit
+                debits += op.debit
+
+            # calcule le solde selon le type de compte
+            if self.account_type == Account.AccountType.ASSET \
+                    or self.account_type == Account.AccountType.EXPENSE:
+                solde = debits - credits
+            else:
+                solde = credits - debits
+
+            # passage en euros
+            solde = solde / 100
+
+        return solde

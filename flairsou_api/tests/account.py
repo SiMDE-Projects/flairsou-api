@@ -1,10 +1,64 @@
 from rest_framework.test import APITestCase
 from rest_framework import status
+from django.test import TestCase
 from django.urls import reverse
 
 import datetime
 import uuid
 from flairsou_api.models import Account, Book, Transaction, Operation
+
+
+class AccountTestCase(TestCase):
+    def setUp(self):
+        book = Book.objects.create(name="Comptes", entity=uuid.UUID(int=1))
+        self.assets = Account.objects.create(
+            name="Actifs",
+            account_type=Account.AccountType.ASSET,
+            virtual=False,
+            parent=None,
+            book=book)
+        self.expenses = Account.objects.create(
+            name="Dépenses",
+            account_type=Account.AccountType.EXPENSE,
+            virtual=False,
+            parent=None,
+            book=book)
+        self.income = Account.objects.create(
+            name="Recettes",
+            account_type=Account.AccountType.INCOME,
+            virtual=False,
+            parent=None,
+            book=book)
+
+    def test_calcul_solde(self):
+        tr = Transaction.objects.create(date=datetime.date.today(),
+                                        checked=False)
+        Operation.objects.create(debit=10000,
+                                 credit=0,
+                                 label="Recette 1",
+                                 account=self.assets,
+                                 transaction=tr)
+        Operation.objects.create(debit=0,
+                                 credit=10000,
+                                 label="Recette 1",
+                                 account=self.income,
+                                 transaction=tr)
+        tr2 = Transaction.objects.create(date=datetime.date.today(),
+                                         checked=False)
+        Operation.objects.create(debit=0,
+                                 credit=5000,
+                                 label="Dépense 1",
+                                 account=self.assets,
+                                 transaction=tr2)
+        Operation.objects.create(debit=5000,
+                                 credit=0,
+                                 label="Dépense 1",
+                                 account=self.expenses,
+                                 transaction=tr2)
+
+        self.assertEqual(self.assets.solde, 50.0)
+        self.assertEqual(self.income.solde, 100.0)
+        self.assertEqual(self.expenses.solde, 50.0)
 
 
 class AccountAPITestCase(APITestCase):
