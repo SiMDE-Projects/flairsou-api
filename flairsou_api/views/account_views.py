@@ -86,3 +86,17 @@ class AccountDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
         - id : clé primaire du compte à supprimer
         """
         return self.destroy(request, *args, **kwargs)
+
+
+class AccountBalance(mixins.RetrieveModelMixin, generics.GenericAPIView):
+    """
+    Vue qui fournit le solde d'un compte
+    """
+    queryset = fm.Account.objects.all()
+    serializer_class = fs.AccountBalanceSerializer
+
+    def get(self, request, *args, **kwargs):
+        """
+        Renvoie le solde du compte passé en paramètre
+        """
+        return self.retrieve(request, *args, **kwargs)

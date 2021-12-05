@@ -7,6 +7,67 @@ import uuid
 from flairsou_api.models import Account, Book, Transaction, Operation
 
 
+class AccountBalanceTestCase(APITestCase):
+    def setUp(self):
+        book = Book.objects.create(name="Comptes", entity=uuid.UUID(int=1))
+        self.assets = Account.objects.create(
+            name="Actifs",
+            account_type=Account.AccountType.ASSET,
+            virtual=False,
+            parent=None,
+            book=book)
+        self.expenses = Account.objects.create(
+            name="Dépenses",
+            account_type=Account.AccountType.EXPENSE,
+            virtual=False,
+            parent=None,
+            book=book)
+        self.income = Account.objects.create(
+            name="Recettes",
+            account_type=Account.AccountType.INCOME,
+            virtual=False,
+            parent=None,
+            book=book)
+
+    def test_calcul_solde(self):
+        tr = Transaction.objects.create(date=datetime.date.today(),
+                                        checked=False)
+        Operation.objects.create(debit=10000,
+                                 credit=0,
+                                 label="Recette 1",
+                                 account=self.assets,
+                                 transaction=tr)
+        Operation.objects.create(debit=0,
+                                 credit=10000,
+                                 label="Recette 1",
+                                 account=self.income,
+                                 transaction=tr)
+        tr2 = Transaction.objects.create(date=datetime.date.today(),
+                                         checked=False)
+        Operation.objects.create(debit=0,
+                                 credit=5000,
+                                 label="Dépense 1",
+                                 account=self.assets,
+                                 transaction=tr2)
+        Operation.objects.create(debit=5000,
+                                 credit=0,
+                                 label="Dépense 1",
+                                 account=self.expenses,
+                                 transaction=tr2)
+
+        # vérification de la fonction de calcul du solde
+        self.assertEqual(self.assets.balance, 50.0)
+        self.assertEqual(self.income.balance, 100.0)
+        self.assertEqual(self.expenses.balance, 50.0)
+
+        # vérification de la réponse de l'API
+        url = reverse('flairsou_api:account-balance', kwargs={'pk': 1})
+        response = self.client.get(url, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['balance'], 50.0)
+
+
 class AccountAPITestCase(APITestCase):
     def setUp(self):
         self.book = Book.objects.create(name="Comptes",
