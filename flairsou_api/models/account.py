@@ -86,15 +86,15 @@ class Account(TimeStampedModel):
                 name="%(app_label)s_%(class)s_name_not_null"))
 
     @property
-    def solde(self) -> float:
+    def balance(self) -> float:
         """
         Calcule le solde du compte
         """
 
         if self.virtual:
-            solde = 0
+            balance = 0
             for acc in self.account_set.all():
-                solde += acc.solde()
+                balance += acc.balance
         else:
             # comptabilise les crédits et les débits associés au compte
             # (en centimes)
@@ -104,14 +104,14 @@ class Account(TimeStampedModel):
                 credits += op.credit
                 debits += op.debit
 
-            # calcule le solde selon le type de compte
+            # calcule le balance selon le type de compte
             if self.account_type == Account.AccountType.ASSET \
                     or self.account_type == Account.AccountType.EXPENSE:
-                solde = debits - credits
+                balance = debits - credits
             else:
-                solde = credits - debits
+                balance = credits - debits
 
             # passage en euros
-            solde = solde / 100
+            balance = balance / 100
 
-        return solde
+        return balance

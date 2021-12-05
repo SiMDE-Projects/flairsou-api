@@ -56,9 +56,9 @@ class AccountTestCase(TestCase):
                                  account=self.expenses,
                                  transaction=tr2)
 
-        self.assertEqual(self.assets.solde, 50.0)
-        self.assertEqual(self.income.solde, 100.0)
-        self.assertEqual(self.expenses.solde, 50.0)
+        self.assertEqual(self.assets.balance, 50.0)
+        self.assertEqual(self.income.balance, 100.0)
+        self.assertEqual(self.expenses.balance, 50.0)
 
 
 class AccountAPITestCase(APITestCase):
