@@ -23,6 +23,10 @@ urlpatterns = [
     path('books/byEntity/<uuid:entity>/',
          views.BookListFilter.as_view(),
          name="book-filter-by-entity"),
+    # renvoie une représentation imbriquée des comptes d'un livre
+    path('books/<int:pk>/accounts/',
+         views.BookAccountList.as_view(),
+         name="book-get-all-accounts"),
     # et la route de détails sur un livre particulier
     path('books/<int:pk>/', views.BookDetail.as_view(), name="book-detail"),
     # urls operations pour le dev, à retirer ensuite
