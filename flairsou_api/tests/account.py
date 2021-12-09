@@ -7,6 +7,67 @@ import uuid
 from flairsou_api.models import Account, Book, Transaction, Operation
 
 
+class AccountBalanceTestCase(APITestCase):
+    def setUp(self):
+        book = Book.objects.create(name="Comptes", entity=uuid.UUID(int=1))
+        self.assets = Account.objects.create(
+            name="Actifs",
+            account_type=Account.AccountType.ASSET,
+            virtual=False,
+            parent=None,
+            book=book)
+        self.expenses = Account.objects.create(
+            name="Dépenses",
+            account_type=Account.AccountType.EXPENSE,
+            virtual=False,
+            parent=None,
+            book=book)
+        self.income = Account.objects.create(
+            name="Recettes",
+            account_type=Account.AccountType.INCOME,
+            virtual=False,
+            parent=None,
+            book=book)
+
+    def test_calcul_solde(self):
+        tr = Transaction.objects.create(date=datetime.date.today(),
+                                        checked=False)
+        Operation.objects.create(debit=10000,
+                                 credit=0,
+                                 label="Recette 1",
+                                 account=self.assets,
+                                 transaction=tr)
+        Operation.objects.create(debit=0,
+                                 credit=10000,
+                                 label="Recette 1",
+                                 account=self.income,
+                                 transaction=tr)
+        tr2 = Transaction.objects.create(date=datetime.date.today(),
+                                         checked=False)
+        Operation.objects.create(debit=0,
+                                 credit=5000,
+                                 label="Dépense 1",
+                                 account=self.assets,
+                                 transaction=tr2)
+        Operation.objects.create(debit=5000,
+                                 credit=0,
+                                 label="Dépense 1",
+                                 account=self.expenses,
+                                 transaction=tr2)
+
+        # vérification de la fonction de calcul du solde
+        self.assertEqual(self.assets.balance, 50.0)
+        self.assertEqual(self.income.balance, 100.0)
+        self.assertEqual(self.expenses.balance, 50.0)
+
+        # vérification de la réponse de l'API
+        url = reverse('flairsou_api:account-balance', kwargs={'pk': 1})
+        response = self.client.get(url, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['balance'], 50.0)
+
+
 class AccountAPITestCase(APITestCase):
     def setUp(self):
         self.book = Book.objects.create(name="Comptes",
@@ -34,7 +95,7 @@ class AccountAPITestCase(APITestCase):
         nbAccounts = Account.objects.count()
 
         # on crée un compte sans book : l'API refuse
-        url = reverse('flairsou_api:account-list')
+        url = reverse('flairsou_api:account-create')
         data = {
             "name": "SG",
             "account_type": Account.AccountType.ASSET,
@@ -50,7 +111,7 @@ class AccountAPITestCase(APITestCase):
         nbAccounts = Account.objects.count()
 
         # on crée un sous-compte avec le mauvais type : l'API refuse
-        url = reverse('flairsou_api:account-list')
+        url = reverse('flairsou_api:account-create')
         data = {
             "name": "SG",
             "account_type": Account.AccountType.ASSET,  # sous-compte ASSET
@@ -66,7 +127,7 @@ class AccountAPITestCase(APITestCase):
         nbAccounts = Account.objects.count()
 
         # on crée un nouveau compte rattaché au book principal
-        url = reverse('flairsou_api:account-list')
+        url = reverse('flairsou_api:account-create')
         data = {
             "name": "Recettes",
             "account_type": Account.AccountType.INCOME,
@@ -145,7 +206,7 @@ class AccountAPITestCase(APITestCase):
     def test_change_parent(self):
         # on teste le changement de parent
         # on crée un nouveau sous-compte
-        url = reverse('flairsou_api:account-list')
+        url = reverse('flairsou_api:account-create')
         data = {
             "name": "Pizzas",
             "account_type": Account.AccountType.EXPENSE,
@@ -242,9 +303,15 @@ class AccountAPITestCase(APITestCase):
             "parent": self.liabilities.pk,
             "book": self.book.pk
         }
-        url = reverse('flairsou_api:account-list')
+        url = reverse('flairsou_api:account-create')
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_get_forbidden_on_create(self):
+        url = reverse('flairsou_api:account-create')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 class AccountFilterAPITestCase(APITestCase):
@@ -292,9 +359,11 @@ class AccountFilterAPITestCase(APITestCase):
 
     def test_filter_by_book(self):
         # on récupère les comptes liés au book 1
-        url = reverse('flairsou_api:account-list-filter', kwargs={'book': 1})
+        url = reverse('flairsou_api:account-filter-by-book',
+                      kwargs={'book': 1})
         response = self.client.get(url, format='json')
         self.assertEqual(len(response.data), 4)
-        url = reverse('flairsou_api:account-list-filter', kwargs={'book': 2})
+        url = reverse('flairsou_api:account-filter-by-book',
+                      kwargs={'book': 2})
         response = self.client.get(url, format='json')
         self.assertEqual(len(response.data), 3)

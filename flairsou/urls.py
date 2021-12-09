@@ -16,9 +16,19 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, re_path, include
 
+from drf_spectacular.views import SpectacularAPIView, \
+        SpectacularRedocView, SpectacularSwaggerView
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('flairsou_api.urls')),
     path('mock_portail/', include('mock_portail.urls')),
+    path('doc/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('doc/schema/swagger-ui/',
+         SpectacularSwaggerView.as_view(url_name='schema'),
+         name='swagger-ui'),
+    path('doc/schema/redoc/',
+         SpectacularRedocView.as_view(url_name='schema'),
+         name='redoc'),
     re_path(r'^.*/?', include('flairsou_frontend.urls')),
 ]
