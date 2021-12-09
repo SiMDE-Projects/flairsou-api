@@ -13,18 +13,20 @@ def get_association_list(request, pk):
     """
     # version mise de côté pour simplifier et éviter d'utiliser un système
     # d'auth pour le moment
-    #if not request.user.is_authenticated:
-    #    data = {'error': 'user not authenticated'}
-    #else:
-    #    user = request.user
-    #    data = {'assos': []}
-    #    entities = [
-    #        user.entity1, user.entity2, user.entity3, user.entity4,
-    #        user.entity5
-    #    ]
-    #    for entity in entities:
-    #        if entity is not None:
-    #            data['assos'].append(entity)
+    """
+    if not request.user.is_authenticated:
+        data = {'error': 'user not authenticated'}
+    else:
+        user = request.user
+        data = {'assos': []}
+        entities = [
+            user.entity1, user.entity2, user.entity3, user.entity4,
+            user.entity5
+        ]
+        for entity in entities:
+            if entity is not None:
+                data['assos'].append(entity)
+    """
 
     data = {'assos': []}
 
