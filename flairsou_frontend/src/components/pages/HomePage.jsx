@@ -1,9 +1,9 @@
 import React from 'react';
+import BookList from './BookList';
 
 const HomePage = () => (
   <>
-    <h1>Welcome</h1>
-    This is the home page
+    <BookList />
   </>
 );
 
