@@ -14,6 +14,7 @@ import PageContainer from './containers/PageContainer';
 
 import HomePage from './pages/HomePage';
 import TestPage from './pages/TestPublicPage';
+import BookPage from './pages/BookPage';
 
 const PrivateRoute = ({ component: Component, userIdentified, ...rest }) => (
   <Route
@@ -53,6 +54,7 @@ const App = ({ userIdentified }) => (
       <>
         <Route path="/" exact component={HomePage} />
         <Route path="/test" component={TestPage} />
+        <Route path="/book" component={BookPage} />
         <PrivateRoute
           path="/private"
           component={() => (
