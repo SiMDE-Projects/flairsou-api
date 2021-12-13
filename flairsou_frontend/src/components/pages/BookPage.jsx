@@ -1,9 +1,11 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-
 import { Link } from 'react-router-dom';
+import ElementPage from './ElementPage';
 
-class BookPage extends React.Component {
+/*
+ * Composant d'affichage de l'arborescence d'un livre de comptes
+ */
+class BookPage extends ElementPage {
   static buildAccountTree(accounts, depth = 0) {
     // construction de l'affichage des comptes à partir de la liste
     // imbriquée. La clé est placée sur le fragment pour identifier
@@ -50,29 +52,16 @@ class BookPage extends React.Component {
   constructor(props) {
     super(props);
 
-    // récupération du paramètre ?pk=<pk> dans la requête pour savoir sur
-    // quel livre on se base
-    const { search } = props.location;
-    const bookIdStr = new URLSearchParams(search).get('pk');
-
-    // conversion en int et passage à 0 si la conversion a échoué
-    let bookId;
-    if (bookIdStr == null) {
-      bookId = 0;
-    } else {
-      bookId = parseInt(bookIdStr, 10);
-    }
-
     // définition de l'état du composant
-    this.state = { bookId, accounts: [] };
+    this.state = { ...this.state, accounts: [] };
   }
 
   componentDidMount() {
     // quand le composant est chargé, on récupère la liste des comptes
     // associés à ce livre
-    const { bookId } = this.state;
+    const { elementPk } = this.state;
 
-    fetch(`/api/books/${bookId}/accounts/`, { method: 'GET' })
+    fetch(`/api/books/${elementPk}/accounts/`, { method: 'GET' })
       .then((response) => (
         // on vérifie le statut de la réponse pour adapter le rendu
         // si le livre n'existe pas
@@ -87,8 +76,8 @@ class BookPage extends React.Component {
   }
 
   render() {
-    const { bookId } = this.state;
-    if (bookId === 0) {
+    const { elementPk } = this.state;
+    if (elementPk === 0) {
       // affichage particulier si le livre n'existe pas
       return (
         <>
@@ -104,7 +93,7 @@ class BookPage extends React.Component {
         <>
           Je suis la page du livre
           {' '}
-          {bookId}
+          {elementPk}
         </>
         <>
           {BookPage.buildAccountTree(accounts)}
@@ -113,12 +102,5 @@ class BookPage extends React.Component {
     );
   }
 }
-
-// définition des propriétés de la classe BookPage
-BookPage.propTypes = {
-  location: PropTypes.shape({
-    search: PropTypes.string.isRequired,
-  }).isRequired,
-};
 
 export default BookPage;
