@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { Link } from 'react-router-dom';
+
 class BookList extends React.Component {
   constructor(props) {
     super(props);
@@ -78,12 +80,11 @@ class BookList extends React.Component {
             <li key={asso.uuid}>
               {
               // création d'un lien vers la page associée
-              // si le livre n'existe pas, on renvoie vers un
-              // lien de création
+              // si le livre n'existe pas, on renvoie vers un lien de création
               }
-              <a href={asso.book_pk === 0 ? `/createBook?uuid=${asso.uuid}` : `/book?pk=${asso.book_pk}`}>
+              <Link to={asso.book_pk === 0 ? `/createBook?uuid=${asso.uuid}` : `/book?pk=${asso.book_pk}`}>
                 { asso.nom }
-              </a>
+              </Link>
             </li>
           ))}
         </ul>
