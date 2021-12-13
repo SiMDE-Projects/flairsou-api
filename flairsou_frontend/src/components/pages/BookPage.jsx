@@ -1,27 +1,46 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import { Link } from 'react-router-dom';
+
 class BookPage extends React.Component {
-  static buildAccountTree(accounts) {
-    // construction de l'afficage des comptes à partir de la liste
+  static buildAccountTree(accounts, depth = 0) {
+    // construction de l'affichage des comptes à partir de la liste
     // imbriquée. La clé est placée sur le fragment pour identifier
     // chaque élément créé dans la boucle
+    const typeLetter = ['A', 'P', 'R', 'D', 'CP'];
+
     if (accounts.length > 0) {
       return (
-        <ul>
+        <>
           {accounts.map((account) => (
             <React.Fragment key={`acc_${account.pk}`}>
-              <li>
-                {account.name}
-                {' '}
-                (
-                {account.pk}
-                )
-              </li>
-              {BookPage.buildAccountTree(account.subaccounts)}
+              <tr>
+                <td>
+                  [
+                  {typeLetter[account.account_type]}
+                  ]
+                </td>
+                {/* on ajuste la classe en fonction du type de compte pour
+                ajuster l'affichage dans le css */}
+                <td className={account.virtual ? 'virtual_account_name' : 'account_name'}>
+                  {/* on met en place le lien seulement pour les comptes non vituels, les
+                  comptes virtuels n'ont pas d'opérations associées à afficher */}
+                  {account.virtual ? account.name
+                    : (
+                      <Link to={`/account?pk=${account.pk}`}>
+                        {account.name}
+                      </Link>
+                    )}
+                </td>
+                <td>
+                  Solde
+                </td>
+              </tr>
+              {BookPage.buildAccountTree(account.subaccounts, depth + 1)}
             </React.Fragment>
           ))}
-        </ul>
+        </>
       );
     }
 
