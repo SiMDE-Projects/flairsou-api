@@ -103,7 +103,11 @@ class BookPage extends ElementPage {
           {elementPk}
         </>
         <>
-          {BookPage.buildAccountTree(accounts)}
+          <table>
+            <tbody>
+              {BookPage.buildAccountTree(accounts)}
+            </tbody>
+          </table>
         </>
       </>
     );
