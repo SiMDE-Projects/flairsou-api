@@ -6,6 +6,12 @@ import ElementPage from './ElementPage';
  * Composant d'affichage de l'arborescence d'un livre de comptes
  */
 class BookPage extends ElementPage {
+  static addTabs(depth) {
+    let ret = '';
+    for (let i = 0; i < depth; i += 1) ret += ' - ';
+    return ret;
+  }
+
   static buildAccountTree(accounts, depth = 0) {
     // construction de l'affichage des comptes à partir de la liste
     // imbriquée. La clé est placée sur le fragment pour identifier
@@ -26,6 +32,7 @@ class BookPage extends ElementPage {
                 {/* on ajuste la classe en fonction du type de compte pour
                 ajuster l'affichage dans le css */}
                 <td className={account.virtual ? 'virtual_account_name' : 'account_name'}>
+                  {BookPage.addTabs(depth)}
                   {/* on met en place le lien seulement pour les comptes non vituels, les
                   comptes virtuels n'ont pas d'opérations associées à afficher */}
                   {account.virtual ? account.name
