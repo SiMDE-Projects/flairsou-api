@@ -1,0 +1,14 @@
+.content-wrapper-v{
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100vw;
+}
+
+.content-wrapper-h{
+    display: flex;
+    flex-direction: row;
+    width: 100vw;
+    height: 100vh;
+    align-items: flex-start;
+}

@@ -1,0 +1,43 @@
+.header{
+    height: 90px;
+    background-color: rgba(0,0,0,0.8);
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-left: 30px;
+    padding-right: 30px;
+}
+
+.flairsou-logo{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    user-select: none;
+}
+
+.flairsou-image{
+    width: 50px;
+}
+
+.flairsou-title{
+    font-family: "Noto Sans Display", monospace;
+    font-style: italic;
+    font-weight: normal;
+    font-size: 36px;
+    text-shadow: 0 4px 4px rgba(0, 0, 0, 0.5);
+    color: white;
+
+    margin-top:0;
+}
+
+.deco-button{
+    color: #F5E15E;
+}
+
+.deco-button:hover{
+    text-decoration: underline;
+    color: #F5E15E;
+    cursor: pointer;
+}

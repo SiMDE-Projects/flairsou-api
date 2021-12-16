@@ -6,15 +6,11 @@
 */
 
 import React from 'react';
-import { BrowserRouter, Redirect, Route } from 'react-router-dom';
+import { BrowserRouter, Redirect, Route, Switch } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
-import PageContainer from './containers/PageContainer';
-
-import HomePage from './pages/HomePage';
-import TestPage from './pages/TestPublicPage';
-import BookPage from './pages/BookPage';
+import Home from './pages/home/Home';
 
 const PrivateRoute = ({ component: Component, userIdentified, ...rest }) => (
   <Route
@@ -49,24 +45,13 @@ PrivateRoute.defaultProps = {
 };
 
 const App = ({ userIdentified }) => (
-  <BrowserRouter>
-    <PageContainer>
-      <>
-        <Route path="/" exact component={HomePage} />
-        <Route path="/test" component={TestPage} />
-        <Route path="/book" component={BookPage} />
-        <PrivateRoute
-          path="/private"
-          component={() => (
-            <>
-              This is a private route
-            </>
-          )}
-          userIdentified={userIdentified}
-        />
-      </>
-    </PageContainer>
-  </BrowserRouter>
+    <React.StrictMode>
+        <BrowserRouter>
+            <Switch>
+                <Route path="/" exact component={ Home } />
+            </Switch>
+        </BrowserRouter>
+    </React.StrictMode>
 );
 
 App.propTypes = {
@@ -76,3 +61,4 @@ App.propTypes = {
 export default connect((store) => ({
   userIdentified: store.user.identified,
 }))(App);
+

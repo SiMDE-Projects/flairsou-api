@@ -6,6 +6,8 @@ import { Provider } from 'react-redux';
 import App from './components/App';
 import store from './store';
 
+import './index.css';
+
 const container = document.getElementById('app');
 
 render(React.createElement(Provider, { store }, React.createElement(App)), container);
