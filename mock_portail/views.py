@@ -31,13 +31,13 @@ def get_association_list(request, pk):
     data = {'assos': []}
 
     if pk == 1:
-        data['assos'].append(uuid.UUID(int=1))
+        data['assos'].append({'uuid': uuid.UUID(int=1), 'nom': 'BDE-UTC'})
     elif pk == 2:
-        data['assos'].append(uuid.UUID(int=1))
-        data['assos'].append(uuid.UUID(int=2))
+        data['assos'].append({'uuid': uuid.UUID(int=1), 'nom': 'BDE-UTC'})
+        data['assos'].append({'uuid': uuid.UUID(int=2), 'nom': 'PAE-UTC'})
     elif pk == 3:
-        data['assos'].append(uuid.UUID(int=1))
-        data['assos'].append(uuid.UUID(int=2))
-        data['assos'].append(uuid.UUID(int=3))
+        data['assos'].append({'uuid': uuid.UUID(int=1), 'nom': 'BDE-UTC'})
+        data['assos'].append({'uuid': uuid.UUID(int=2), 'nom': 'PAE-UTC'})
+        data['assos'].append({'uuid': uuid.UUID(int=3), 'nom': 'Stravaganza'})
 
     return Response(data)
