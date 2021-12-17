@@ -9,6 +9,7 @@ flairsou/config.py
 # IDE Specific
 .vscode/
 *.swp
+.idea/
 
 # Database
 db.sqlite3
