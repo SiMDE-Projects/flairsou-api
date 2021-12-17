@@ -5,5 +5,3 @@ rm -rf mock_portail/migrations
 rm -rf mock_portail/__pycache__
 python manage.py makemigrations flairsou_api
 python manage.py migrate
-
-python manage.py shell < create_test_db.py
