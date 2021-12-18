@@ -52,7 +52,7 @@ Pour le fichier de transactions, on doit avoir une opération par ligne, avec le
     - un montant positif correspond à un débit
     - un montant négatif correspond à un crédit
     - l'impact du montant sur le compte dépend de son type (mais ça n'apparaît pas dans la liste des transactions)
-    - si le montant est donné en euros, il doit faire apparaître les centimes **après une virgule** (`,`) et non un point, par exemple `123,45`, sans le symbole euros. Il peut aussi être donné directement en centimes : `12345` correspondant ) 123.45€.
+    - si le montant est donné en euros, il doit faire apparaître les centimes **après une virgule** (`,`) et non un point, par exemple `123,45`, sans le symbole euros. Il peut aussi être donné directement en centimes : `12345` correspondant à 123.45€.
 
 Si d'autres colonnes sont présentes dans le fichier, elles sont ignorées.
 L'ordre des colonnes dans le fichier n'est pas important.
@@ -84,5 +84,5 @@ Si des fichiers créés à partir d'autres logiciels sont utilisés, les colonne
 Le paramètre `--book BOOK` permet de spécifier la clé primaire du livre auquel rattacher les comptes et les transactions créées.
 Si aucun livre n'est donné, un nouveau livre est créé avec un nom aléatoire et une entité aléatoire.
 
-Le paramètre `-randomize` permet de randomiser les transactions en remplaçant les labels par des chaînes de caractères aléatoires.
+Le paramètre `--randomize` permet de randomiser les transactions en remplaçant les labels par des chaînes de caractères aléatoires.
 Ceci peut être utile pour fournir une base de données de test pour le développement sans pouvoir identifier les personnes impliquées dans les transactions.
