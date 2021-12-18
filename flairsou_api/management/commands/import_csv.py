@@ -241,21 +241,12 @@ def createTransactions(transactionsFile: TextIO, accounts):
             continue
 
         # on affecte au crédit ou au débit selon le type du compte
-        if account.account_type == Account.AccountType.ASSET \
-                or account.account_type == Account.AccountType.EXPENSE:
-            if opAmount > 0:
-                debit = opAmount
-                credit = 0
-            else:
-                credit = abs(opAmount)
-                debit = 0
+        if opAmount > 0:
+            debit = opAmount
+            credit = 0
         else:
-            if opAmount > 0:
-                credit = opAmount
-                debit = 0
-            else:
-                credit = 0
-                debit = abs(opAmount)
+            credit = abs(opAmount)
+            debit = 0
 
         try:
             # on vérifie qu'une opération associée à cette transaction et à ce
