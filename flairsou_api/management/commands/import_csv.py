@@ -14,6 +14,7 @@ import csv
 import datetime
 import random
 import string
+import uuid
 
 
 class Command(BaseCommand):
@@ -27,11 +28,22 @@ class Command(BaseCommand):
         Ajout des arguments requis pour la commande
         """
         # nom du fichier contenant la structure des comptes
-        parser.add_argument('accounts_filename', nargs=1, type=str)
+        parser.add_argument(
+            'accounts_filename',
+            nargs=1,
+            type=str,
+            help="Nom du fichier contenant la structure des comptes")
         # nom du fichier contenant les transactions
-        parser.add_argument('transactions_filename', nargs=1, type=str)
+        parser.add_argument('transactions_filename',
+                            nargs=1,
+                            type=str,
+                            help="Nom du fichier contenant les transactions")
         # identifiant du livre sur lequel charger les transactions
-        parser.add_argument('book_pk', nargs=1, type=int)
+        parser.add_argument('--book',
+                            nargs='?',
+                            type=int,
+                            default=0,
+                            help="Clé primaire du livre à ajouter")
 
     def handle(self, *args, **options):
         """
@@ -52,14 +64,34 @@ class Command(BaseCommand):
                                options['transactions_filename'][0])
 
         # test de la récupération du livre
-        try:
-            bookObj = Book.objects.get(id=options['book_pk'][0])
-        except Book.DoesNotExist:
-            raise CommandError('Le livre %d n\'existe pas' %
-                               options['book_pk'][0])
+        if options['book'] != 0:
+            try:
+                bookObj = Book.objects.get(id=options['book'][0])
+            except Book.DoesNotExist:
+                raise CommandError('Le livre %d n\'existe pas' %
+                                   options['book'][0])
+        else:
+            bookObj = None
 
         # on garantit l'atomicité de la transaction en cas d'erreur d'import
         with transaction.atomic():
+            if bookObj is None:
+                # création d'un nouveau livre
+                generateAgain = True
+                while generateAgain:
+                    entityName = randomString(15)
+                    if Book.objects.filter(name=entityName).count() == 0:
+                        generateAgain = False
+
+                generateAgain = True
+                while generateAgain:
+                    entityUUID = uuid.uuid4()
+                    if Book.objects.filter(entity=entityUUID).count() == 0:
+                        generateAgain = False
+
+                bookObj = Book.objects.create(name=entityName,
+                                              entity=entityUUID)
+
             # création des comptes
             accounts = createAccountsStructure(accountsFile, bookObj)
 
@@ -297,8 +329,7 @@ def createTransactions(transactionsFile: TextIO, accounts):
             generateAgain = True
 
             while generateAgain:
-                newName = acc.name + '_sub_' + ''.join(
-                    random.choice(string.ascii_letters) for _ in range(10))
+                newName = acc.name + '_sub_' + randomString(10)
 
                 if acc.account_set.filter(name=newName).count() == 0:
                     # on vérifie que ce nom de compte n'est pas déjà
@@ -320,3 +351,7 @@ def createTransactions(transactionsFile: TextIO, accounts):
                 # on déplace les opérations sur le nouveau compte
                 op.account = subAcc
                 op.save()
+
+
+def randomString(N: int):
+    return ''.join(random.choice(string.ascii_letters) for _ in range(10))
