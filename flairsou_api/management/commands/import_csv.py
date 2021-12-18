@@ -12,6 +12,8 @@ from typing import TextIO
 
 import csv
 import datetime
+import random
+import string
 
 
 class Command(BaseCommand):
@@ -282,3 +284,39 @@ def createTransactions(transactionsFile: TextIO, accounts):
             print(credit)
             print(debit)
             raise ex
+
+    # on vérifie que les comptes importés virtuels ne sont pas associés à
+    # des transactions (contrainte du projet Flairsou mais pas
+    # nécessairement appliquée sur gnucash).
+    # Si on trouve un compte virtuel avec des transactions, un nouveau
+    # sous-compte au nom basique est créé pour transférer les transactions
+    virtualAccs = list(Account.objects.filter(virtual=True))
+    for acc in virtualAccs:
+        if acc.operation_set.count() > 0:
+            # le compte virtuel a des opérations associées
+            generateAgain = True
+
+            while generateAgain:
+                newName = acc.name + '_sub_' + ''.join(
+                    random.choice(string.ascii_letters) for _ in range(10))
+
+                if acc.account_set.filter(name=newName).count() == 0:
+                    # on vérifie que ce nom de compte n'est pas déjà
+                    # utilisé, même si c'est peu probable
+                    generateAgain = False
+
+            # création d'un nouveau sous-compte
+            subAcc = Account.objects.create(name=newName,
+                                            account_type=acc.account_type,
+                                            virtual=False,
+                                            parent=acc,
+                                            book=acc.book)
+
+            # conversion de la queryset en liste pour modifier les
+            # opérations correctement
+            opsToMove = list(acc.operation_set.all())
+
+            for op in opsToMove:
+                # on déplace les opérations sur le nouveau compte
+                op.account = subAcc
+                op.save()
