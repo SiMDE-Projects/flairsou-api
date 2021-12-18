@@ -1,6 +1,8 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
+from flairsou_api.models import Book
+
 import uuid
 
 
@@ -13,31 +15,19 @@ def get_association_list(request, pk):
     """
     # version mise de côté pour simplifier et éviter d'utiliser un système
     # d'auth pour le moment
-    """
-    if not request.user.is_authenticated:
-        data = {'error': 'user not authenticated'}
-    else:
-        user = request.user
-        data = {'assos': []}
-        entities = [
-            user.entity1, user.entity2, user.entity3, user.entity4,
-            user.entity5
-        ]
-        for entity in entities:
-            if entity is not None:
-                data['assos'].append(entity)
-    """
+
+    try:
+        bookObj = Book.objets.get(id=1)
+    except Book.DoesNotExist:
+        return Response({'error': 'Aucun livre dans la base'})
 
     data = {'assos': []}
 
-    if pk == 1:
-        data['assos'].append({'uuid': uuid.UUID(int=1), 'nom': 'BDE-UTC'})
-    elif pk == 2:
-        data['assos'].append({'uuid': uuid.UUID(int=1), 'nom': 'BDE-UTC'})
+    if pk <= 1:
+        data['assos'].append({'uuid': bookObj.entity, 'nom': bookObj.name})
+    if pk <= 2:
         data['assos'].append({'uuid': uuid.UUID(int=2), 'nom': 'PAE-UTC'})
-    elif pk == 3:
-        data['assos'].append({'uuid': uuid.UUID(int=1), 'nom': 'BDE-UTC'})
-        data['assos'].append({'uuid': uuid.UUID(int=2), 'nom': 'PAE-UTC'})
+    if pk <= 3:
         data['assos'].append({'uuid': uuid.UUID(int=3), 'nom': 'Stravaganza'})
 
     return Response(data)

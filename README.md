@@ -180,3 +180,40 @@ La configuration utilisées est Airbnb/React qui est une configuration très str
 
 Pour lancer à la main le linter, se rendre dans `flairsou_frontend` et lancer `npm run lint`.
 Il est également possible de demander au linter de régler une partie des problèmes avec la commande `npm run lint-fix`.
+
+## Commandes spécifiques
+
+Des commandes ont été ajoutées au `manage.py`.
+Elles sont décrites [ici](flairsou_api/management/commands/README.md).
+
+## Base de données de test
+
+Une base de données de test randomisée est fournie dans le repo, dans le fichier `test_db.json`.
+Elle contient un livre, avec une structure réelle de comptes et un grand nombre de transactions et d'opérations.
+
+Pour charger la base de données de test, il faut d'abord créer une base de données locale et appliquer les migrations.
+Ceci peut être effectué à l'aide du script `reset_db.sh`.
+Ensuite, on peut charger la base :
+
+```
+python manage.py loaddata test_db.json
+```
+
+On peut ensuite vérifier que tout a bien été importé dans un shell python :
+
+```
+In [1]: Account.objects.count()
+Out[1]: 93
+
+In [2]: Operation.objects.count()
+Out[2]: 9290 
+```
+
+Pour créer une nouvelle base de test, on peut utiliser la commande `dumpdata` :
+
+```
+python manage.py dumpdata --indent 2 > db.json
+```
+
+Cette commande exporte toute la base de données locale dans le fichier `db.json`.
+Le `--indent 2` permet d'avoir un fichier json indenté et lisible.
