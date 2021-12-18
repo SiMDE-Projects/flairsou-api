@@ -180,3 +180,8 @@ La configuration utilisées est Airbnb/React qui est une configuration très str
 
 Pour lancer à la main le linter, se rendre dans `flairsou_frontend` et lancer `npm run lint`.
 Il est également possible de demander au linter de régler une partie des problèmes avec la commande `npm run lint-fix`.
+
+## Commandes spécifiques
+
+Des commandes ont été ajoutées au `manage.py`.
+Elles sont décrites [ici](flairsou_api/management/commands/README.md).
