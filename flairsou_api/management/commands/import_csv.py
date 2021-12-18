@@ -45,6 +45,12 @@ class Command(BaseCommand):
                             default=0,
                             help="Clé primaire du livre à ajouter")
 
+        parser.add_argument(
+            '--randomize',
+            action='store_true',
+            help=("Génère un texte aléatoire pour labelliser les opérations"
+                  "au lieu d'utiliser les vrais labels"))
+
     def handle(self, *args, **options):
         """
         Fonction principale appelée par la commande
@@ -96,7 +102,8 @@ class Command(BaseCommand):
             accounts = createAccountsStructure(accountsFile, bookObj)
 
             # création des transactions
-            createTransactions(transactionsFile, accounts)
+            createTransactions(transactionsFile, accounts,
+                               options['randomize'])
 
         accountsFile.close()
         transactionsFile.close()
@@ -204,7 +211,7 @@ def createAccount(accFullNameStr: str, accTypeStr: str, accVirtualStr: str,
                                   book=book)
 
 
-def createTransactions(transactionsFile: TextIO, accounts):
+def createTransactions(transactionsFile: TextIO, accounts, randomize):
     """
     Fonction de création des transactions à partir du fichier des transactions
     et de la liste des comptes.
@@ -258,11 +265,20 @@ def createTransactions(transactionsFile: TextIO, accounts):
             currentTransaction = Transaction.objects.create(date=date,
                                                             checked=False)
             # le label est porté uniquement par la transaction
-            transactionLabel = row[iLabel]
+            if randomize:
+                transactionLabel = randomString(20)
+            else:
+                transactionLabel = row[iLabel]
 
         # on récupère les éléments de l'opération
         account = accounts[row[iAccount]]
-        opLabel = transactionLabel if (row[iLabel] == '') else row[iLabel]
+        if row[iLabel] == '':
+            opLabel = transactionLabel
+        else:
+            if randomize:
+                opLabel = randomString(20)
+            else:
+                opLabel = row[iLabel]
 
         # correction du montant pour enlever la virgule et enlever les espaces
         # étranges mis dans le CSV pour séparer les milliers
@@ -354,4 +370,4 @@ def createTransactions(transactionsFile: TextIO, accounts):
 
 
 def randomString(N: int):
-    return ''.join(random.choice(string.ascii_letters) for _ in range(10))
+    return ''.join(random.choice(string.ascii_letters) for _ in range(N))
