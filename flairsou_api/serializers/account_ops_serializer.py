@@ -2,6 +2,8 @@ from .flairsou_serializers import FlairsouModelSerializer
 from rest_framework import serializers
 from flairsou_api.models import Account, Operation
 
+from drf_spectacular.utils import extend_schema_field
+
 
 class OperationDateSerializer(FlairsouModelSerializer):
     """
@@ -29,6 +31,7 @@ class AccountOpsListSerializer(FlairsouModelSerializer):
         model = Account
         fields = ['pk', 'operation_set']
 
+    @extend_schema_field(OperationDateSerializer)
     def get_operation_set(self, instance: Account):
         """
         Récupère la liste des opérations associées au compte triées

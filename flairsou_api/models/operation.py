@@ -1,4 +1,5 @@
 from django.db import models
+import datetime
 
 from .timestamped import TimeStampedModel
 
@@ -39,7 +40,7 @@ class Operation(TimeStampedModel):
             self.account, self.label, self.transaction)
 
     @property
-    def date(self):
+    def date(self) -> datetime.date:
         return self.transaction.date
 
     class Meta:
