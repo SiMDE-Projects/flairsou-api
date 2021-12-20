@@ -1,4 +1,5 @@
 from .flairsou_serializers import FlairsouModelSerializer
+from .reconciliation_serializers import ReconciliationSerializer
 from flairsou_api.models import Account, Book
 
 from rest_framework import serializers
@@ -168,3 +169,17 @@ class AccountNestedSerializer(FlairsouModelSerializer):
     def get_account_set(self, instance):
         accounts = instance.account_set.all()
         return AccountNestedSerializer(accounts, many=True).data
+
+
+class AccountLastReconciliationSerializer(FlairsouModelSerializer):
+    class Meta:
+        model = Account
+        fields = ['pk', 'last_reconciliation']
+
+    def get_fields(self):
+        """
+        Définit le serializer pour last_reconciliation
+        """
+        fields = super(AccountLastReconciliationSerializer, self).get_fields()
+        fields['last_reconciliation'] = ReconciliationSerializer()
+        return fields
