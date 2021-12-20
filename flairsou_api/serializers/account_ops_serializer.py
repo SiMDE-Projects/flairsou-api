@@ -13,7 +13,7 @@ class OperationDateSerializer(FlairsouModelSerializer):
     """
     class Meta:
         model = Operation
-        fields = ['date', 'credit', 'debit', 'label']
+        fields = ['pk', 'date', 'credit', 'debit', 'label']
 
     def validate(self, data):
         raise self.ValidationError('Ce serializer ne doit pas être utilisé'
@@ -31,7 +31,7 @@ class AccountOpsListSerializer(FlairsouModelSerializer):
         model = Account
         fields = ['pk', 'operation_set']
 
-    @extend_schema_field(OperationDateSerializer)
+    @extend_schema_field(OperationDateSerializer(many=True))
     def get_operation_set(self, instance: Account):
         """
         Récupère la liste des opérations associées au compte triées
