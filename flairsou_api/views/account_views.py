@@ -100,3 +100,14 @@ class AccountBalance(mixins.RetrieveModelMixin, generics.GenericAPIView):
         Renvoie le solde du compte passé en paramètre
         """
         return self.retrieve(request, *args, **kwargs)
+
+
+class AccountOpsList(mixins.RetrieveModelMixin, generics.GenericAPIView):
+    """
+    Vue qui renvoie la liste des opérations associées à un compte
+    """
+    queryset = fm.Account.objects.all()
+    serializer_class = fs.AccountOpsListSerializer
+
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
