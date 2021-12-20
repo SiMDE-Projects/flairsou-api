@@ -80,7 +80,7 @@ class Account(TimeStampedModel):
                 name="%(app_label)s_%(class)s_name_not_null"))
 
     @property
-    def balance(self) -> float:
+    def balance(self) -> int:
         """
         Calcule le solde du compte
         """
@@ -104,8 +104,5 @@ class Account(TimeStampedModel):
                 balance = debits - credits
             else:
                 balance = credits - debits
-
-            # passage en euros
-            balance = balance / 100
 
         return balance
