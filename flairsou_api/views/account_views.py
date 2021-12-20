@@ -28,35 +28,6 @@ class AccountCreation(mixins.CreateModelMixin, generics.GenericAPIView):
         return self.create(request, *args, **kwargs)
 
 
-class AccountListFilter(mixins.ListModelMixin, generics.GenericAPIView):
-    """
-    Vue qui permet de récupérer une liste de comptes par rapport à un filtrage
-    """
-    serializer_class = fs.AccountSerializer
-
-    def get_queryset(self):
-        """
-        Adapte la queryset en fonction de la requête qui a été passée.
-        Les filtres possibles sont :
-        - book : clé primaire sur le livre associé aux comptes à retourner
-        """
-        queryset = fm.Account.objects.all()
-
-        book_pk = self.kwargs.get('book')
-        if book_pk is not None:
-            queryset = queryset.filter(book__pk=book_pk)
-
-        return queryset
-
-    def get(self, request, *args, **kwargs):
-        """
-        Renvoie la liste des comptes en fonction du filtre utilisé.
-        Filtrages possibles :
-        - par livre : {book} => clé primaire du livre à utiliser en filtre
-        """
-        return self.list(request, *args, **kwargs)
-
-
 class AccountDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
                     mixins.DestroyModelMixin, generics.GenericAPIView):
     """

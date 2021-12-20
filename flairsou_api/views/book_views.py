@@ -1,10 +1,5 @@
 from rest_framework import mixins
 from rest_framework import generics
-from rest_framework import views
-from rest_framework.response import Response
-from rest_framework.utils.serializer_helpers import ReturnList
-
-from django.http import Http404
 
 import flairsou_api.models as fm
 import flairsou_api.serializers as fs
@@ -88,42 +83,13 @@ class BookDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
         return self.destroy(request, *args, **kwargs)
 
 
-class BookAccountList(views.APIView):
+class BookAccountList(mixins.RetrieveModelMixin, generics.GenericAPIView):
     """
     Vue qui renvoie l'ensemble des comptes associés au livre passé dans
     la requête
     """
-    def get(self, request, pk):
-        try:
-            # récupère le livre passé en paramètre
-            obj = fm.Book.objects.get(id=pk)
-        except fm.Book.DoesNotExist:
-            raise Http404
+    queryset = fm.Book.objects.all()
+    serializer_class = fs.BookWithAccountsSerializer
 
-        # récupérer la liste des comptes sous forme sérialisée
-        # (une seule requête BDD)
-        accounts = fs.AccountSerializer(obj.account_set.all(), many=True)
-
-        # construction des données avec les comptes
-        data = {
-            'pk': obj.pk,
-            'subaccounts': buildAccountTree(accounts.data, None),
-        }
-
-        return Response(data)
-
-
-def buildAccountTree(accounts: ReturnList, parent: int) -> dict:
-    """
-    Fonction qui reconstruit un dictionnaire imbriqué de comptes
-    à partir de la liste des comptes associés au livre
-    """
-    acc_dict = []
-
-    for acc in accounts:
-        if acc['parent'] == parent:
-            da = dict(acc)
-            da['subaccounts'] = buildAccountTree(accounts, acc['pk'])
-            acc_dict.append(da)
-
-    return acc_dict
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
