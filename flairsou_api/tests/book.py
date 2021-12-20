@@ -2,7 +2,7 @@ from rest_framework.test import APITestCase
 from rest_framework import status
 from django.urls import reverse
 
-from flairsou_api.models import Book
+from flairsou_api.models import Book, Account
 import uuid
 
 
@@ -70,3 +70,33 @@ class BookAPITestCase(APITestCase):
         data['entity'] = str(uuid.UUID(int=2))
         response = self.client.put(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+class BookAccountsAPITestCase(APITestCase):
+    """
+    Classe de test pour le filtrage des comptes par book
+    """
+    def setUp(self):
+        book1 = Book.objects.create(name="Comptes", entity=uuid.UUID(int=1))
+        Account.objects.create(name="Actifs",
+                               account_type=Account.AccountType.ASSET,
+                               virtual=True,
+                               parent=None,
+                               book=book1)
+        Account.objects.create(name="Passifs",
+                               account_type=Account.AccountType.LIABILITY,
+                               virtual=True,
+                               parent=None,
+                               book=book1)
+        Account.objects.create(name="Dépenses",
+                               account_type=Account.AccountType.EXPENSE,
+                               virtual=True,
+                               parent=None,
+                               book=book1)
+
+    def test_filter_by_book(self):
+        # on récupère les comptes liés au book 1 (seulement les comptes de
+        # niveau 1)
+        url = reverse('flairsou_api:book-get-all-accounts', kwargs={'pk': 1})
+        response = self.client.get(url, format='json')
+        self.assertEqual(len(response.data['account_set']), 3)
