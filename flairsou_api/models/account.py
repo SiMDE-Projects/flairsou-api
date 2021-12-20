@@ -1,6 +1,7 @@
 from django.db import models
 
 from .timestamped import TimeStampedModel
+from .reconciliation import Reconciliation
 
 
 class Account(TimeStampedModel):
@@ -98,7 +99,7 @@ class Account(TimeStampedModel):
                 credits += op.credit
                 debits += op.debit
 
-            # calcule le balance selon le type de compte
+            # calcule le solde selon le type de compte
             if self.account_type == Account.AccountType.ASSET \
                     or self.account_type == Account.AccountType.EXPENSE:
                 balance = debits - credits
@@ -106,3 +107,13 @@ class Account(TimeStampedModel):
                 balance = credits - debits
 
         return balance
+
+    @property
+    def last_reconciliation(self) -> Reconciliation:
+        """
+        Renvoie le dernier rapprochement du compte
+        """
+        if self.reconciliation_set.count() > 0:
+            return self.reconciliation_set.order_by('-date')[0]
+        else:
+            return None
