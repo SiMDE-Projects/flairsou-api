@@ -71,3 +71,15 @@ class AccountBalance(mixins.RetrieveModelMixin, generics.GenericAPIView):
         Renvoie le solde du compte passé en paramètre
         """
         return self.retrieve(request, *args, **kwargs)
+
+
+class AccountLastReconciliation(mixins.RetrieveModelMixin,
+                                generics.GenericAPIView):
+    """
+    Vue qui renvoie le dernier rapprochement associé au compte
+    """
+    queryset = fm.Account.objects.all()
+    serializer_class = fs.AccountLastReconciliationSerializer
+
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)

@@ -10,9 +10,14 @@ urlpatterns = [
     path('accounts/<int:pk>/',
          views.AccountDetail.as_view(),
          name="account-detail"),
+    # solde du compte
     path('accounts/<int:pk>/balance/',
          views.AccountBalance.as_view(),
          name="account-balance"),
+    # dernier rapprochement du compte
+    path('accounts/<int:pk>/last_reconciliation/',
+         views.AccountLastReconciliation.as_view(),
+         name="account-last-reconciliation"),
     # sur books/ on a uniquement la création des livres
     path('books/', views.BookCreation.as_view(), name="book-create"),
     # on a ensuite les routes de listing par filtre
