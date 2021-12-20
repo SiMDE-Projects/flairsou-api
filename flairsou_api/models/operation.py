@@ -38,6 +38,10 @@ class Operation(TimeStampedModel):
         return "Account: {}, label: {}, transaction: {}".format(
             self.account, self.label, self.transaction)
 
+    @property
+    def date(self):
+        return self.transaction.date
+
     class Meta:
         constraints = []
 
