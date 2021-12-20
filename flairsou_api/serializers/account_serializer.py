@@ -1,6 +1,8 @@
 from .flairsou_serializers import FlairsouModelSerializer
 from flairsou_api.models import Account, Book
 
+from rest_framework import serializers
+
 
 class AccountSerializer(FlairsouModelSerializer):
     class Meta:
@@ -135,3 +137,34 @@ class AccountBalanceSerializer(FlairsouModelSerializer):
     class Meta:
         model = Account
         fields = ['pk', 'balance']
+
+
+class AccountNestedSerializer(FlairsouModelSerializer):
+    """
+    Serializer qui renvoie une liste imbriquée des comptes
+    """
+    account_set = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Account
+        fields = [
+            'pk',
+            'name',
+            'account_type',
+            'virtual',
+            'balance',
+            'account_set',
+        ]
+
+    def get_fields(self):
+        """
+        Fonction qui permet d'indiquer à la doc le type d'élément renvoyé,
+        nécessaire à cause de la représentation imbriquée récursive.
+        """
+        fields = super(AccountNestedSerializer, self).get_fields()
+        fields['account_set'] = AccountNestedSerializer(many=True)
+        return fields
+
+    def get_account_set(self, instance):
+        accounts = instance.account_set.all()
+        return AccountNestedSerializer(accounts, many=True).data
