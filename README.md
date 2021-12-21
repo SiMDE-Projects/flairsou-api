@@ -188,7 +188,7 @@ Elles sont décrites [ici](flairsou_api/management/commands/README.md).
 
 ## Base de données de test
 
-Une base de données de test randomisée est fournie dans le repo, dans le fichier `test_db.json`.
+Une base de données de test randomisée est fournie dans le repo, dans le fichier `fixtures/test_db.json`.
 Elle contient un livre, avec une structure réelle de comptes et un grand nombre de transactions et d'opérations.
 
 Pour charger la base de données de test, il faut d'abord créer une base de données locale et appliquer les migrations.
@@ -196,7 +196,7 @@ Ceci peut être effectué à l'aide du script `reset_db.sh`.
 Ensuite, on peut charger la base :
 
 ```
-python manage.py loaddata test_db.json
+python manage.py loaddata fixtures/test_db.json
 ```
 
 On peut ensuite vérifier que tout a bien été importé dans un shell python :
