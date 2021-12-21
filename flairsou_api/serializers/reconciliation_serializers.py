@@ -8,6 +8,12 @@ class ReconciliationSerializer(FlairsouModelSerializer):
     """
     Serializer pour les rapprochements
     """
+    error_messages = {
+        'date': "La date doit être postérieure au dernier rapprochement",
+        'balance': "Le solde du rapprochement n'est pas correct",
+        'account': "Un compte virtuel ne peut pas être rapproché",
+    }
+
     class Meta:
         model = Reconciliation
         fields = ['pk', 'account', 'date', 'balance']
@@ -21,11 +27,8 @@ class ReconciliationSerializer(FlairsouModelSerializer):
         last_reconc = account.last_reconciliation
         if last_reconc is not None:
             if date < last_reconc.date:
-                raise self.ValidationError({
-                    'date':
-                    "La date doit être "
-                    "postérieure au dernier rapprochement"
-                })
+                raise self.ValidationError(
+                    {'date': ReconciliationSerializer.error_messages['date']})
 
     def check_balance_valid(self, account: Account, date: datetime.date,
                             balance: int) -> None:
@@ -34,18 +37,20 @@ class ReconciliationSerializer(FlairsouModelSerializer):
         que le solde du compte à la même date
         """
         if balance != account.balance_at_date(date):
-            raise self.ValidationError(
-                {'balance': "Le solde du rapprochement n'est "
-                 "pas correct"})
+            raise self.ValidationError({
+                'balance':
+                ReconciliationSerializer.error_messages['balance']
+            })
 
     def check_account_nonvirtual(self, account: Account) -> None:
         """
         Vérifie que le compte rapproché est bien non virtuel
         """
         if account.virtual:
-            raise self.ValidationError(
-                {'account': "Un compte virtuel ne peut pas "
-                 "être rapproché"})
+            raise self.ValidationError({
+                'account':
+                ReconciliationSerializer.error_messages['account']
+            })
 
     def validate(self, data):
         """
