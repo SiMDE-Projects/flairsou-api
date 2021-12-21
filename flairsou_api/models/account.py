@@ -1,4 +1,5 @@
 from django.db import models
+from datetime import datetime
 
 from .timestamped import TimeStampedModel
 from .reconciliation import Reconciliation
@@ -86,16 +87,33 @@ class Account(TimeStampedModel):
         Calcule le solde du compte
         """
 
+        # on prend toutes les opérations
+        ops = self.operation_set.all()
+        return self.compute_balance(ops)
+
+    def balance_at_date(self, date: datetime.date) -> int:
+        """
+        Calcule le solde du compte à une date donnée
+        Ce solde est déterminé en calculant la somme de toutes les opérations
+        de l'ouverture du compte à la date fixée
+        """
+        ops = self.operation_set.filter(transaction__date__lte=date)
+        return self.compute_balance(ops)
+
+    def compute_balance(self, ops) -> int:
+        """
+        Calcule le solde de la liste d'opérations passée en paramètres
+        """
         if self.virtual:
             balance = 0
             for acc in self.account_set.all():
-                balance += acc.balance
+                balance += acc.compute_balance(ops)
         else:
             # comptabilise les crédits et les débits associés au compte
             # (en centimes)
             credits: int = 0
             debits: int = 0
-            for op in self.operation_set.all():
+            for op in ops:
                 credits += op.credit
                 debits += op.debit
 
