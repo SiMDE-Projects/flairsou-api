@@ -1,6 +1,8 @@
 from django.db import models
+from datetime import datetime
 
 from .timestamped import TimeStampedModel
+from .reconciliation import Reconciliation
 
 
 class Account(TimeStampedModel):
@@ -80,32 +82,56 @@ class Account(TimeStampedModel):
                 name="%(app_label)s_%(class)s_name_not_null"))
 
     @property
-    def balance(self) -> float:
+    def balance(self) -> int:
         """
         Calcule le solde du compte
         """
 
+        # on prend toutes les opérations
+        ops = self.operation_set.all()
+        return self.compute_balance(ops)
+
+    def balance_at_date(self, date: datetime.date) -> int:
+        """
+        Calcule le solde du compte à une date donnée
+        Ce solde est déterminé en calculant la somme de toutes les opérations
+        de l'ouverture du compte à la date fixée
+        """
+        ops = self.operation_set.filter(transaction__date__lte=date)
+        return self.compute_balance(ops)
+
+    def compute_balance(self, ops) -> int:
+        """
+        Calcule le solde de la liste d'opérations passée en paramètres
+        """
         if self.virtual:
             balance = 0
             for acc in self.account_set.all():
-                balance += acc.balance
+                balance += acc.compute_balance(ops)
         else:
             # comptabilise les crédits et les débits associés au compte
             # (en centimes)
             credits: int = 0
             debits: int = 0
-            for op in self.operation_set.all():
+            for op in ops:
                 credits += op.credit
                 debits += op.debit
 
-            # calcule le balance selon le type de compte
+            # calcule le solde selon le type de compte
             if self.account_type == Account.AccountType.ASSET \
                     or self.account_type == Account.AccountType.EXPENSE:
                 balance = debits - credits
             else:
                 balance = credits - debits
 
-            # passage en euros
-            balance = balance / 100
-
         return balance
+
+    @property
+    def last_reconciliation(self) -> Reconciliation:
+        """
+        Renvoie le dernier rapprochement du compte
+        """
+        if self.reconciliation_set.count() > 0:
+            return self.reconciliation_set.order_by('-date')[0]
+        else:
+            return None

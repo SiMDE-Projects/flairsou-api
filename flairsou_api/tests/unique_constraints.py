@@ -62,10 +62,10 @@ class UniqueConstraintsTestCase(TestCase):
         # on tente de rapprocher deux fois le même compte à la même date
         Reconciliation.objects.create(account=self.assetAccount,
                                       date=datetime.date(2021, 4, 30),
-                                      solde=42)
+                                      balance=42)
 
         with self.assertRaises(IntegrityError):
             with transaction.atomic():
                 Reconciliation.objects.create(account=self.assetAccount,
                                               date=datetime.date(2021, 4, 30),
-                                              solde=256)
+                                              balance=256)

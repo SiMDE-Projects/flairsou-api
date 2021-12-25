@@ -18,13 +18,13 @@ class Reconciliation(TimeStampedModel):
         période indiquée sur le relevé de banque,
         pas la date de saisie du rapprochement)
 
-    solde : PositiveIntegerField
+    balance : PositiveIntegerField
         Solde rapproché du compte à la date de fin de période, qui doit
         correspondre à celui indiqué sur le relevé de banque.
     """
     account = models.ForeignKey('Account', on_delete=models.CASCADE)
     date = models.DateField("Date")
-    solde = models.IntegerField("solde")
+    balance = models.IntegerField("solde")
 
     def __str__(self):
         return "Reconciliation of account {} on {}".format(

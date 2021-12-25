@@ -10,9 +10,14 @@ urlpatterns = [
     path('accounts/<int:pk>/',
          views.AccountDetail.as_view(),
          name="account-detail"),
+    # solde du compte
     path('accounts/<int:pk>/balance/',
          views.AccountBalance.as_view(),
          name="account-balance"),
+    # rapprochement du compte
+    path('accounts/<int:pk>/reconciliation/',
+         views.ReconciliationView.as_view(),
+         name="account-reconciliation"),
     path('accounts/<int:pk>/operations/',
          views.AccountOpsList.as_view(),
          name="account-operation-list"),
