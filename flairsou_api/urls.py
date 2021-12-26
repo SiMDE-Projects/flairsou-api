@@ -47,4 +47,7 @@ urlpatterns = [
     path('oauth/authlink',
          views.get_authorization_link,
          name="request-auth-link"),
+    path('oauth/request_token/<str:code>',
+         views.request_oauth_token,
+         name="request-oauth-token"),
 ]
