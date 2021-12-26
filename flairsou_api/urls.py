@@ -44,4 +44,7 @@ urlpatterns = [
     path('transactions/<int:pk>/',
          views.TransactionDetail.as_view(),
          name="transaction-detail"),
+    path('oauth/authlink',
+         views.get_authorization_link,
+         name="request-auth-link"),
 ]
