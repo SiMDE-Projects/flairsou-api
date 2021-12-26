@@ -16,6 +16,7 @@ django-extensions = "*"
 Django = "==3.2"
 drf-spectacular = "*"
 oauthlib = "*"
+requests = "*"
 
 [requires]
 python_version = "3.8"
