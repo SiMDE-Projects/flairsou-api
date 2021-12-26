@@ -13,8 +13,9 @@ ipython = "*"
 djangorestframework = ">=3.12"
 django-softdelete = "*"
 django-extensions = "*"
-Django = ">=3.2"
+Django = "==3.2"
 drf-spectacular = "*"
+oauthlib = "*"
 
 [requires]
 python_version = "3.8"
