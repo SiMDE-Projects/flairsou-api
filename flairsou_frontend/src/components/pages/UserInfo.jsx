@@ -16,6 +16,20 @@ const UserInfo = () => {
       });
   }, []);
 
+  // vérification si l'utilisateur est déjà connecté, uniquement au
+  // chargement du composant
+  useEffect(() => {
+    const url = '/api/user/user_infos';
+    fetch(url)
+      .then((response) => {
+        if (response.status === 200) {
+          response.json().then((validResponse) => {
+            setUserName(validResponse.name);
+          });
+        }
+      });
+  }, []);
+
   if (userName !== '') {
     // the user is connected, return a component with the name
     // of the user
