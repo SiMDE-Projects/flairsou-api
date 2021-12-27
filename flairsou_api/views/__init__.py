@@ -6,6 +6,7 @@ from .transaction_views import OperationDetail, OperationList
 from .transaction_views import TransactionDetail, TransactionList
 from .reconciliation_views import ReconciliationView
 from .user_views import get_authorization_link, request_oauth_token
+from .user_views import get_user_infos
 
 __all__ = [
     AccountDetail,
@@ -23,4 +24,5 @@ __all__ = [
     ReconciliationView,
     get_authorization_link,
     request_oauth_token,
+    get_user_infos,
 ]

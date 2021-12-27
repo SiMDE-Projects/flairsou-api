@@ -1,6 +1,7 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import serializers
+from rest_framework import status
 from django.shortcuts import redirect
 from drf_spectacular.utils import extend_schema, inline_serializer
 
@@ -79,3 +80,16 @@ def request_oauth_token(request, code: str):
 
     # redirige sur l'accueil de Flairsou
     return redirect('/')
+
+
+@api_view(['GET'])
+def get_user_infos(request):
+    """
+    Vue qui renvoie les informations de l'utilisateur connecté
+    """
+
+    try:
+        return Response(request.session['user'])
+    except KeyError:
+        return Response({'message': 'Non authentifié'},
+                        status=status.HTTP_401_UNAUTHORIZED)

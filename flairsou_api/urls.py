@@ -50,4 +50,5 @@ urlpatterns = [
     path('oauth/request_token/<str:code>',
          views.request_oauth_token,
          name="request-oauth-token"),
+    path('user/user_infos', views.get_user_infos, name="get-user-infos"),
 ]
