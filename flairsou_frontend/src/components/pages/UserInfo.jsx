@@ -25,7 +25,8 @@ const UserInfo = () => {
       .then((response) => {
         if (response.status === 200) {
           response.json().then((validResponse) => {
-            setUserName(validResponse.name);
+            const fullName = `${validResponse.firstname} ${validResponse.lastname}`;
+            setUserName(fullName);
           });
         }
       });

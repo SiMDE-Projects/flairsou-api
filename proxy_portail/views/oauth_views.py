@@ -60,7 +60,8 @@ def request_oauth_token(request, code: str):
         headers={'Authorization': 'Bearer {}'.format(res['access_token'])})
 
     # ajout des infos de l'utilisateur à la session
-    request.session['user'] = response.json()
+    request.session['user'] = pps.UserInfoSerializer(
+        pps.UserInfo(response.json())).data
 
     # redirige sur l'accueil de Flairsou
     return redirect('/')

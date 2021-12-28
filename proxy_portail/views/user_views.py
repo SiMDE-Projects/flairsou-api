@@ -1,16 +1,22 @@
-from rest_framework.decorators import api_view
+from rest_framework import views
 from rest_framework.response import Response
 from rest_framework import status
 
+from proxy_portail.serializers import UserInfo, UserInfoSerializer
 
-@api_view(['GET'])
-def get_user_infos(request):
+
+class GetUserInfo(views.APIView):
     """
     Vue qui renvoie les informations de l'utilisateur connecté
     """
+    serializer_class = UserInfoSerializer
 
-    try:
-        return Response(request.session['user'])
-    except KeyError:
-        return Response({'message': 'Non authentifié'},
-                        status=status.HTTP_401_UNAUTHORIZED)
+    def get(self, request, *args, **kwargs):
+        try:
+            user = request.session['user']
+            resp_status = status.HTTP_200_OK
+        except KeyError:
+            user = UserInfo(lastname="Anonymous")
+            resp_status = status.HTTP_401_UNAUTHORIZED
+
+        return Response(UserInfoSerializer(user).data, status=resp_status)

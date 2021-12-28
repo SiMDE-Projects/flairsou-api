@@ -25,7 +25,7 @@ urlpatterns = [
     # route pour récupérer les infos utilisateur
     path(
         'proxy/user_infos',
-        views.get_user_infos,
+        views.GetUserInfo.as_view(),
         name="get-user-infos",
     ),
 ]
