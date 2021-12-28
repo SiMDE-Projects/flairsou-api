@@ -93,3 +93,18 @@ def get_user_infos(request):
     except KeyError:
         return Response({'message': 'Non authentifié'},
                         status=status.HTTP_401_UNAUTHORIZED)
+
+
+@api_view(['GET'])
+def user_logout(request):
+    """
+    Vue qui supprime la session de l'utilisateur
+    """
+    if 'user' in request.session:
+        request.session.pop('user')
+
+    if 'token' in request.session:
+        request.session.pop('token')
+
+    # renvoie sur l'accueil
+    return redirect('/')

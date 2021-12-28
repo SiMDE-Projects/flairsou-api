@@ -5,11 +5,13 @@ import React, { useState, useEffect } from 'react';
 const UserInfo = () => {
   const [userName, setUserName] = useState('');
   const [authLink, setAuthLink] = useState('');
+  const authlinkUrl = '/api/oauth/authlink';
+  const logoutUrl = '/api/oauth/logout';
+  const userInfosUrl = '/api/user/user_infos';
 
   // récupération du lien de connexion depuis le backend de Flairsou
   useEffect(() => {
-    const url = '/api/oauth/authlink';
-    fetch(url)
+    fetch(authlinkUrl)
       .then((response) => response.json())
       .then((response) => {
         setAuthLink(response.link);
@@ -19,8 +21,7 @@ const UserInfo = () => {
   // vérification si l'utilisateur est déjà connecté, uniquement au
   // chargement du composant
   useEffect(() => {
-    const url = '/api/user/user_infos';
-    fetch(url)
+    fetch(userInfosUrl)
       .then((response) => {
         if (response.status === 200) {
           response.json().then((validResponse) => {
@@ -36,6 +37,7 @@ const UserInfo = () => {
     return (
       <>
         {userName}
+        <a href={logoutUrl}>Déconnexion</a>
       </>
     );
   }
