@@ -7,7 +7,7 @@ urlpatterns = [
     # route pour récupérer le lien d'autorisation OAuth
     path(
         'oauth/authlink',
-        views.get_authorization_link,
+        views.GetAuthorizationLink.as_view(),
         name="request-auth-link",
     ),
     # route pour récupérer les tokens OAuth

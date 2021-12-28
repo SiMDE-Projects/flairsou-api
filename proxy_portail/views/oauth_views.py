@@ -1,41 +1,26 @@
 from rest_framework.decorators import api_view
+from rest_framework import views
 from rest_framework.response import Response
-from rest_framework import serializers
 from django.shortcuts import redirect
-from drf_spectacular.utils import extend_schema, inline_serializer
 
 from oauthlib.oauth2 import WebApplicationClient
 import requests
 
 from flairsou.config import OAUTH_SETTINGS
 
+import proxy_portail.serializers as pps
 
-# TODO faire un petit serializer rapide pour automatiser la doc ?
-@extend_schema(
-    responses={
-        200:
-        inline_serializer(
-            name='Authorization Link',
-            fields={
-                'link': serializers.CharField(),
-            },
-        )
-    }, )
-@api_view(['GET'])
-def get_authorization_link(request):
+
+class GetAuthorizationLink(views.APIView):
     """
-    Construction du lien d'autorisation oauth
+    Vue qui renvoie le lien d'autorisation pour demander à l'utilisateur
+    son accord pour le partage des données avec l'application
     """
-    # création du client oauth avec l'ID du client
-    client = WebApplicationClient(OAUTH_SETTINGS['client_id'])
+    serializer_class = pps.AuthorizationLinkSerializer
 
-    # construction de la requête d'autorisation oauth
-    url = client.prepare_request_uri(
-        OAUTH_SETTINGS['authorization_url'],
-        redirect_uri=OAUTH_SETTINGS['redirect_uri'],
-        scope=OAUTH_SETTINGS['scopes'])
-
-    return Response({'link': url})
+    def get(self, request, *args, **kwargs):
+        serializer = pps.AuthorizationLinkSerializer(pps.AuthorizationLink())
+        return Response(serializer.data)
 
 
 @api_view(['GET'])
