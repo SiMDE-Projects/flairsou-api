@@ -44,12 +44,4 @@ urlpatterns = [
     path('transactions/<int:pk>/',
          views.TransactionDetail.as_view(),
          name="transaction-detail"),
-    path('oauth/authlink',
-         views.get_authorization_link,
-         name="request-auth-link"),
-    path('oauth/request_token/<str:code>',
-         views.request_oauth_token,
-         name="request-oauth-token"),
-    path('oauth/logout', views.user_logout, name="user-logout"),
-    path('user/user_infos', views.get_user_infos, name="get-user-infos"),
 ]
