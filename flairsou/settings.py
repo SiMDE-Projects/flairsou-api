@@ -137,3 +137,5 @@ SPECTACULAR_SETTINGS = {
     'de Flairsou, outil de gestion de trésorerie pour les associations',
     'VERSION': '0.0.1',
 }
+
+OAUTH_SETTINGS = config.OAUTH_SETTINGS

@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from oauthlib.oauth2 import WebApplicationClient
 
-from flairsou.config import OAUTH_SETTINGS
+from django.conf import settings
 
 
 class AuthorizationLink:
@@ -12,13 +12,13 @@ class AuthorizationLink:
 
     def __init__(self):
         # création du client oauth avec l'ID du client
-        client = WebApplicationClient(OAUTH_SETTINGS['client_id'])
+        client = WebApplicationClient(settings.OAUTH_SETTINGS['client_id'])
 
         # construction de la requête d'autorisation oauth
         url = client.prepare_request_uri(
-            OAUTH_SETTINGS['authorization_url'],
-            redirect_uri=OAUTH_SETTINGS['redirect_uri'],
-            scope=OAUTH_SETTINGS['scopes'])
+            settings.OAUTH_SETTINGS['authorization_url'],
+            redirect_uri=settings.OAUTH_SETTINGS['redirect_uri'],
+            scope=settings.OAUTH_SETTINGS['scopes'])
 
         # enregistrement du lien
         self.link = url
