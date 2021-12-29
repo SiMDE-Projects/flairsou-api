@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class ProxyPortailConfig(AppConfig):
+class OAuthPdaConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'proxy_portail'
+    name = 'oauth_pda'

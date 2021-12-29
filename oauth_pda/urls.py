@@ -3,9 +3,8 @@ from django.urls import path
 from .views import GetAuthorizationLink
 from .views import request_oauth_token
 from .views import user_logout
-from .views import GetUserInfo
 
-app_name = 'proxy_portail'
+app_name = 'oauth_pda'
 urlpatterns = [
     # route pour récupérer le lien d'autorisation OAuth
     path(
@@ -25,11 +24,5 @@ urlpatterns = [
         'logout',
         user_logout,
         name="user-logout",
-    ),
-    # route pour récupérer les infos utilisateur
-    path(
-        'user_infos',
-        GetUserInfo.as_view(),
-        name="get-user-infos",
     ),
 ]

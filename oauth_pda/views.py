@@ -1,7 +1,6 @@
 from rest_framework.decorators import api_view
 from rest_framework import views
 from rest_framework.response import Response
-from rest_framework import status
 from django.shortcuts import redirect
 from django.conf import settings
 
@@ -11,26 +10,6 @@ import requests
 
 from .serializers import AuthorizationLink
 from .serializers import AuthorizationLinkSerializer
-from .serializers import UserInfo
-from .serializers import UserInfoSerializer
-from .serializers import AnonymousUserInfo
-
-
-class GetUserInfo(views.APIView):
-    """
-    Vue qui renvoie les informations de l'utilisateur connecté
-    """
-    serializer_class = UserInfoSerializer
-
-    def get(self, request, *args, **kwargs):
-        try:
-            user: UserInfo = request.session['user']
-            resp_status = status.HTTP_200_OK
-        except KeyError:
-            user = AnonymousUserInfo
-            resp_status = status.HTTP_401_UNAUTHORIZED
-
-        return Response(UserInfoSerializer(user).data, status=resp_status)
 
 
 class GetAuthorizationLink(views.APIView):
@@ -88,15 +67,6 @@ def request_oauth_token(request):
     # ajout du token sur la session
     request.session['token'] = res
 
-    # récupération des infos de l'utilisateur connecté
-    response = requests.get(
-        'https://assos.utc.fr/api/v1/user',
-        headers={'Authorization': 'Bearer {}'.format(res['access_token'])})
-
-    # ajout des infos de l'utilisateur à la session
-    request.session['user'] = UserInfoSerializer(UserInfo(
-        response.json())).data
-
     # redirige sur l'accueil de Flairsou
     return redirect('/')
 
@@ -106,9 +76,6 @@ def user_logout(request):
     """
     Vue qui supprime la session de l'utilisateur
     """
-    if 'user' in request.session:
-        request.session.pop('user')
-
     if 'token' in request.session:
         request.session.pop('token')
 
