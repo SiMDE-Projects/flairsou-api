@@ -5,9 +5,9 @@ import React, { useState, useEffect } from 'react';
 const UserInfo = () => {
   const [userName, setUserName] = useState('');
   const [authLink, setAuthLink] = useState('');
-  const authlinkUrl = '/proxy_portail/oauth/authlink';
-  const logoutUrl = '/proxy_portail/oauth/logout';
-  const userInfosUrl = '/proxy_portail/proxy/user_infos';
+  const authlinkUrl = '/oauth/authlink';
+  const logoutUrl = '/oauth/logout';
+  const userInfosUrl = '/oauth/user_infos';
 
   // récupération du lien de connexion depuis le backend de Flairsou
   useEffect(() => {

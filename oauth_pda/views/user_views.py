@@ -2,9 +2,9 @@ from rest_framework import views
 from rest_framework.response import Response
 from rest_framework import status
 
-from proxy_portail.serializers import UserInfo
-from proxy_portail.serializers import UserInfoSerializer
-from proxy_portail.serializers import AnonymousUserInfo
+from oauth_pda.serializers import UserInfo
+from oauth_pda.serializers import UserInfoSerializer
+from oauth_pda.serializers import AnonymousUserInfo
 
 
 class GetUserInfo(views.APIView):

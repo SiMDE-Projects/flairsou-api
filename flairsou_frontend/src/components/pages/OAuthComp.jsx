@@ -16,7 +16,7 @@ const OAuthComp = () => {
     const code = urlParams.get('code');
 
     // route de l'API du back de l'application
-    const url = `/proxy_portail/oauth/request_token/${code}`;
+    const url = `/oauth/request_token/${code}`;
 
     // redirection de la page pour faire une requête GET sur le back
     window.location.replace(url);

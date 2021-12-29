@@ -6,9 +6,9 @@ from django.shortcuts import redirect
 from oauthlib.oauth2 import WebApplicationClient
 import requests
 
-from flairsou.config import OAUTH_SETTINGS
+from django.conf import settings
 
-import proxy_portail.serializers as pps
+import oauth_pda.serializers as pps
 
 
 class GetAuthorizationLink(views.APIView):
@@ -32,19 +32,19 @@ def request_oauth_token(request, code: str):
     L'API ne renvoie rien.
     """
     # création du client OAuth
-    client = WebApplicationClient(OAUTH_SETTINGS['client_id'])
+    client = WebApplicationClient(settings.OAUTH_SETTINGS['client_id'])
 
     # construction du contenu de la requête pour récupérer le token
     data = client.prepare_request_body(
         code=code,
-        redirect_uri=OAUTH_SETTINGS['redirect_uri'],
-        client_id=OAUTH_SETTINGS['client_id'],
-        client_secret=OAUTH_SETTINGS['client_secret'],
+        redirect_uri=settings.OAUTH_SETTINGS['redirect_uri'],
+        client_id=settings.OAUTH_SETTINGS['client_id'],
+        client_secret=settings.OAUTH_SETTINGS['client_secret'],
     )
 
     # exécution de la requête POST sur l'URL de demande de token
     response = requests.post(
-        OAUTH_SETTINGS['token_url'],
+        settings.OAUTH_SETTINGS['token_url'],
         data=data,
         headers={'Content-Type': 'application/x-www-form-urlencoded'})
 
