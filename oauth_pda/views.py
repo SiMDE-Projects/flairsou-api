@@ -67,8 +67,9 @@ def request_oauth_token(request):
     # ajout du token sur la session
     request.session['token'] = res
 
-    # redirige sur l'accueil de Flairsou
-    return redirect('/')
+    # redirige à l'endroit indiqué dans la configuration, ou à l'accueil
+    # par défaut
+    return redirect(settings.OAUTH_SETTINGS.get('login_redirect', '/'))
 
 
 @api_view(['GET'])
@@ -79,5 +80,6 @@ def user_logout(request):
     if 'token' in request.session:
         request.session.pop('token')
 
-    # renvoie sur l'accueil
-    return redirect('/')
+    # redirige à l'endroit indiqué dans la configuration, ou à l'accueil
+    # par défaut
+    return redirect(settings.OAUTH_SETTINGS.get('logout_redirect', '/'))
