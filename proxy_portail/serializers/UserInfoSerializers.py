@@ -1,5 +1,7 @@
 from rest_framework import serializers
 
+import uuid
+
 
 class UserInfo:
 
@@ -13,7 +15,14 @@ class UserInfo:
         # nom
         self.lastname = portailResponse['lastname']
         # ID
-        self.id = portailResponse['id']
+        self.id = uuid.UUID(portailResponse['id'])
+
+
+AnonymousUserInfo = UserInfo({
+    'firstname': 'Anonyme',
+    'lastname': '',
+    'id': str(uuid.UUID(int=0))
+})
 
 
 class UserInfoSerializer(serializers.Serializer):
@@ -23,3 +32,4 @@ class UserInfoSerializer(serializers.Serializer):
     """
     firstname = serializers.CharField()
     lastname = serializers.CharField()
+    id = serializers.UUIDField()

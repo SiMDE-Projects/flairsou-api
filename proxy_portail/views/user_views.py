@@ -2,7 +2,9 @@ from rest_framework import views
 from rest_framework.response import Response
 from rest_framework import status
 
-from proxy_portail.serializers import UserInfo, UserInfoSerializer
+from proxy_portail.serializers import UserInfo
+from proxy_portail.serializers import UserInfoSerializer
+from proxy_portail.serializers import AnonymousUserInfo
 
 
 class GetUserInfo(views.APIView):
@@ -13,10 +15,10 @@ class GetUserInfo(views.APIView):
 
     def get(self, request, *args, **kwargs):
         try:
-            user = request.session['user']
+            user: UserInfo = request.session['user']
             resp_status = status.HTTP_200_OK
         except KeyError:
-            user = UserInfo(lastname="Anonymous")
+            user = AnonymousUserInfo
             resp_status = status.HTTP_401_UNAUTHORIZED
 
         return Response(UserInfoSerializer(user).data, status=resp_status)
