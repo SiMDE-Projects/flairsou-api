@@ -40,7 +40,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'flairsou_api.apps.FlairsouApiConfig',  # API app
     'flairsou_frontend',
-    'mock_portail',
     'softdelete',
     'django_extensions',
     'rest_framework',
