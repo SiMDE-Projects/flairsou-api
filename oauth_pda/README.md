@@ -67,4 +67,51 @@ L'utilisateur est ensuite redirigé sur l'accueil de l'application.
 
 ## Installation
 
+TODO quand le changement de dépôt aura été effectué
+
 ## Configuration
+
+La configuration du module se fait par un dictionnaire `OAUHT_SETTINGS` qui doit être accessible par `django.conf.settings`.
+Généralement, il doit être déclaré (ou importé) dans le fichier `settings.py` au niveau de l'application Django.
+Les informations requises au minimum dans le dictionnaire sont les suivantes :
+
+```python
+OAUTH_SETTINGS = {
+    'client_id': 'xxxxxxx',                                      # ID du client OAuth
+    'client_secret': 'xxxxxxx',                                  # Secret du client OAuth
+    'authorization_url': 'https://assos.utc.fr/oauth/authorize', # lien d'autorisation OAuth sur le PDA
+    'token_url': 'https://assos.utc.fr/oauth/token',             # lien de récupération des tokens sur le PDA
+    'redirect_uri': 'http://xxxxxxxxx',                          # adresse de callback
+    'scopes': [                                                  # types des données à récupérer
+        'user-get-info',
+        'user-get-roles',
+        'user-get-assos',
+        ...
+    ],
+}
+```
+
+Attention à éviter d'inclure les informations sensibles du client (ID/Secret) dans le système de gestion de version.
+
+Il faut ensuite inclure les routes du module OAuth dans l'application Django.
+Dans le fichier `urls.py` du projet, ajouter les éléments suivants :
+
+```python
+from django.urls import path, include
+
+urlpatterns = [
+    ...,
+    path('<url_path>/', include('oauth_pda.urls')),
+    ...
+]
+```
+`<url_path>` représente la base à laquelle le module OAuth doit répondre, par exemle `oauth`.
+Cette base préfixe toutes les routes présentées plus haut.
+
+D'autres éléments de configuration peuvent être ajoutés dans le dictionnaire pour personnaliser les adresses des routes exposées :
+- `authorization_route` : route à utiliser pour générer la route du module OAuth qui renvoie l'adresse d'autorisation du portail [défaut : `<url_path>/authlink`]
+- `callback_route` : route qui récupère la redirection avec le code d'autorisation [défaut : `<url_path>/callback`]
+- `logout_route` : route qui supprime le token de la session Django [défaut : `<url_path>/logout`]
+- `login_redirect` : adresse sur laquelle rediriger l'utilisateur après la récupération des tokens [défaut : `/`]
+- `logout_redirect` : adresse sur laquelle rediriger l'utilisateur après la déconnexion [défaut : `/`]
+
