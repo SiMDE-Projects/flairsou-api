@@ -15,11 +15,14 @@ django-softdelete = "*"
 django-extensions = "*"
 Django = "==3.2"
 drf-spectacular = "*"
-oauthlib = "*"
-requests = "*"
 
 [requires]
 python_version = "3.8"
 
 [scripts]
 test = "./test.sh"
+
+[packages.oauth_pda_app]
+git = "https://github.com/SiMDE-Projects/oauth_pda_utc"
+editable = true
+ref = "dev/integrate_oauth_app"

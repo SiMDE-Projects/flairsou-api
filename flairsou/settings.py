@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django_extensions',
     'rest_framework',
     'drf_spectacular',
+    'oauth_pda_app',
 ]
 
 MIDDLEWARE = [

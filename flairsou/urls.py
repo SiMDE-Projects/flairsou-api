@@ -22,7 +22,7 @@ from drf_spectacular.views import SpectacularAPIView, \
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('flairsou_api.urls')),
-    path('oauth/', include('oauth_pda.urls')),
+    path('oauth/', include('oauth_pda_app.urls')),
     path('mock_portail/', include('mock_portail.urls')),
     path('doc/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('doc/schema/swagger-ui/',
