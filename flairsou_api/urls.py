@@ -44,4 +44,9 @@ urlpatterns = [
     path('transactions/<int:pk>/',
          views.TransactionDetail.as_view(),
          name="transaction-detail"),
+    path(
+        'tmp/get_user_infos',
+        views.get_user_info,
+        name='tmp-get-user-info',
+    ),
 ]

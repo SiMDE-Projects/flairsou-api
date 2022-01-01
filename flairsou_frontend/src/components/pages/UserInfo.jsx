@@ -7,7 +7,7 @@ const UserInfo = () => {
   const [authLink, setAuthLink] = useState('');
   const authlinkUrl = '/oauth/authlink';
   const logoutUrl = '/oauth/logout';
-  const userInfosUrl = '/oauth/user_infos';
+  const userInfosUrl = '/api/tmp/get_user_infos';
 
   // récupération du lien de connexion depuis le backend de Flairsou
   useEffect(() => {
