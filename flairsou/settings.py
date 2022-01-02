@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'drf_spectacular',
     'oauth_pda_app',
+    'proxy_pda',
 ]
 
 MIDDLEWARE = [
