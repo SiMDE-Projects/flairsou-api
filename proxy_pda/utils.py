@@ -1,12 +1,15 @@
 from django.db import transaction
 from django.utils import timezone
 
+from rest_framework import status
+
 import requests
 import uuid
 import copy
 import datetime
 
 from . import models as m
+from . import serializers as s
 
 
 def sync_assos():
@@ -84,3 +87,35 @@ def sync_assos():
 def date_to_timezone(date: str):
     return timezone.make_aware(
         datetime.datetime.strptime(date, '%Y-%m-%d %H:%M:%S'))
+
+
+def retrieve_user_info(request):
+    """
+    Fonction qui récupère les informations de l'utilisateur connecté
+    """
+    if 'token' not in request.session.keys():
+        # si il n'y a pas de token, on supprime les éventuelles
+        # informations utilisateur mises en cache
+        if 'user' in request.session.keys():
+            request.session.pop('user')
+
+        user: s.UserInfoSerializer = s.AnonymousUserInfo
+        resp_status = status.HTTP_401_UNAUTHORIZED
+    else:
+        if 'user' not in request.session.keys():
+            # si l'utilisateur n'est pas en cache dans la session, on le
+            # récupère depuis le PDA
+            token = request.session['token']
+            response = requests.get('https://assos.utc.fr/api/v1/user',
+                                    headers={
+                                        'Authorization':
+                                        'Bearer {}'.format(
+                                            token['access_token'])
+                                    })
+            user = s.UserInfoSerializer(response.json())
+            request.session['user'] = user.data
+
+        user = s.UserInfoSerializer(request.session['user'])
+        resp_status = status.HTTP_200_OK
+
+    return (user, resp_status)
