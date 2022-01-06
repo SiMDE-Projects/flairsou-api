@@ -25,4 +25,4 @@ test = "./test.sh"
 [packages.oauth_pda_app]
 git = "https://github.com/SiMDE-Projects/oauth_pda_utc"
 editable = true
-ref = "dev/integrate_oauth_app"
+ref = "master"
