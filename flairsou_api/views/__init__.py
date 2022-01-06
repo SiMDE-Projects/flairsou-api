@@ -5,6 +5,7 @@ from .book_views import BookAccountList
 from .transaction_views import OperationDetail, OperationList
 from .transaction_views import TransactionDetail, TransactionList
 from .reconciliation_views import ReconciliationView
+from .tmp_user_views import get_user_info
 
 __all__ = [
     AccountDetail,
@@ -20,4 +21,5 @@ __all__ = [
     TransactionDetail,
     TransactionList,
     ReconciliationView,
+    get_user_info,
 ]

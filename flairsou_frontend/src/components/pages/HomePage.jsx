@@ -1,10 +1,9 @@
 import React from 'react';
-import BookList from './BookList';
+
+import UserInfo from './UserInfo';
 
 const HomePage = () => (
-  <>
-    <BookList />
-  </>
+  <UserInfo />
 );
 
 export default HomePage;

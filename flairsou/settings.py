@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django_extensions',
     'rest_framework',
     'drf_spectacular',
+    'oauth_pda_app',
 ]
 
 MIDDLEWARE = [
@@ -137,3 +138,5 @@ SPECTACULAR_SETTINGS = {
     'de Flairsou, outil de gestion de trésorerie pour les associations',
     'VERSION': '0.0.1',
 }
+
+OAUTH_SETTINGS = config.OAUTH_SETTINGS
