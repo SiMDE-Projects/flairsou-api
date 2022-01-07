@@ -49,20 +49,22 @@ class Asso(models.Model):
                                blank=False,
                                null=True)
 
-    # autorisation donnée à l'association parente pour consulter la comptabilité
+    # autorisation donnée à l'association parente pour consulter la
+    # comptabilité de l'asso courante
     parent_view_granted = models.BooleanField('Parent view granted',
                                               blank=False,
                                               null=False,
                                               default=False)
 
-    # indique si l'association est dans le cimetière ou non (potentiellement pour passer en
-    # lecture seule les comptes)
+    # indique si l'association est dans le cimetière ou non (potentiellement
+    # pour passer en lecture seule les comptes)
     in_cemetery = models.BooleanField('in_cemetery',
                                       blank=False,
                                       null=False,
                                       default=False)
 
-    # date de dernière mise à jour de l'association, pour savoir si il faut la mettre à jour
+    # date de dernière mise à jour de l'association, pour savoir si il faut
+    # la mettre à jour
     last_updated = models.DateTimeField(name='last_updated',
                                         blank=False,
                                         null=False)
@@ -73,11 +75,12 @@ class Asso(models.Model):
     @property
     def parent_can_view(self) -> bool:
         """
-        Le parent (pôle / BDE) peut voir les comptes de ses sous-associations si c'est une
-        commission, un club ou un projet (tout sauf 1901) ou si l'accès a été explicitement
-        autorisé par l'association 1901
+        Le parent (pôle / BDE) peut voir les comptes de ses sous-associations
+        si c'est une commission, un club ou un projet (tout sauf 1901) ou si
+        l'accès a été explicitement autorisé par l'association 1901
         """
-        return self.asso_type != self.AssoType.ASS1901 or self.parent_view_granted
+        return (self.asso_type != self.AssoType.ASS1901
+                or self.parent_view_granted)
 
     @classmethod
     def create_asso(cls, PDA_resp):
@@ -102,7 +105,8 @@ class Asso(models.Model):
 
         asso_type = Asso.AssoType(role_id_to_enum[PDA_resp['type']['id']])
 
-        # si l'association a été supprimée ou est dans le cimetière, on le marque
+        # si l'association a été supprimée ou est dans le cimetière,
+        # on l'enregistre en DB
         if PDA_resp['deleted_at'] or PDA_resp['in_cemetery_at']:
             in_cemetery = True
         else:

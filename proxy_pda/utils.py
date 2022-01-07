@@ -48,14 +48,14 @@ def sync_assos():
         new_asso = m.Asso.create_asso(detailed_asso_pda)
 
         if existing_asso is None:
-            # pas d'association existante correspondante, il faut créer la nouvelle
-            # asso en base locale
+            # pas d'association existante correspondante, il faut créer la
+            # nouvelle asso en base locale
             bulk_create.append(new_asso)
 
             if asso_pda["parent"]:
-                # si l'association a un parent, on la met à jour après la création
-                # avec l'ID de son parent (il faut que toutes les assos soient créées
-                # pour que le parent puisse être ajouté)
+                # si l'association a un parent, on la met à jour après la
+                # création avec l'ID de son parent (il faut que toutes les
+                # assos soient créées pour que le parent puisse être ajouté)
                 new_asso = copy.deepcopy(new_asso)  # copie profonde de l'asso
                 new_asso.parent = m.Asso(
                     asso_id=detailed_asso_pda['parent']['id'])
@@ -63,8 +63,8 @@ def sync_assos():
         else:
             # on a trouvé une association correspondante en local
             # si l'asso est supprimée, on la conserve dans la base locale sinon
-            # on perd l'historique de la comptabilité (à voir plus tard si on peut
-            # rattacher ailleurs...)
+            # on perd l'historique de la comptabilité (à voir plus tard si on
+            # peut rattacher ailleurs...)
             # on fait donc une mise à jour de l'association si nécessaire
             last_updated = date_to_timezone(detailed_asso_pda['updated_at'])
             if last_updated > existing_asso.last_updated:
