@@ -2,7 +2,7 @@ from django.db import models
 
 import uuid
 
-from . import utils
+from .utils.date_to_timezone import date_to_timezone
 
 role_id_to_enum = {
     '5de178b0-3af5-11e9-ba7f-73313b44d9ac': 0,
@@ -113,7 +113,7 @@ class Asso(models.Model):
             in_cemetery = False
 
         # date de la dernière mise à jour de l'association
-        last_updated = utils.date_to_timezone(PDA_resp['updated_at'])
+        last_updated = date_to_timezone(PDA_resp['updated_at'])
 
         # création de l'objet
         return cls(asso_id=asso_id,

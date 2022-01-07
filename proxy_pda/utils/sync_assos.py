@@ -1,15 +1,14 @@
 from django.db import transaction
-from django.utils import timezone
 
 from rest_framework import status
 
 import requests
 import uuid
 import copy
-import datetime
 
-from . import models as m
-from . import serializers as s
+from proxy_pda.models import Asso
+
+from .date_to_timezone import date_to_timezone
 
 
 def sync_assos():
@@ -23,7 +22,7 @@ def sync_assos():
     assos_pda = r.json()
 
     # récupération des associations stockées localement
-    existing_assos = list(m.Asso.objects.all())
+    existing_assos = list(Asso.objects.all())
 
     # tableaux à remplir pour faire les enregistrements à la main
     bulk_create = []
@@ -45,7 +44,7 @@ def sync_assos():
                 break
 
         # on crée l'asso concernée selon le modèle local
-        new_asso = m.Asso.create_asso(detailed_asso_pda)
+        new_asso = Asso.create_asso(detailed_asso_pda)
 
         if existing_asso is None:
             # pas d'association existante correspondante, il faut créer la
@@ -57,7 +56,7 @@ def sync_assos():
                 # création avec l'ID de son parent (il faut que toutes les
                 # assos soient créées pour que le parent puisse être ajouté)
                 new_asso = copy.deepcopy(new_asso)  # copie profonde de l'asso
-                new_asso.parent = m.Asso(
+                new_asso.parent = Asso(
                     asso_id=detailed_asso_pda['parent']['id'])
                 bulk_update.append(new_asso)
         else:
@@ -72,50 +71,13 @@ def sync_assos():
 
     # application des opérations bdd en une fois
     with transaction.atomic():
-        m.Asso.objects.bulk_create(bulk_create)
-        m.Asso.objects.bulk_update(bulk_update,
-                                   fields=[
-                                       'shortname',
-                                       'name',
-                                       'parent',
-                                       'asso_type',
-                                       'in_cemetery',
-                                       'last_updated',
-                                   ])
-
-
-def date_to_timezone(date: str):
-    return timezone.make_aware(
-        datetime.datetime.strptime(date, '%Y-%m-%d %H:%M:%S'))
-
-
-def retrieve_user_info(request):
-    """
-    Fonction qui récupère les informations de l'utilisateur connecté
-    """
-    if 'token' not in request.session.keys():
-        # si il n'y a pas de token, on supprime les éventuelles
-        # informations utilisateur mises en cache
-        if 'user' in request.session.keys():
-            request.session.pop('user')
-
-        user: s.UserInfoSerializer = s.AnonymousUserInfo
-        resp_status = status.HTTP_401_UNAUTHORIZED
-    else:
-        if 'user' not in request.session.keys():
-            # si l'utilisateur n'est pas en cache dans la session, on le
-            # récupère depuis le PDA
-            token = request.session['token']
-            response = requests.get('https://assos.utc.fr/api/v1/user',
-                                    headers={
-                                        'Authorization':
-                                        'Bearer {}'.format(
-                                            token['access_token'])
-                                    })
-            user = s.UserInfoSerializer(response.json())
-            request.session['user'] = user.data
-
-        user = s.UserInfoSerializer(request.session['user'])
-        resp_status = status.HTTP_200_OK
-
-    return (user, resp_status)
+        Asso.objects.bulk_create(bulk_create)
+        Asso.objects.bulk_update(bulk_update,
+                                 fields=[
+                                     'shortname',
+                                     'name',
+                                     'parent',
+                                     'asso_type',
+                                     'in_cemetery',
+                                     'last_updated',
+                                 ])

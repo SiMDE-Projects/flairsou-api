@@ -1,8 +1,8 @@
 from rest_framework.response import Response
 from rest_framework import views
 
-from .serializers import UserInfoSerializer
-from .utils import retrieve_user_info
+from proxy_pda.serializers import UserInfoSerializer
+from proxy_pda.utils.retrieve_user_info import retrieve_user_info
 
 
 class GetUserInfo(views.APIView):
