@@ -1,9 +1,9 @@
 from rest_framework import status
+from rest_framework.exceptions import NotAuthenticated
 
 import requests
 
 from proxy_pda.serializers import UserInfoSerializer
-from proxy_pda.serializers import AnonymousUserInfo
 
 
 def retrieve_user_info(request):
@@ -16,8 +16,7 @@ def retrieve_user_info(request):
         if 'user' in request.session.keys():
             request.session.pop('user')
 
-        user: UserInfoSerializer = AnonymousUserInfo
-        resp_status = status.HTTP_401_UNAUTHORIZED
+        raise NotAuthenticated()
     else:
         if 'user' not in request.session.keys():
             # si l'utilisateur n'est pas en cache dans la session, on le
