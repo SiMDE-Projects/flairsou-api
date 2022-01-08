@@ -4,11 +4,22 @@ import uuid
 
 from .utils.date_to_timezone import date_to_timezone
 
-role_id_to_enum = {
-    '5de178b0-3af5-11e9-ba7f-73313b44d9ac': 0,
-    '5de1ff90-3af5-11e9-97a6-fb1b9b5a404e': 1,
-    '5de27990-3af5-11e9-b0eb-1f2ccc6dfc47': 2,
-    '5de112e0-3af5-11e9-b659-27adbaca4008': 3,
+
+class AssoType(models.IntegerChoices):
+    """
+    Type de l'association
+    """
+    COMMISSION = 0
+    CLUB = 1
+    PROJECT = 2
+    ASS1901 = 3
+
+
+asso_type_id_to_enum = {
+    '5de178b0-3af5-11e9-ba7f-73313b44d9ac': AssoType.COMMISSION,
+    '5de1ff90-3af5-11e9-97a6-fb1b9b5a404e': AssoType.CLUB,
+    '5de27990-3af5-11e9-b0eb-1f2ccc6dfc47': AssoType.PROJECT,
+    '5de112e0-3af5-11e9-b659-27adbaca4008': AssoType.ASS1901,
 }
 
 
@@ -16,15 +27,6 @@ class Asso(models.Model):
     """
     Mise en cache de la structure des association de la fédération
     """
-
-    class AssoType(models.IntegerChoices):
-        """
-        Type de l'association
-        """
-        COMMISSION = 0
-        CLUB = 1
-        PROJECT = 2
-        ASS1901 = 3
 
     # ID de l'association selon le portail des assos
     asso_id = models.UUIDField('ID', null=False, blank=False, primary_key=True)
@@ -79,8 +81,15 @@ class Asso(models.Model):
         si c'est une commission, un club ou un projet (tout sauf 1901) ou si
         l'accès a été explicitement autorisé par l'association 1901
         """
-        return (self.asso_type != self.AssoType.ASS1901
-                or self.parent_view_granted)
+        return (self.asso_type != AssoType.ASS1901 or self.parent_view_granted)
+
+    def get_sub_assos_granted(self):
+        """
+        Renvoie une queryset des sous-associations pour lesquelles l'asso
+        parente peut accéder aux comptes
+        """
+        return self.asso_set.filter(~models.Q(asso_type=AssoType.ASS1901)
+                                    | models.Q(parent_view_granted=True))
 
     @classmethod
     def create_asso(cls, PDA_resp):
@@ -98,12 +107,12 @@ class Asso(models.Model):
         name = PDA_resp['name']
 
         # récupération du type
-        if PDA_resp['type']['id'] not in role_id_to_enum.keys():
+        if PDA_resp['type']['id'] not in asso_type_id_to_enum.keys():
             # on vérifie que le type est dans le dictionnaire
             raise ValueError("Le type d'association {} n'est pas connu".format(
                 PDA_resp['type']['name']))
 
-        asso_type = Asso.AssoType(role_id_to_enum[PDA_resp['type']['id']])
+        asso_type = AssoType(asso_type_id_to_enum[PDA_resp['type']['id']])
 
         # si l'association a été supprimée ou est dans le cimetière,
         # on l'enregistre en DB
