@@ -5,9 +5,10 @@ import uuid
 import copy
 
 from proxy_pda.models import Asso
-from flairsou_api.models import Book
+from flairsou_api.models import Book, Account
 
 from .date_to_timezone import date_to_timezone
+from .base_account_struct import base_account_struct
 
 
 def sync_assos():
@@ -27,8 +28,13 @@ def sync_assos():
     bulk_create = []
     bulk_update = []
 
+    print('{} assos à traiter...'.format(len(assos_pda)))
+
     # pour chaque association renvoyée par le portail
-    for asso_pda in assos_pda:
+    for i, asso_pda in enumerate(assos_pda):
+        print("Traitement de l'asso {} ({}/{})".format(asso_pda['shortname'],
+                                                       i + 1, len(assos_pda)))
+
         # récupération des informations détaillées sur l'asso
         r = requests.get('https://assos.utc.fr/api/v1/assos/{}'.format(
             asso_pda['id']))
@@ -68,6 +74,8 @@ def sync_assos():
             if last_updated > existing_asso.last_updated:
                 bulk_update.append(new_asso)
 
+    print("Application des modifications en base...")
+
     # application des opérations bdd en une fois
     with transaction.atomic():
         Asso.objects.bulk_create(bulk_create)
@@ -80,6 +88,8 @@ def sync_assos():
                                      'in_cemetery',
                                      'last_updated',
                                  ])
+
+    print("Création des livres de compte de base")
 
     # création automatique des livres pour les associations
     create_books()
@@ -102,5 +112,34 @@ def create_books():
         if Book.objects.filter(entity=asso_id).count() == 0:
             # pas de livre avec cet ID, on en crée un nouveau
             print("Création d'un livre pour l'asso {}".format(asso.shortname))
-            Book.objects.create(name='Comptes {}'.format(asso.shortname),
-                                entity=asso_id)
+            book = Book.objects.create(name='Comptes {}'.format(
+                asso.shortname),
+                                       entity=asso_id)
+
+            # on crée une structure basique de comptes à associer à ce
+            # nouveau livre
+            create_accounts(copy.deepcopy(base_account_struct), book)
+
+
+def create_accounts(account_list, book, parent=None):
+    """
+    Création récursive des comptes dans un livre
+    """
+    for account in account_list:
+        # on sort les sous-comptes de l'élément
+        account_set = account.pop('account_set')
+
+        # ajout du livre
+        account['book'] = book
+
+        # création du compte
+        account_obj = Account(**account)
+
+        # ajout éventuel du paren éventuel
+        account_obj.parent = parent
+
+        # enregistrement de l'objet
+        account_obj.save()
+
+        # création récursive
+        create_accounts(account_set, book, account_obj)
