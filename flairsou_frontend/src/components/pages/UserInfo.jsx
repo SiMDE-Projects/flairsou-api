@@ -36,17 +36,19 @@ const UserInfo = () => {
     // the user is connected, return a component with the name
     // of the user
     return (
-      <>
+      <p>
         {userName}
         <a href={logoutUrl}>Déconnexion</a>
-      </>
+      </p>
     );
   }
 
   // the user is not connected, display the login link
 
   return (
-    <a href={authLink}>Connexion</a>
+    <p>
+      <a href={authLink}>Connexion</a>
+    </p>
   );
 };
 
