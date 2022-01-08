@@ -5,6 +5,7 @@ import uuid
 import copy
 
 from proxy_pda.models import Asso
+from flairsou_api.models import Book
 
 from .date_to_timezone import date_to_timezone
 
@@ -79,3 +80,27 @@ def sync_assos():
                                      'in_cemetery',
                                      'last_updated',
                                  ])
+
+    # création automatique des livres pour les associations
+    create_books()
+
+
+def create_books():
+    """
+    Fonction de création automatique d'un livre pour chaque asso
+    de la base de données
+    """
+
+    # récupération de toutes les données
+    assos = Asso.objects.all()
+
+    # pour chaque asso
+    for asso in assos:
+        # ID de l'asso
+        asso_id = asso.asso_id
+
+        if Book.objects.filter(entity=asso_id).count() == 0:
+            # pas de livre avec cet ID, on en crée un nouveau
+            print("Création d'un livre pour l'asso {}".format(asso.shortname))
+            Book.objects.create(name='Comptes {}'.format(asso.shortname),
+                                entity=asso_id)
