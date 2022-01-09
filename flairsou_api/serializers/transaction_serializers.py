@@ -8,26 +8,35 @@ class OperationSerializer(FlairsouModelSerializer):
     """
     Serializer basique pour la classe Operation
     """
+    error_messages = {
+        'account_virtual':
+        "Les opérations doivent être associées à des comptes non virtuels",
+        'two_amounts_zero':
+        "L'opération doit avoir un débit ou un crédit non nul",
+    }
 
     class Meta:
         model = Operation
         fields = ['pk', 'credit', 'debit', 'label', 'account']
+
+    def validate_account(self, account):
+        # vérifie que l'opération est liée à un compte non virtuel
+        if account.virtual:
+            raise self.ValidationError(
+                OperationSerializer.error_messages['account_virtual'])
+
+        return account
 
     def validate(self, data):
         """
         Validation de l'opération au niveau global.
         """
 
-        # vérifie que l'opération est liée à un compte non virtuel
-        if data['account'].virtual:
-            raise self.ValidationError('Les opérations doivent être '
-                                       'associées à des comptes non virtuels')
-
         # vérifie que credit et debit sont correctement définis (un seul
         # des deux montants >= 0)
         if data['credit'] == 0 and data['debit'] == 0:
-            raise self.ValidationError("L'opération doit avoir un débit "
-                                       "ou un crédit non nul")
+            raise self.ValidationError(
+                OperationSerializer.error_messages['two_amounts_zero'])
 
         if data['credit'] != 0 and data['debit'] != 0:
             data['credit'] -= data['debit']
