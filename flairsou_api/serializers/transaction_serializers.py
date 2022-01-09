@@ -8,6 +8,7 @@ class OperationSerializer(FlairsouModelSerializer):
     """
     Serializer basique pour la classe Operation
     """
+
     class Meta:
         model = Operation
         fields = ['pk', 'credit', 'debit', 'label', 'account']
@@ -24,6 +25,10 @@ class OperationSerializer(FlairsouModelSerializer):
 
         # vérifie que credit et debit sont correctement définis (un seul
         # des deux montants >= 0)
+        if data['credit'] == 0 and data['debit'] == 0:
+            raise self.ValidationError("L'opération doit avoir un débit "
+                                       "ou un crédit non nul")
+
         if data['credit'] != 0 and data['debit'] != 0:
             data['credit'] -= data['debit']
             data['debit'] = 0
