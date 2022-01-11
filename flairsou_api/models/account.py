@@ -4,6 +4,8 @@ from datetime import datetime
 from .timestamped import TimeStampedModel
 from .reconciliation import Reconciliation
 
+import uuid
+
 
 class Account(TimeStampedModel):
     """
@@ -129,6 +131,18 @@ class Account(TimeStampedModel):
                 balance = credits - debits
 
         return balance
+
+    def get_associated_entity(self) -> uuid.UUID:
+        """
+        Renvoie l'entité associée au compte courant si elle existe,
+        None sinon
+        """
+        if self.associated_entity is not None:
+            return self.associated_entity
+        elif self.parent:
+            return self.parent.get_associated_entity()
+        else:
+            return None
 
     @property
     def last_reconciliation(self) -> Reconciliation:
