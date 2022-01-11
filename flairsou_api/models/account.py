@@ -38,6 +38,7 @@ class Account(TimeStampedModel):
     * Un compte doit obligatoirement avoir un type. Si le compte a un père,
     il doit avoir le même type que son père.
     """
+
     class AccountType(models.IntegerChoices):
         ASSET = 0  # Actifs
         LIABILITY = 1  # Passifs
@@ -61,6 +62,10 @@ class Account(TimeStampedModel):
                              on_delete=models.CASCADE,
                              blank=False,
                              null=False)
+    associated_entity = models.UUIDField('associated_entity',
+                                         blank=False,
+                                         null=True,
+                                         default=None)
 
     def __str__(self) -> str:
         if self.parent_id is not None:
@@ -86,7 +91,6 @@ class Account(TimeStampedModel):
         """
         Calcule le solde du compte
         """
-
         # on prend toutes les opérations
         ops = self.operation_set.all()
         return self.compute_balance(ops)
