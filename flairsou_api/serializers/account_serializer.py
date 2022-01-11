@@ -3,11 +3,22 @@ from flairsou_api.models import Account, Book
 
 from rest_framework import serializers
 
+import uuid
+
 
 class AccountSerializer(FlairsouModelSerializer):
+
     class Meta:
         model = Account
-        fields = ['pk', 'name', 'account_type', 'virtual', 'parent', 'book']
+        fields = [
+            'pk',
+            'name',
+            'account_type',
+            'virtual',
+            'parent',
+            'book',
+            'associated_entity',
+        ]
 
     def check_same_book_parent(self, parent: Account, book: Book):
         """
@@ -56,6 +67,20 @@ class AccountSerializer(FlairsouModelSerializer):
                         'Un compte avec ce nom existe déjà dans le livre '
                         'parent')
 
+    def check_associated_entity(self, parent: Account,
+                                associated_entity: uuid.UUID):
+        """
+        Si on délègue la vision d'un compte à une entité, on s'assure
+        qu'un de ses comptes parents n'est pas déjà associé à une autre
+        entité
+        """
+        if parent is not None and associated_entity is not None:
+            if parent.get_associated_entity() != associated_entity:
+                raise self.ValidationError({
+                    'associated_entity':
+                    'Un compte parent est déjà associé à une autre entité'
+                })
+
     def validate(self, data):
         """
         Validation de l'objet compte au moment de la sérialisation.
@@ -67,6 +92,7 @@ class AccountSerializer(FlairsouModelSerializer):
         account_type = data['account_type']
         parent = data['parent']
         book = data['book']
+        associated_entity = data['associated_entity']
 
         self.check_same_book_parent(parent, book)
 
@@ -75,6 +101,8 @@ class AccountSerializer(FlairsouModelSerializer):
         self.check_name_unique_in_parent(parent, name)
 
         self.check_name_unique_in_book(book, name)
+
+        self.check_associated_entity(parent, associated_entity)
 
         return data
 
@@ -134,6 +162,7 @@ class AccountSerializer(FlairsouModelSerializer):
 
 
 class AccountBalanceSerializer(FlairsouModelSerializer):
+
     class Meta:
         model = Account
         fields = ['pk', 'balance']
