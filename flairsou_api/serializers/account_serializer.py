@@ -92,6 +92,11 @@ class AccountSerializer(FlairsouModelSerializer):
         account_type = data['account_type']
         parent = data['parent']
         book = data['book']
+        if 'associated_entity' not in data.keys():
+            # le champ est facultatif dans le modèle donc il n'est pas
+            # forcément fourni au serializer
+            data['associated_entity'] = None
+
         associated_entity = data['associated_entity']
 
         self.check_same_book_parent(parent, book)
