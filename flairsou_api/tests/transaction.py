@@ -6,9 +6,11 @@ import datetime
 import uuid
 
 from flairsou_api.models import Book, Account
+from flairsou_api.serializers import OperationSerializer
 
 
 class TransactionAPITestCase(APITestCase):
+
     def setUp(self):
         self.book = Book.objects.create(name="Comptes",
                                         entity=uuid.UUID(int=1))
@@ -69,6 +71,17 @@ class TransactionAPITestCase(APITestCase):
         op2['account'] = self.assets.pk
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['operations'][1]['account'][0],
+                         OperationSerializer.error_messages['account_virtual'])
+
+        # création d'une transaction avec un débit et un crédit nul
+        op1['credit'] = 0
+        op2['account'] = self.bank.pk
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            response.data['operations'][0]['non_field_errors'][0],
+            OperationSerializer.error_messages['two_amounts_zero'])
 
     def test_transation_balanced(self):
         # tentative de création d'une transaction non équilibrée
