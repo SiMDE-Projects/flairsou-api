@@ -75,7 +75,11 @@ class AccountSerializer(FlairsouModelSerializer):
         entité
         """
         if parent is not None and associated_entity is not None:
-            if parent.get_associated_entity() != associated_entity:
+            # récupération de l'entité associée sur le parent
+            existing_entity = parent.get_associated_entity()
+            if existing_entity is not None:
+                # si une entité est déjà associée à un compte parent,
+                # on refuse l'ajout
                 raise self.ValidationError({
                     'associated_entity':
                     'Un compte parent est déjà associé à une autre entité'
@@ -187,6 +191,7 @@ class AccountNestedSerializer(FlairsouModelSerializer):
             'account_type',
             'virtual',
             'balance',
+            'associated_entity',
             'account_set',
         ]
 
