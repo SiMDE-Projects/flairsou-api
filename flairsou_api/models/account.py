@@ -32,6 +32,10 @@ class Account(TimeStampedModel):
     book : ForeignKey
         Clé étrangère vers l'instance Book référente.
 
+    associated_entity: UUIDField (optionnel)
+        ID de l'entité associée à ce compte, qui obtient un accès en lecture
+        sur le compte et ses sous-comptes
+
     Contraintes :
     * Deux comptes avec le même parent ne peuvent pas avoir le même nom
     * Deux comptes avec le même livre ne peuvent pas avoir le même nom
