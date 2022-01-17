@@ -4,7 +4,7 @@ import requests
 import uuid
 import copy
 
-from proxy_pda.models import Asso, AssoType
+from proxy_pda.models import Asso
 from flairsou_api.models import Book, Account
 
 from .date_to_timezone import date_to_timezone
@@ -106,11 +106,6 @@ def create_books():
 
     # pour chaque asso
     for asso in assos:
-        if asso.asso_type == AssoType.CLUB:
-            # les clubs n'ont pas de compte dédié, on ne leur crée pas un
-            # compte automatiquement
-            continue
-
         # ID de l'asso
         asso_id = asso.asso_id
 
