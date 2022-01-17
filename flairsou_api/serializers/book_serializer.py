@@ -5,10 +5,11 @@ from drf_spectacular.utils import extend_schema_field
 from .flairsou_serializers import FlairsouModelSerializer
 from .account_serializer import AccountNestedSerializer
 
-from flairsou_api.models import Book
+from flairsou_api.models import Book, Account
 
 
 class BookSerializer(FlairsouModelSerializer):
+
     class Meta:
         model = Book
         fields = ['pk', 'name', 'entity']
@@ -35,12 +36,28 @@ class BookSerializer(FlairsouModelSerializer):
 
 class BookWithAccountsSerializer(FlairsouModelSerializer):
     account_set = serializers.SerializerMethodField()
+    associated_account_set = serializers.SerializerMethodField()
 
     class Meta:
         model = Book
-        fields = ['pk', 'name', 'entity', 'account_set']
+        fields = [
+            'pk',
+            'name',
+            'entity',
+            'account_set',
+            'associated_account_set',
+        ]
 
     @extend_schema_field(AccountNestedSerializer(many=True))
     def get_account_set(self, instance):
         accounts = instance.account_set.filter(parent=None)
+        return AccountNestedSerializer(accounts, many=True).data
+
+    @extend_schema_field(AccountNestedSerializer(many=True))
+    def get_associated_account_set(self, instance):
+        """
+        Récupère la liste des comptes qui sont associés à l'entité
+        du livre courant
+        """
+        accounts = Account.objects.filter(associated_entity=instance.entity)
         return AccountNestedSerializer(accounts, many=True).data
