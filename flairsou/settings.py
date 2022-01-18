@@ -40,12 +40,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'flairsou_api.apps.FlairsouApiConfig',  # API app
     'flairsou_frontend',
-    'mock_portail',
     'softdelete',
     'django_extensions',
     'rest_framework',
     'drf_spectacular',
     'oauth_pda_app',
+    'proxy_pda',
 ]
 
 MIDDLEWARE = [
