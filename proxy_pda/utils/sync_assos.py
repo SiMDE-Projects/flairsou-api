@@ -4,7 +4,7 @@ import requests
 import uuid
 import copy
 
-from proxy_pda.models import Asso
+from proxy_pda.models import Asso, AssoType
 from flairsou_api.models import Book, Account
 
 from .date_to_timezone import date_to_timezone
@@ -117,8 +117,9 @@ def create_books():
                                        entity=asso_id)
 
             # on crée une structure basique de comptes à associer à ce
-            # nouveau livre
-            create_accounts(copy.deepcopy(base_account_struct), book)
+            # nouveau livre si l'asso a des comptes séparés
+            if asso.asso_type != AssoType.CLUB:
+                create_accounts(copy.deepcopy(base_account_struct), book)
 
 
 def create_accounts(account_list, book, parent=None):
