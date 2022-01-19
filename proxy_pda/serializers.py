@@ -25,8 +25,23 @@ AnonymousUserInfo = UserInfoSerializer({
 
 class AssoSerializer(serializers.ModelSerializer):
     """
-    Serializer permettant de renvoyer la liste des associations auxquelles
-    un utilisateur a accès dans Flairsou
+    Serializer permettant de renvoyer les détails d'une associtation
+    """
+
+    class Meta:
+        model = Asso
+        fields = [
+            'asso_id',
+            'shortname',
+            'name',
+            'asso_type',
+        ]
+
+
+class NestedAssoSerializer(serializers.ModelSerializer):
+    """
+    Serializer permettant de renvoyer une association avec la liste
+    de ses sous-associations
     """
     asso_set = serializers.SerializerMethodField()
 
