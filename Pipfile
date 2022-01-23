@@ -15,6 +15,7 @@ django-softdelete = "*"
 django-extensions = "*"
 Django = "==3.2"
 drf-spectacular = "*"
+django-rest-multiple-models = "*"
 
 [requires]
 python_version = "3.8"
