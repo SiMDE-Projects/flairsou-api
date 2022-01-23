@@ -58,3 +58,12 @@ class NestedAssoSerializer(serializers.ModelSerializer):
     def get_asso_set(self, instance):
         sub_assos_granted = instance.get_sub_assos_granted()
         return AssoSerializer(sub_assos_granted, many=True).data
+
+
+class MultiAssoSerializer(serializers.Serializer):
+    """
+    Serializer correspondant à ce qui est renvoyé par l'API pour la liste des
+    associations (nécessaire pour construire l'extension du schéma de doc)
+    """
+    direct_assos = NestedAssoSerializer(many=True)
+    associated_assos = AssoSerializer(many=True)
