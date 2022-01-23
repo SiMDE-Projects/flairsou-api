@@ -44,7 +44,6 @@ INSTALLED_APPS = [
     'django_extensions',
     'rest_framework',
     'drf_spectacular',
-    'drf_multiple_model',
     'oauth_pda_app',
     'proxy_pda',
 ]

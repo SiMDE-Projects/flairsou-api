@@ -27,7 +27,7 @@ const HomePage = () => {
     const list = [];
     for (let i = 0; i < assosArray.length; i += 1) {
       // on ajoute chaque asso dans la liste
-      list.push(<li key={assosArray[i].asso_id}>{assosArray[i].shortname}</li>);
+      list.push(<li>{assosArray[i].shortname}</li>);
 
       // si l'asso a des sous-assos, on les ajoute en sous-liste
       if (assosArray[i].asso_set.length > 0) {
@@ -49,21 +49,11 @@ const HomePage = () => {
   return (
     <>
       <UserInfo />
-      <p> Associations directes </p>
       <div>
         {
           // construction de la liste des assos à afficher
-          buildAssosList(assosFetched.direct_assos)
+          buildAssosList(assosFetched)
         }
-      </div>
-      <p> Associations associées </p>
-      <div>
-        <ul>
-          {
-              assosFetched.associated_assos.map((asso) => (
-                <li key={asso.asso_id}>{asso.shortname}</li>))
-          }
-        </ul>
       </div>
     </>
   );

@@ -25,23 +25,8 @@ AnonymousUserInfo = UserInfoSerializer({
 
 class AssoSerializer(serializers.ModelSerializer):
     """
-    Serializer permettant de renvoyer les détails d'une associtation
-    """
-
-    class Meta:
-        model = Asso
-        fields = [
-            'asso_id',
-            'shortname',
-            'name',
-            'asso_type',
-        ]
-
-
-class NestedAssoSerializer(serializers.ModelSerializer):
-    """
-    Serializer permettant de renvoyer une association avec la liste
-    de ses sous-associations
+    Serializer permettant de renvoyer la liste des associations auxquelles
+    un utilisateur a accès dans Flairsou
     """
     asso_set = serializers.SerializerMethodField()
 
@@ -58,12 +43,3 @@ class NestedAssoSerializer(serializers.ModelSerializer):
     def get_asso_set(self, instance):
         sub_assos_granted = instance.get_sub_assos_granted()
         return AssoSerializer(sub_assos_granted, many=True).data
-
-
-class MultiAssoSerializer(serializers.Serializer):
-    """
-    Serializer correspondant à ce qui est renvoyé par l'API pour la liste des
-    associations (nécessaire pour construire l'extension du schéma de doc)
-    """
-    direct_assos = NestedAssoSerializer(many=True)
-    associated_assos = AssoSerializer(many=True)
