@@ -4,6 +4,8 @@ from datetime import datetime
 from .timestamped import TimeStampedModel
 from .reconciliation import Reconciliation
 
+import uuid
+
 
 class Account(TimeStampedModel):
     """
@@ -30,6 +32,10 @@ class Account(TimeStampedModel):
     book : ForeignKey
         Clé étrangère vers l'instance Book référente.
 
+    associated_entity: UUIDField (optionnel)
+        ID de l'entité associée à ce compte, qui obtient un accès en lecture
+        sur le compte et ses sous-comptes
+
     Contraintes :
     * Deux comptes avec le même parent ne peuvent pas avoir le même nom
     * Deux comptes avec le même livre ne peuvent pas avoir le même nom
@@ -38,6 +44,7 @@ class Account(TimeStampedModel):
     * Un compte doit obligatoirement avoir un type. Si le compte a un père,
     il doit avoir le même type que son père.
     """
+
     class AccountType(models.IntegerChoices):
         ASSET = 0  # Actifs
         LIABILITY = 1  # Passifs
@@ -61,6 +68,10 @@ class Account(TimeStampedModel):
                              on_delete=models.CASCADE,
                              blank=False,
                              null=False)
+    associated_entity = models.UUIDField('associated_entity',
+                                         blank=False,
+                                         null=True,
+                                         default=None)
 
     def __str__(self) -> str:
         if self.parent_id is not None:
@@ -86,7 +97,6 @@ class Account(TimeStampedModel):
         """
         Calcule le solde du compte
         """
-
         # on prend toutes les opérations
         ops = self.operation_set.all()
         return self.compute_balance(ops)
@@ -125,6 +135,18 @@ class Account(TimeStampedModel):
                 balance = credits - debits
 
         return balance
+
+    def get_associated_entity(self) -> uuid.UUID:
+        """
+        Renvoie l'entité associée au compte courant si elle existe,
+        None sinon
+        """
+        if self.associated_entity is not None:
+            return self.associated_entity
+        elif self.parent:
+            return self.parent.get_associated_entity()
+        else:
+            return None
 
     @property
     def last_reconciliation(self) -> Reconciliation:
