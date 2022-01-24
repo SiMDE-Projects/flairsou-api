@@ -10,6 +10,7 @@ flairsou/config.py
 .vscode/
 *.swp
 .idea/
+**/.DS_Store
 
 # Database
 db.sqlite3
