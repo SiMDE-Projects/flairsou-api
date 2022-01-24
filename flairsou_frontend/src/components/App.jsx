@@ -6,7 +6,9 @@
 */
 
 import React from 'react';
-import { BrowserRouter, Redirect, Route, Switch } from 'react-router-dom';
+import {
+  BrowserRouter, Redirect, Route, Switch,
+} from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
@@ -45,13 +47,13 @@ PrivateRoute.defaultProps = {
 };
 
 const App = ({ userIdentified }) => (
-    <React.StrictMode>
-        <BrowserRouter>
-            <Switch>
-                <Route path="/" exact component={ Home } />
-            </Switch>
-        </BrowserRouter>
-    </React.StrictMode>
+  <React.StrictMode>
+    <BrowserRouter>
+      <Switch>
+        <Route path="/" exact component={Home} />
+      </Switch>
+    </BrowserRouter>
+  </React.StrictMode>
 );
 
 App.propTypes = {
@@ -61,4 +63,3 @@ App.propTypes = {
 export default connect((store) => ({
   userIdentified: store.user.identified,
 }))(App);
-

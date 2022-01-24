@@ -1,5 +1,5 @@
 # flake8: noqa
-# (on laisse le commentaire pour la ganération de la clef dépasser)
+# (on laisse le commentaire pour la génération de la clef dépasser)
 
 # Configurations du serveur - template
 # Ce fichier doit être copié sous le nom config.py dans le répertoire flairsou
@@ -32,3 +32,16 @@ DATABASES = {
 ALLOWED_HOSTS = []
 
 UPLOAD_PATH = 'uploads/'
+
+OAUTH_SETTINGS = {
+    'client_id': 'xxxxxxx',
+    'client_secret': 'xxxxxxx',
+    'authorization_url': 'https://assos.utc.fr/oauth/authorize',
+    'token_url': 'https://assos.utc.fr/oauth/token',
+    'redirect_uri': 'http://xxxxxxxxx',
+    'scopes': [
+        'user-get-info',
+        'user-get-roles',
+        'user-get-assos',
+    ],
+}

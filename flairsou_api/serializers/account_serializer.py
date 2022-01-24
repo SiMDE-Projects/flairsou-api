@@ -1,11 +1,24 @@
 from .flairsou_serializers import FlairsouModelSerializer
 from flairsou_api.models import Account, Book
 
+from rest_framework import serializers
+
+import uuid
+
 
 class AccountSerializer(FlairsouModelSerializer):
+
     class Meta:
         model = Account
-        fields = ['pk', 'name', 'account_type', 'virtual', 'parent', 'book']
+        fields = [
+            'pk',
+            'name',
+            'account_type',
+            'virtual',
+            'parent',
+            'book',
+            'associated_entity',
+        ]
 
     def check_same_book_parent(self, parent: Account, book: Book):
         """
@@ -54,6 +67,24 @@ class AccountSerializer(FlairsouModelSerializer):
                         'Un compte avec ce nom existe déjà dans le livre '
                         'parent')
 
+    def check_associated_entity(self, parent: Account,
+                                associated_entity: uuid.UUID):
+        """
+        Si on délègue la vision d'un compte à une entité, on s'assure
+        qu'un de ses comptes parents n'est pas déjà associé à une autre
+        entité
+        """
+        if parent is not None and associated_entity is not None:
+            # récupération de l'entité associée sur le parent
+            existing_entity = parent.get_associated_entity()
+            if existing_entity is not None:
+                # si une entité est déjà associée à un compte parent,
+                # on refuse l'ajout
+                raise self.ValidationError({
+                    'associated_entity':
+                    'Un compte parent est déjà associé à une autre entité'
+                })
+
     def validate(self, data):
         """
         Validation de l'objet compte au moment de la sérialisation.
@@ -65,6 +96,12 @@ class AccountSerializer(FlairsouModelSerializer):
         account_type = data['account_type']
         parent = data['parent']
         book = data['book']
+        if 'associated_entity' not in data.keys():
+            # le champ est facultatif dans le modèle donc il n'est pas
+            # forcément fourni au serializer
+            data['associated_entity'] = None
+
+        associated_entity = data['associated_entity']
 
         self.check_same_book_parent(parent, book)
 
@@ -73,6 +110,8 @@ class AccountSerializer(FlairsouModelSerializer):
         self.check_name_unique_in_parent(parent, name)
 
         self.check_name_unique_in_book(book, name)
+
+        self.check_associated_entity(parent, associated_entity)
 
         return data
 
@@ -132,6 +171,39 @@ class AccountSerializer(FlairsouModelSerializer):
 
 
 class AccountBalanceSerializer(FlairsouModelSerializer):
+
     class Meta:
         model = Account
         fields = ['pk', 'balance']
+
+
+class AccountNestedSerializer(FlairsouModelSerializer):
+    """
+    Serializer qui renvoie une liste imbriquée des comptes
+    """
+    account_set = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Account
+        fields = [
+            'pk',
+            'name',
+            'account_type',
+            'virtual',
+            'balance',
+            'associated_entity',
+            'account_set',
+        ]
+
+    def get_fields(self):
+        """
+        Fonction qui permet d'indiquer à la doc le type d'élément renvoyé,
+        nécessaire à cause de la représentation imbriquée récursive.
+        """
+        fields = super(AccountNestedSerializer, self).get_fields()
+        fields['account_set'] = AccountNestedSerializer(many=True)
+        return fields
+
+    def get_account_set(self, instance):
+        accounts = instance.account_set.all()
+        return AccountNestedSerializer(accounts, many=True).data

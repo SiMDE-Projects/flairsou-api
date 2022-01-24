@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class MockPortailConfig(AppConfig):
+class ProxyPdaConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'mock_portail'
+    name = 'proxy_pda'

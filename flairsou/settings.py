@@ -40,11 +40,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'flairsou_api.apps.FlairsouApiConfig',  # API app
     'flairsou_frontend',
-    'mock_portail',
     'softdelete',
     'django_extensions',
     'rest_framework',
     'drf_spectacular',
+    'oauth_pda_app',
+    'proxy_pda',
 ]
 
 MIDDLEWARE = [
@@ -127,8 +128,6 @@ STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-AUTH_USER_MODEL = 'mock_portail.CustomUser'
-
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
@@ -139,3 +138,5 @@ SPECTACULAR_SETTINGS = {
     'de Flairsou, outil de gestion de trésorerie pour les associations',
     'VERSION': '0.0.1',
 }
+
+OAUTH_SETTINGS = config.OAUTH_SETTINGS

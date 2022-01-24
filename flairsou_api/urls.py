@@ -6,17 +6,21 @@ app_name = 'flairsou_api'
 urlpatterns = [
     # sur accounts/ on a uniquement la création des comptes
     path('accounts/', views.AccountCreation.as_view(), name="account-create"),
-    # on a ensuite les routes de listing par filtre
-    path('accounts/byBook/<int:book>/',
-         views.AccountListFilter.as_view(),
-         name="account-filter-by-book"),
     # et la route de détails d'un compte particulier
     path('accounts/<int:pk>/',
          views.AccountDetail.as_view(),
          name="account-detail"),
+    # solde du compte
     path('accounts/<int:pk>/balance/',
          views.AccountBalance.as_view(),
          name="account-balance"),
+    # rapprochement du compte
+    path('accounts/<int:pk>/reconciliation/',
+         views.ReconciliationView.as_view(),
+         name="account-reconciliation"),
+    path('accounts/<int:pk>/operations/',
+         views.AccountOpsList.as_view(),
+         name="account-operation-list"),
     # sur books/ on a uniquement la création des livres
     path('books/', views.BookCreation.as_view(), name="book-create"),
     # on a ensuite les routes de listing par filtre
