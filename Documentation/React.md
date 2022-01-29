@@ -1,6 +1,6 @@
 # Utilisation de React
 
-Ce document explique la manière dont utilisé React dans ce projet.
+Ce document explique la manière dont utiliser React dans ce projet.
 React étant une bibliothèque très libre, certains choix ont été faits pour harmoniser l'ensemble du code frontend.
 Ceux-ci sont décrits dans ce document.
 
