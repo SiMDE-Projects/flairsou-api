@@ -4,6 +4,8 @@ from rest_framework import generics
 import flairsou_api.models as fm
 import flairsou_api.serializers as fs
 
+from flairsou_api.utils import UserAllowed
+
 
 class ReconciliationView(mixins.RetrieveModelMixin, mixins.CreateModelMixin,
                          generics.GenericAPIView):
@@ -11,6 +13,7 @@ class ReconciliationView(mixins.RetrieveModelMixin, mixins.CreateModelMixin,
     Vue qui gère le rapprochement du compte
     """
     serializer_class = fs.ReconciliationSerializer
+    permission_classes = [UserAllowed]
 
     def get(self, request, *args, **kwargs):
         """
@@ -38,4 +41,8 @@ class ReconciliationView(mixins.RetrieveModelMixin, mixins.CreateModelMixin,
 
         # on renvoie l'objet rapprochement
         obj = account.last_reconciliation
+
+        # vérification de l'autorisation sur le compte demandé
+        self.check_object_permissions(self.request, account)
+
         return obj
