@@ -157,3 +157,14 @@ class Account(TimeStampedModel):
             return self.reconciliation_set.order_by('-date')[0]
         else:
             return None
+
+    def check_user_allowed(self, request) -> bool:
+        """
+        Vérifie si l'utilisateur passé dans la requête est autorisé à accéder
+        à l'objet
+        """
+        if (str(self.book.entity) not in request.session['assos'] and str(
+                self.associated_entity) not in request.session['assos']):
+            return False
+
+        return True
