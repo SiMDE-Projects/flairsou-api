@@ -69,7 +69,7 @@ class TransactionList(mixins.ListModelMixin, mixins.CreateModelMixin,
 
 
 class TransactionDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
-                        generics.GenericAPIView):
+                        mixins.DestroyModelMixin, generics.GenericAPIView):
     """
     Vue qui fournit le détail d'une transaction par son identifiant
     """
@@ -87,3 +87,9 @@ class TransactionDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
         Sur une requete PUT, met à jour la transaction
         """
         return self.update(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        """
+        Supprime la transaction
+        """
+        return self.destroy(request, *args, **kwargs)
