@@ -10,6 +10,11 @@ import uuid
 class BookAPITestCase(APITestCase):
 
     def setUp(self):
+        # on autorise le client sur l'entité créée
+        session = self.client.session
+        session['assos'] = [str(uuid.UUID(int=1))]
+        session.save()
+
         self.book = Book.objects.create(name="Comptes BDE",
                                         entity=uuid.UUID(int=1))
 
@@ -66,6 +71,11 @@ class BookAccountsAPITestCase(APITestCase):
     """
 
     def setUp(self):
+        # on autorise le client sur l'entité créée
+        session = self.client.session
+        session['assos'] = [str(uuid.UUID(int=1))]
+        session.save()
+
         book1 = Book.objects.create(name="Comptes", entity=uuid.UUID(int=1))
         Account.objects.create(name="Actifs",
                                account_type=Account.AccountType.ASSET,
@@ -88,4 +98,5 @@ class BookAccountsAPITestCase(APITestCase):
         # niveau 1)
         url = reverse('flairsou_api:book-get-all-accounts', kwargs={'pk': 1})
         response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['account_set']), 3)
