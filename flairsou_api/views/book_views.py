@@ -5,21 +5,6 @@ import flairsou_api.models as fm
 import flairsou_api.serializers as fs
 
 
-class BookCreation(mixins.CreateModelMixin, generics.GenericAPIView):
-    """
-    Vue permettant la création d'un nouveau livre de comptes
-    """
-    serializer_class = fs.BookSerializer
-
-    def post(self, request, *args, **kwargs):
-        """
-        Crée un nouveau livre avec les paramètres suivants :
-        - "name" : nom du livre à créer
-        - "entity" : UUID correspondant à l'entité possédant le livre
-        """
-        return self.create(request, *args, **kwargs)
-
-
 class BookListFilter(mixins.ListModelMixin, generics.GenericAPIView):
     """
     Vue qui fournit une liste de livres à partir d'un certain filtre
@@ -71,16 +56,6 @@ class BookDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
         - id : clé primaire du livre à modifier
         """
         return self.update(request, *args, **kwargs)
-
-    def delete(self, request, *args, **kwargs):
-        """
-        Supprime le livre passé en paramètre
-        - id : clé primaire du livre à supprimer
-
-        Attention : cette opération supprime tous les comptes associés à
-        ce livre, et toutes les transactions associées à ces comptes !
-        """
-        return self.destroy(request, *args, **kwargs)
 
 
 class BookAccountList(mixins.RetrieveModelMixin, generics.GenericAPIView):
