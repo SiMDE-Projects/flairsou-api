@@ -50,7 +50,8 @@ class Book(TimeStampedModel):
         Vérifie si l'utilisateur passé dans la requête est autorisé à accéder
         à l'objet
         """
-        if str(self.entity) not in request.session['assos']:
+        if ('assos' not in request.session
+                or str(self.entity) not in request.session['assos']):
             return False
 
         return True
