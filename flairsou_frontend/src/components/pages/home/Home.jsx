@@ -4,7 +4,7 @@ import HomeContent from '../../UI/organisms/HomeContent/HomeContent';
 
 const Home = () => {
   const [authLink, setAuthLink] = useState('');
-  const [userName, setUserName] = useState('');
+  const [userName, setUserName] = useState('NOT_FETCHED');
 
   const authlinkUrl = '/oauth/authlink';
   const userInfosUrl = '/proxy_pda/get_user_infos';
@@ -17,7 +17,6 @@ const Home = () => {
       });
   }, []);
 
-  // chargement du composant
   useEffect(() => {
     fetch(userInfosUrl)
       .then((response) => {
@@ -26,12 +25,16 @@ const Home = () => {
             const fullName = `${validResponse.firstname} ${validResponse.lastname}`;
             setUserName(fullName);
           });
+        } else {
+          setUserName('');
         }
       });
   }, []);
 
   useEffect(() => {
+    console.log(`userName: ${userName}; authLink: ${authLink};`);
     if (userName === '' && authLink !== '') {
+      console.log('redirecting...');
       window.location.href = authLink;
     }
   }, [userName, authLink]);
