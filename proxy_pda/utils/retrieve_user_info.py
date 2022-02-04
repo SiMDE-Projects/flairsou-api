@@ -69,6 +69,10 @@ def request_user_assos(request):
     request.session['assos'] = []
 
     for asso in response.json():
+        if asso['pivot']['validated_by_id'] is None:
+            # on ignore si le rôle n'est pas validé
+            continue
+
         userRole = asso['pivot']['role_id']
 
         # on considère uniquement les associations pour lesquelles
