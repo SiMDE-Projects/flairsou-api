@@ -3,19 +3,10 @@ import ContentWrapper from '../../UI/organisms/ContentWrapper/ContentWrapper';
 import HomeContent from '../../UI/organisms/HomeContent/HomeContent';
 
 const Home = () => {
-  const [authLink, setAuthLink] = useState('');
   const [userName, setUserName] = useState('NOT_FETCHED');
 
   const authlinkUrl = '/oauth/authlink';
   const userInfosUrl = '/proxy_pda/get_user_infos';
-
-  useEffect(() => {
-    fetch(authlinkUrl)
-      .then((response) => response.json())
-      .then((response) => {
-        setAuthLink(response.link);
-      });
-  }, []);
 
   useEffect(() => {
     fetch(userInfosUrl)
@@ -32,10 +23,14 @@ const Home = () => {
   }, []);
 
   useEffect(() => {
-    if (userName === '' && authLink !== '') {
-      window.location.href = authLink;
+    if (userName === '') {
+      fetch(authlinkUrl)
+        .then((response) => response.json())
+        .then((response) => {
+          window.location.href = response.link;
+        });
     }
-  }, [userName, authLink]);
+  }, [userName]);
 
   return (
     <ContentWrapper content={<HomeContent />} />
