@@ -32,9 +32,7 @@ const Home = () => {
   }, []);
 
   useEffect(() => {
-    console.log(`userName: ${userName}; authLink: ${authLink};`);
     if (userName === '' && authLink !== '') {
-      console.log('redirecting...');
       window.location.href = authLink;
     }
   }, [userName, authLink]);
