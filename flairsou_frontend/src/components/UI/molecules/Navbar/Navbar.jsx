@@ -1,12 +1,12 @@
-import React from 'react'
-import './navbar.css'
+import React from 'react';
+import './navbar.css';
 
-import SearchBar from '../../atoms/SearchBar/SearchBar'
+import SearchBar from '../../atoms/SearchBar/SearchBar';
 
 const Navbar = () => (
-    <div className='navbar'>
-        <SearchBar />
-    </div>
-)
+  <div className="navbar">
+    <SearchBar />
+  </div>
+);
 
-export default Navbar
+export default Navbar;
