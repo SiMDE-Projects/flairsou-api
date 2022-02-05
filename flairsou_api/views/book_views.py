@@ -1,5 +1,6 @@
 from rest_framework import mixins
 from rest_framework import generics
+from rest_framework.exceptions import PermissionDenied
 
 import flairsou_api.models as fm
 import flairsou_api.serializers as fs
@@ -22,6 +23,10 @@ class BookListFilter(mixins.ListModelMixin, generics.GenericAPIView):
         queryset = fm.Book.objects.all()
 
         entity = self.kwargs.get('entity')
+
+        if not UserAllowed.check_entity_allowed(str(entity), self.request):
+            raise PermissionDenied()
+
         if entity is not None:
             queryset = queryset.filter(entity=entity)
 
