@@ -71,3 +71,16 @@ class Transaction(TimeStampedModel):
                     return True
 
         return False
+
+    def check_user_allowed(self, request) -> bool:
+        """
+        Vérifie si l'utilisateur passé dans la requête est autorisé à
+        accéder à l'objet
+        """
+        # l'utilisateur peut accéder à la transaction s'il peut accéder à
+        # toutes les opérations
+        for op in self.operations():
+            if not op.check_user_allowed(request):
+                return False
+
+        return True

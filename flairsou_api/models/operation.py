@@ -59,3 +59,12 @@ class Operation(TimeStampedModel):
                 name="%(app_label)s_%(class)s_debit_xor_credit",
                 check=(models.Q(credit=0, debit__gt=0))
                 | models.Q(credit__gt=0, debit=0)))
+
+    def check_user_allowed(self, request) -> bool:
+        """
+        Vérifie si l'utilisateur passé dans la requête est autorisé à accéder
+        à l'objet
+        """
+        # l'utilisateur peut accéder à l'opération s'il peut accéder au compte
+        # associé à l'opération
+        return self.account.check_user_allowed(request)

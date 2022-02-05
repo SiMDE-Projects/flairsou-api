@@ -4,6 +4,8 @@ from rest_framework import generics
 import flairsou_api.models as fm
 import flairsou_api.serializers as fs
 
+from flairsou_api.utils import UserAllowed
+
 
 class TransactionCreate(mixins.CreateModelMixin, generics.GenericAPIView):
     """
@@ -25,6 +27,7 @@ class TransactionDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
     """
     queryset = fm.Transaction.objects.all()
     serializer_class = fs.TransactionSerializer
+    permission_classes = [UserAllowed]
 
     def get(self, request, *args, **kwargs):
         """

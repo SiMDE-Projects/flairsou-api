@@ -12,6 +12,10 @@ from flairsou_api.serializers import OperationSerializer
 class TransactionAPITestCase(APITestCase):
 
     def setUp(self):
+        session = self.client.session
+        session['assos'] = [str(uuid.UUID(int=1))]
+        session.save()
+
         self.book = Book.objects.create(name="Comptes",
                                         entity=uuid.UUID(int=1))
 
@@ -178,6 +182,9 @@ class TransactionAPITestCase(APITestCase):
 
     def test_transaction_same_book(self):
         url = reverse('flairsou_api:transaction-create')
+        session = self.client.session
+        session['assos'].append(str(uuid.UUID(int=2)))
+        session.save()
 
         # création d'une transaction entre deux comptes de deux livres
         # différents
