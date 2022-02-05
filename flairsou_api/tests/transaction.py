@@ -41,7 +41,7 @@ class TransactionAPITestCase(APITestCase):
             book=self.book)
 
     def test_create_transaction(self):
-        url = reverse('flairsou_api:transaction-list')
+        url = reverse('flairsou_api:transaction-create')
 
         # création d'une transaction entre deux comptes non virtuels
         op1 = {
@@ -85,7 +85,7 @@ class TransactionAPITestCase(APITestCase):
 
     def test_transation_balanced(self):
         # tentative de création d'une transaction non équilibrée
-        url = reverse('flairsou_api:transaction-list')
+        url = reverse('flairsou_api:transaction-create')
 
         op1 = {
             'credit': 200,
@@ -112,7 +112,7 @@ class TransactionAPITestCase(APITestCase):
 
     def test_transaction_correct_values(self):
         # vérification de la correction des valeurs de la transaction
-        url = reverse('flairsou_api:transaction-list')
+        url = reverse('flairsou_api:transaction-create')
 
         # création d'une transaction entre deux comptes non virtuels
         op1 = {
@@ -143,7 +143,7 @@ class TransactionAPITestCase(APITestCase):
         self.assertEqual(response.data['operations'][1]['debit'], 150)
 
     def test_transaction_same_account(self):
-        url = reverse('flairsou_api:transaction-list')
+        url = reverse('flairsou_api:transaction-create')
 
         # création d'une transaction entre deux comptes non virtuels
         op1 = {
@@ -177,7 +177,7 @@ class TransactionAPITestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_transaction_same_book(self):
-        url = reverse('flairsou_api:transaction-list')
+        url = reverse('flairsou_api:transaction-create')
 
         # création d'une transaction entre deux comptes de deux livres
         # différents

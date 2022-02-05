@@ -33,8 +33,8 @@ urlpatterns = [
     path('books/<int:pk>/', views.BookDetail.as_view(), name="book-detail"),
     # routes transactions
     path('transactions/',
-         views.TransactionList.as_view(),
-         name="transaction-list"),
+         views.TransactionCreate.as_view(),
+         name="transaction-create"),
     path('transactions/<int:pk>/',
          views.TransactionDetail.as_view(),
          name="transaction-detail"),

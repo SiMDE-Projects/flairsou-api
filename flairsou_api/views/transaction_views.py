@@ -5,7 +5,7 @@ import flairsou_api.models as fm
 import flairsou_api.serializers as fs
 
 
-class TransactionList(mixins.CreateModelMixin, generics.GenericAPIView):
+class TransactionCreate(mixins.CreateModelMixin, generics.GenericAPIView):
     """
     Vue qui permet de créer une nouvelle transaction.
     """
