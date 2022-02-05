@@ -5,7 +5,41 @@
 
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 5px;
     padding: 10px;
     padding-top: 20px;
+    overflow-y: scroll;
+}
+
+.navbar::-webkit-scrollbar{
+    width: 5px;
+}
+
+.navbar-element{
+    width: 100%;
+    background-color: rgba(0,0,0,0);
+    border: 0;
+    text-align: left;
+}
+
+.navbar-element p {
+    margin-left: 10px;
+    display: inline;
+    font-weight: 600;
+    color: #676767;
+}
+
+.triangle{
+    fill: #676767;
+    stroke-width: 0;
+    transform: rotate(-90deg) translateX(-10px);
+}
+
+.navbar-element.active .triangle{
+    transform: rotate(0deg);
+    fill: black;
+}
+
+.navbar-element.active p{
+    color: black;
 }
