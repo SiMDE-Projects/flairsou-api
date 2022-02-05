@@ -77,11 +77,12 @@ class BookAccountsAPITestCase(APITestCase):
         session.save()
 
         book1 = Book.objects.create(name="Comptes", entity=uuid.UUID(int=1))
-        Account.objects.create(name="Actifs",
-                               account_type=Account.AccountType.ASSET,
-                               virtual=True,
-                               parent=None,
-                               book=book1)
+        self.acc1 = Account.objects.create(
+            name="Actifs",
+            account_type=Account.AccountType.ASSET,
+            virtual=True,
+            parent=None,
+            book=book1)
         Account.objects.create(name="Passifs",
                                account_type=Account.AccountType.LIABILITY,
                                virtual=True,
@@ -100,3 +101,22 @@ class BookAccountsAPITestCase(APITestCase):
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['account_set']), 3)
+
+    def test_associated_entities(self):
+        # création d'un deuxième livre
+        Book.objects.create(name="Comptes 2", entity=uuid.UUID(int=2))
+
+        # ajout de l'entité associée sur le compte d'actifs
+        self.acc1.associated_entity = uuid.UUID(int=2)
+        self.acc1.save()
+
+        # on autorise l'entité 2 pour l'utilisateur
+        session = self.client.session
+        session['assos'] = [str(uuid.UUID(int=2))]
+        session.save()
+
+        # on veut récupérer les comptes du livre 2
+        url = reverse('flairsou_api:book-get-all-accounts', kwargs={'pk': 2})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['associated_account_set']), 1)
