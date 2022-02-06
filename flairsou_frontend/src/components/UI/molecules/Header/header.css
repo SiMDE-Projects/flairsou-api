@@ -32,6 +32,11 @@
     margin-top:0;
 }
 
+.user-info-block {
+	color: #F5E15E;
+	text-align: center;
+}
+
 .deco-button{
     color: #F5E15E;
 }

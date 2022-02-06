@@ -4,9 +4,9 @@ import Header from '../../molecules/Header/Header';
 import Navbar from '../../molecules/Navbar/Navbar';
 import './ContentWrapper.css';
 
-const ContentWrapper = ({ content }) => (
+const ContentWrapper = ({ userName, content }) => (
   <div className="content-wrapper-v">
-    <Header />
+    <Header userName={userName} />
     <div className="content-wrapper-h">
       <Navbar />
       {content}
