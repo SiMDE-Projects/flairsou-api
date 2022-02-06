@@ -33,7 +33,7 @@ const Home = () => {
   }, [userName]);
 
   return (
-    <ContentWrapper content={<HomeContent />} />
+    <ContentWrapper userName={userName} content={<HomeContent />} />
   );
 };
 
