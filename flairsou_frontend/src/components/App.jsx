@@ -13,6 +13,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
 import Home from './pages/home/Home';
+import Account from './pages/account/Account';
 
 const PrivateRoute = ({ component: Component, userIdentified, ...rest }) => (
   <Route
@@ -51,6 +52,7 @@ const App = ({ userIdentified }) => (
     <BrowserRouter>
       <Switch>
         <Route path="/" exact component={Home} />
+        <Route path="/account/:accountID" exact component={Account} />
       </Switch>
     </BrowserRouter>
   </React.StrictMode>
