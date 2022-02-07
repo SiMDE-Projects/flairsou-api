@@ -21,7 +21,7 @@ class Command(BaseCommand):
     """
     Classe Command appelée par manage.py
     """
-    help = 'Closes the specified poll for voting'
+    help = 'Importe le fichier CSV passé en paramètre'
 
     def add_arguments(self, parser):
         """

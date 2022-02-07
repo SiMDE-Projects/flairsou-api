@@ -217,3 +217,14 @@ python manage.py dumpdata --indent 2 > db.json
 
 Cette commande exporte toute la base de données locale dans le fichier `db.json`.
 Le `--indent 2` permet d'avoir un fichier json indenté et lisible.
+
+## Chargement des associations du PDA
+
+Une base de données locales fait un mirroir des associations du portail pour Flairsou afin de limiter les requêtes au portail.
+Pour construire cette base, on peut utiliser la commande `sync_assos` :
+
+```
+python manage.py sync_assos
+```
+
+Cette commande crée ou met à jour la base des associations, et crée un livre et une structure basique de comptes pour toutes les commisions, projets et 1901.
