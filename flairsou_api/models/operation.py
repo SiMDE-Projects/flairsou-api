@@ -43,6 +43,10 @@ class Operation(TimeStampedModel):
     def date(self) -> datetime.date:
         return self.transaction.date
 
+    @property
+    def reconciliated(self) -> bool:
+        return self.transaction.is_reconciliated()
+
     class Meta:
         constraints = []
 
