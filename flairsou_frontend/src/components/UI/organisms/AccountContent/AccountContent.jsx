@@ -17,7 +17,12 @@ const AccountContent = ({ account }) => (
       {
           account.virtual
             ? <>Compte virtuel</>
-            : <TransactionList accountID={account.pk} />
+            : (
+              <TransactionList
+                accountID={account.pk}
+                accountType={account.account_type}
+              />
+            )
       }
     </div>
   </div>

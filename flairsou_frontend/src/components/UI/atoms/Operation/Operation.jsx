@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Table } from 'semantic-ui-react';
 
-const Operation = ({ operation }) => (
+const Operation = ({ operation, balance }) => (
   <Table.Row>
     <Table.Cell>{operation.date}</Table.Cell>
     <Table.Cell>{operation.label}</Table.Cell>
@@ -11,7 +11,7 @@ const Operation = ({ operation }) => (
     <Table.Cell>rapp</Table.Cell>
     <Table.Cell textAlign="right">{operation.credit > 0 ? (operation.credit / 100).toFixed(2) : ''}</Table.Cell>
     <Table.Cell textAlign="right">{operation.debit > 0 ? (operation.debit / 100).toFixed(2) : ''}</Table.Cell>
-    <Table.Cell textAlign="right">solde</Table.Cell>
+    <Table.Cell textAlign="right">{(balance / 100).toFixed(2)}</Table.Cell>
   </Table.Row>
 );
 
@@ -25,4 +25,5 @@ Operation.propTypes = {
     debit: PropTypes.number.isRequired,
     label: PropTypes.string.isRequired,
   }).isRequired,
+  balance: PropTypes.number.isRequired,
 };
