@@ -1,40 +1,32 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Header } from 'semantic-ui-react';
+import { Container, Header } from 'semantic-ui-react';
 import TransactionList from '../../molecules/TransactionList/TransactionList';
 
 import currencyFormat from '../../../../utils/currencyFormat';
 
 const AccountContent = ({ account }) => (
-  <div>
-    <div>
-      <div>
-        <Header as="h1">{account.name}</Header>
-        {account.fullName}
-      </div>
-      <div>
-        <p>
-          Solde :
-          {' '}
-          {currencyFormat(account.balance)}
-          {' '}
-          €
-        </p>
-      </div>
-    </div>
-    <div>
-      {
-          account.virtual
-            ? <>Compte virtuel</>
-            : (
-              <TransactionList
-                accountID={account.pk}
-                accountType={account.account_type}
-              />
-            )
-      }
-    </div>
-  </div>
+  <Container>
+    <Header as="h1">{account.name}</Header>
+    {account.fullName}
+    <p>
+      Solde :
+      {' '}
+      {currencyFormat(account.balance)}
+      {' '}
+      €
+    </p>
+    {
+      account.virtual
+        ? <>Compte virtuel</>
+        : (
+          <TransactionList
+            accountID={account.pk}
+            accountType={account.account_type}
+          />
+        )
+    }
+  </Container>
 );
 
 AccountContent.propTypes = {
