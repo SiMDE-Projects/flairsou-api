@@ -1,21 +1,28 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Container, Header } from 'semantic-ui-react';
+import { Container, Grid, Header } from 'semantic-ui-react';
 import TransactionList from '../../molecules/TransactionList/TransactionList';
 
 import currencyFormat from '../../../../utils/currencyFormat';
 
 const AccountContent = ({ account }) => (
   <Container>
-    <Header as="h1">{account.name}</Header>
-    {account.fullName}
-    <p>
-      Solde :
-      {' '}
-      {currencyFormat(account.balance)}
-      {' '}
-      €
-    </p>
+    <Grid>
+      <Grid.Column floated='left' width={8}>
+        <Header as="h1">{account.name}</Header>
+        <Header sub>{account.fullName}</Header>
+      </Grid.Column>
+      <Grid.Column floated='right' width={8}>
+        <p style={{ textAlign: 'right' }}>
+          Solde :
+          &nbsp;
+          {currencyFormat(account.balance)}
+          &nbsp;
+          €
+        </p>
+      </Grid.Column>
+    </Grid>
+
     {
       account.virtual
         ? <>Compte virtuel</>

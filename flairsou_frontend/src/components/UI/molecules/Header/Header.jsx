@@ -4,7 +4,7 @@ import logo from '../../../../assets/logo.svg';
 import './header.css';
 
 const Header = ({ userName }) => (
-  <div className="header">
+  <header>
     <div className="flairsou-logo">
       <img src={logo} alt="logo de flairsou" className="flairsou-image" />
       <h1 className="flairsou-title">Flairsou</h1>
@@ -14,7 +14,7 @@ const Header = ({ userName }) => (
       <p>{userName}</p>
       <a className="deco-button" href="#"> déconnexion </a>
     </div>
-  </div>
+  </header>
 );
 
 Header.propTypes = {
