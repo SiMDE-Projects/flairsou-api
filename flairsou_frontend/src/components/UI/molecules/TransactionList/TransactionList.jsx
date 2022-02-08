@@ -20,7 +20,7 @@ const TransactionList = ({ accountID }) => {
   return (
     <Table celled>
       <Table.Header>
-        <Table.Row>
+        <Table.Row textAlign="center">
           <Table.HeaderCell>Date</Table.HeaderCell>
           <Table.HeaderCell>Description</Table.HeaderCell>
           <Table.HeaderCell>Justificatif</Table.HeaderCell>
