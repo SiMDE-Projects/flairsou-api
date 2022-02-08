@@ -1,19 +1,20 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Table } from 'semantic-ui-react';
 
 import './Operation.css';
 
 const Operation = ({ operation }) => (
-  <tr>
-    <td>{operation.date}</td>
-    <td>{operation.label}</td>
-    <td>justif</td>
-    <td>Compte</td>
-    <td>rapp</td>
-    <td className="money">{operation.credit > 0 ? (operation.credit / 100).toFixed(2) : ''}</td>
-    <td className="money">{operation.debit > 0 ? (operation.debit / 100).toFixed(2) : ''}</td>
-    <td>solde</td>
-  </tr>
+  <Table.Row>
+    <Table.Cell>{operation.date}</Table.Cell>
+    <Table.Cell>{operation.label}</Table.Cell>
+    <Table.Cell>justif</Table.Cell>
+    <Table.Cell>Compte</Table.Cell>
+    <Table.Cell>rapp</Table.Cell>
+    <Table.Cell className="money">{operation.credit > 0 ? (operation.credit / 100).toFixed(2) : ''}</Table.Cell>
+    <Table.Cell className="money">{operation.debit > 0 ? (operation.debit / 100).toFixed(2) : ''}</Table.Cell>
+    <Table.Cell>solde</Table.Cell>
+  </Table.Row>
 );
 
 export default Operation;
