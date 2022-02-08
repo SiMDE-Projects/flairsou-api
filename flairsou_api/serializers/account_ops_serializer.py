@@ -11,13 +11,36 @@ class OperationDateSerializer(FlairsouModelSerializer):
     à un compte, faisant uniquement intervenir la date, le crédit,
     le débit et le label de l'opération.
     """
+    other_account = serializers.SerializerMethodField()
+
     class Meta:
         model = Operation
-        fields = ['pk', 'date', 'credit', 'debit', 'label']
+        fields = [
+            'pk',
+            'date',
+            'credit',
+            'debit',
+            'label',
+            'other_account',
+            'reconciliated',
+        ]
+
+        read_only_fields = [
+            'reconciliated',
+        ]
 
     def validate(self, data):
         raise self.ValidationError('Ce serializer ne doit pas être utilisé'
                                    'pour enregistrer des données')
+
+    def get_other_account(self, operation):
+        other_accounts = operation.transaction.operation_set.exclude(
+            pk=operation.pk)
+
+        if len(other_accounts) == 1:
+            return other_accounts[0].account.fullName
+        else:
+            return "Transaction répartie"
 
 
 class AccountOpsListSerializer(FlairsouModelSerializer):

@@ -74,9 +74,7 @@ class Account(TimeStampedModel):
                                          default=None)
 
     def __str__(self) -> str:
-        if self.parent_id is not None:
-            return "{}-{}".format(self.parent, self.name)
-        return "{}-{}".format(self.book, self.name)
+        return "{}-{}".format(self.book, self.fullName)
 
     class Meta:
         constraints = []
@@ -91,6 +89,17 @@ class Account(TimeStampedModel):
             models.CheckConstraint(
                 check=~models.Q(name=''),
                 name="%(app_label)s_%(class)s_name_not_null"))
+
+    @property
+    def fullName(self) -> str:
+        """
+        Retourne le nom complet du compte (héritage de tous les comptes
+        parents)
+        """
+        if self.parent is not None:
+            return self.parent.fullName + ":" + self.name
+        else:
+            return self.name
 
     @property
     def balance(self) -> int:

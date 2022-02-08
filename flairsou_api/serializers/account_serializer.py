@@ -14,11 +14,18 @@ class AccountSerializer(FlairsouModelSerializer):
         fields = [
             'pk',
             'name',
+            'fullName',
             'account_type',
             'virtual',
             'parent',
             'book',
             'associated_entity',
+            'balance',
+        ]
+
+        read_only_fields = [
+            'balance',
+            'fullName',
         ]
 
     def check_same_book_parent(self, parent: Account, book: Book):
