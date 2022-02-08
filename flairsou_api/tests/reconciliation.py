@@ -4,7 +4,7 @@ from django.urls import reverse
 
 from datetime import datetime
 
-from flairsou_api.models import Account
+from flairsou_api.models import Account, Book
 from flairsou_api.serializers import ReconciliationSerializer
 
 
@@ -13,6 +13,13 @@ class ReconciliationTestCase(APITestCase):
     fixtures = [
         'reduced_test_db.json',
     ]
+
+    def setUp(self):
+        book = Book.objects.get(id=1)
+        # on autorise le client sur l'entité créée
+        session = self.client.session
+        session['assos'] = [str(book.entity)]
+        session.save()
 
     def test_reconciliate(self):
         acc = Account.objects.get(name="Compte Courant")
@@ -59,6 +66,7 @@ class ReconciliationTestCase(APITestCase):
 
     def test_reconciliate_on_virtual(self):
         acc = Account.objects.get(name="Actif")
+
         url = reverse('flairsou_api:account-reconciliation',
                       kwargs={'pk': acc.pk})
 

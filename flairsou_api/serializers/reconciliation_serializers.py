@@ -1,3 +1,5 @@
+from rest_framework.exceptions import PermissionDenied
+
 from .flairsou_serializers import FlairsouModelSerializer
 from flairsou_api.models import Reconciliation, Account
 
@@ -59,6 +61,13 @@ class ReconciliationSerializer(FlairsouModelSerializer):
         account = data['account']
         date = data['date']
         balance = data['balance']
+
+        if 'request' in self.context:
+            # si la création est effectuée à partir d'une requête, on
+            # vérifie que l'utilisateur a les droits sur le compte associé
+            # pour créer le rapprochement
+            if not account.check_user_allowed(self.context['request']):
+                raise PermissionDenied()
 
         # vérifie que le compte n'est pas virtuel (on ne rapproche pas un
         # compte virtuel)

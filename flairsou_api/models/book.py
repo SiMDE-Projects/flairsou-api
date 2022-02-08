@@ -44,3 +44,14 @@ class Book(TimeStampedModel):
             models.UniqueConstraint(
                 fields=['entity'],
                 name="%(app_label)s_%(class)s_one_book_per_entity"))
+
+    def check_user_allowed(self, request) -> bool:
+        """
+        Vérifie si l'utilisateur passé dans la requête est autorisé à accéder
+        à l'objet
+        """
+        if ('assos' not in request.session
+                or str(self.entity) not in request.session['assos']):
+            return False
+
+        return True

@@ -86,3 +86,8 @@ Si aucun livre n'est donné, un nouveau livre est créé avec un nom aléatoire 
 
 Le paramètre `--randomize` permet de randomiser les transactions en remplaçant les labels par des chaînes de caractères aléatoires.
 Ceci peut être utile pour fournir une base de données de test pour le développement sans pouvoir identifier les personnes impliquées dans les transactions.
+
+## sync_assos
+
+La commande `sync_assos` permet de créer ou mettre à jour la base locale des associations depuis le portail des assos.
+Elle entraîne la création automatique d'un livre pour chaque asso si ce livre n'existe pas, ainsi qu'une structure basique de comptes pour les associations qui gèrent leur trésorerie (commisions, projets et 1901).

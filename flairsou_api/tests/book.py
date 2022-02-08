@@ -1,42 +1,35 @@
 from rest_framework.test import APITestCase
 from rest_framework import status
 from django.urls import reverse
+from django.db.utils import IntegrityError
 
 from flairsou_api.models import Book, Account
 import uuid
 
 
 class BookAPITestCase(APITestCase):
+
     def setUp(self):
+        # on autorise le client sur l'entité créée
+        session = self.client.session
+        session['assos'] = [str(uuid.UUID(int=1))]
+        session.save()
+
         self.book = Book.objects.create(name="Comptes BDE",
                                         entity=uuid.UUID(int=1))
 
     def test_create_book(self):
         """
-        Vérifie que la création de livre fonctionne
+        Vérifie que la création de livre fonctionne via python, l'API
+        de création de compte est désactivée
         """
-        url = reverse('flairsou_api:book-create')
-        data = {
-            'name': 'BDE-UTC',
-            'entity': '00000000-0000-0000-0000-000000000002'
-        }
-        response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        # première création doit fonctionner
+        Book.objects.create(name="BDE-UTC", entity=uuid.UUID(int=2))
 
         # le deuxième test ne doit pas fonctionner car on crée deux livres pour
         # la même entité
-        data['name'] = 'BDE-UTC-2'
-        response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-    def test_get_forbidden_on_create(self):
-        """
-        Vérifie qu'on ne peut pas faire de requête GET sur la route de création
-        """
-        url = reverse('flairsou_api:book-create')
-        response = self.client.get(url, format='json')
-        self.assertEqual(response.status_code,
-                         status.HTTP_405_METHOD_NOT_ALLOWED)
+        with self.assertRaises(IntegrityError):
+            Book.objects.create(name="BDE-UTC-2", entity=uuid.UUID(int=2))
 
     def test_filter_book_by_pk(self):
         """
@@ -76,13 +69,20 @@ class BookAccountsAPITestCase(APITestCase):
     """
     Classe de test pour le filtrage des comptes par book
     """
+
     def setUp(self):
+        # on autorise le client sur l'entité créée
+        session = self.client.session
+        session['assos'] = [str(uuid.UUID(int=1))]
+        session.save()
+
         book1 = Book.objects.create(name="Comptes", entity=uuid.UUID(int=1))
-        Account.objects.create(name="Actifs",
-                               account_type=Account.AccountType.ASSET,
-                               virtual=True,
-                               parent=None,
-                               book=book1)
+        self.acc1 = Account.objects.create(
+            name="Actifs",
+            account_type=Account.AccountType.ASSET,
+            virtual=True,
+            parent=None,
+            book=book1)
         Account.objects.create(name="Passifs",
                                account_type=Account.AccountType.LIABILITY,
                                virtual=True,
@@ -99,4 +99,24 @@ class BookAccountsAPITestCase(APITestCase):
         # niveau 1)
         url = reverse('flairsou_api:book-get-all-accounts', kwargs={'pk': 1})
         response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['account_set']), 3)
+
+    def test_associated_entities(self):
+        # création d'un deuxième livre
+        Book.objects.create(name="Comptes 2", entity=uuid.UUID(int=2))
+
+        # ajout de l'entité associée sur le compte d'actifs
+        self.acc1.associated_entity = uuid.UUID(int=2)
+        self.acc1.save()
+
+        # on autorise l'entité 2 pour l'utilisateur
+        session = self.client.session
+        session['assos'] = [str(uuid.UUID(int=2))]
+        session.save()
+
+        # on veut récupérer les comptes du livre 2
+        url = reverse('flairsou_api:book-get-all-accounts', kwargs={'pk': 2})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['associated_account_set']), 1)

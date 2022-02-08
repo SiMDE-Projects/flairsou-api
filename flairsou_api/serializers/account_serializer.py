@@ -2,6 +2,7 @@ from .flairsou_serializers import FlairsouModelSerializer
 from flairsou_api.models import Account, Book
 
 from rest_framework import serializers
+from rest_framework.exceptions import PermissionDenied
 
 import uuid
 
@@ -13,11 +14,18 @@ class AccountSerializer(FlairsouModelSerializer):
         fields = [
             'pk',
             'name',
+            'fullName',
             'account_type',
             'virtual',
             'parent',
             'book',
             'associated_entity',
+            'balance',
+        ]
+
+        read_only_fields = [
+            'balance',
+            'fullName',
         ]
 
     def check_same_book_parent(self, parent: Account, book: Book):
@@ -102,6 +110,13 @@ class AccountSerializer(FlairsouModelSerializer):
             data['associated_entity'] = None
 
         associated_entity = data['associated_entity']
+
+        if 'request' in self.context:
+            # si la création est effectuée à partir d'une requête, on vérifie
+            # que l'utilisateur connecté a les droits sur le livre
+            # pour créer le compte
+            if not book.check_user_allowed(self.context['request']):
+                raise PermissionDenied()
 
         self.check_same_book_parent(parent, book)
 
