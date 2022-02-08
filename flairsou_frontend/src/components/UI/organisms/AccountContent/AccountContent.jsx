@@ -1,31 +1,27 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Header } from 'semantic-ui-react';
 import TransactionList from '../../molecules/TransactionList/TransactionList';
 
-const AccountContent = ({ account }) => {
-  let content;
-  if (account.virtual) {
-    content = (<div>Compte virtuel</div>);
-  } else {
-    content = <TransactionList accountID={account.pk} />;
-  }
-
-  return (
+const AccountContent = ({ account }) => (
+  <div>
     <div>
       <div>
-        <div>
-          <h1>{account.name}</h1>
-        </div>
-        <div>
-          <p>Solde : solde €</p>
-        </div>
+        <Header as="h1">{account.name}</Header>
       </div>
       <div>
-        {content}
+        <p>Solde : solde €</p>
       </div>
     </div>
-  );
-};
+    <div>
+      {
+          account.virtual
+            ? <>Compte virtuel</>
+            : <TransactionList accountID={account.pk} />
+      }
+    </div>
+  </div>
+);
 
 AccountContent.propTypes = {
   account: PropTypes.shape({
