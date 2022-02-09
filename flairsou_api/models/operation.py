@@ -47,6 +47,10 @@ class Operation(TimeStampedModel):
     def reconciliated(self) -> bool:
         return self.transaction.is_reconciliated()
 
+    @property
+    def accountFullName(self) -> str:
+        return self.account.fullName
+
     class Meta:
         constraints = []
 
