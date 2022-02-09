@@ -245,5 +245,6 @@ class AccountTransactionListSerializer(FlairsouModelSerializer):
         """
         transaction_pks = instance.operation_set.values_list("transaction__pk",
                                                              flat=True)
-        transactions = Transaction.objects.filter(pk__in=transaction_pks)
+        transactions = Transaction.objects.filter(
+            pk__in=transaction_pks).order_by('date')
         return TransactionSerializer(transactions, many=True).data
