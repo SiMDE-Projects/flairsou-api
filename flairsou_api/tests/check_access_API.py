@@ -108,11 +108,12 @@ class CheckAPIAccessLimited(APITestCase):
         url = reverse('flairsou_api:account-balance', kwargs={'pk': 1})
         self.run_test('get', url)
 
-    def test_account_operations(self):
+    def test_account_transactions(self):
         """
-        Vérification de la route d'obtention des opérations du compte
+        Vérification de la route d'obtention des transactions du compte
         """
-        url = reverse('flairsou_api:account-operation-list', kwargs={'pk': 1})
+        url = reverse('flairsou_api:account-transaction-list',
+                      kwargs={'pk': 1})
         self.run_test('get', url)
 
     def test_account_get_reconciliation(self):
