@@ -4,30 +4,50 @@ import { Table } from 'semantic-ui-react';
 
 import currencyFormat from '../../../../utils/currencyFormat';
 
-const Operation = ({ operation, balance }) => (
-  <Table.Row>
-    <Table.Cell>{operation.date}</Table.Cell>
-    <Table.Cell>{operation.label}</Table.Cell>
-    <Table.Cell>justif</Table.Cell>
-    <Table.Cell>{operation.other_account}</Table.Cell>
-    <Table.Cell>{operation.reconciliated ? 'o' : 'x'}</Table.Cell>
-    <Table.Cell textAlign="right">{operation.credit > 0 ? currencyFormat(operation.credit) : ''}</Table.Cell>
-    <Table.Cell textAlign="right">{operation.debit > 0 ? currencyFormat(operation.debit) : ''}</Table.Cell>
-    <Table.Cell textAlign="right">{currencyFormat(balance)}</Table.Cell>
-  </Table.Row>
-);
+const Operation = ({ transaction }) => {
+  // récupération de l'objet correspondant à l'opération à afficher
+  const currentOp = transaction.operations[transaction.currentOpId];
 
+  // récupération du nom de l'autre compte (s'il n'y en a qu'un)
+  let otherAccountName = '';
+  if (transaction.operations.length === 2) {
+    const otherOpId = (transaction.currentOpId + 1) % 2;
+    otherAccountName = transaction.operations[otherOpId].accountFullName;
+  } else {
+    otherAccountName = 'Transaction répartie';
+  }
+
+  // récupération de l'opération liée au compte
+  return (
+    <Table.Row>
+      <Table.Cell>{transaction.date}</Table.Cell>
+      <Table.Cell>{currentOp.label}</Table.Cell>
+      <Table.Cell>o</Table.Cell>
+      <Table.Cell>{otherAccountName}</Table.Cell>
+      <Table.Cell>{transaction.checked ? 'o' : 'x'}</Table.Cell>
+      <Table.Cell textAlign="right">{currentOp.credit > 0 ? currencyFormat(currentOp.credit) : ''}</Table.Cell>
+      <Table.Cell textAlign="right">{currentOp.debit > 0 ? currencyFormat(currentOp.debit) : ''}</Table.Cell>
+      <Table.Cell textAlign="right">{currencyFormat(transaction.balance)}</Table.Cell>
+    </Table.Row>
+  );
+};
 export default Operation;
 
 Operation.propTypes = {
-  operation: PropTypes.shape({
+  transaction: PropTypes.shape({
     pk: PropTypes.number.isRequired,
     date: PropTypes.string.isRequired,
-    credit: PropTypes.number.isRequired,
-    debit: PropTypes.number.isRequired,
-    label: PropTypes.string.isRequired,
-    other_account: PropTypes.string.isRequired,
-    reconciliated: PropTypes.bool.isRequired,
+    checked: PropTypes.bool.isRequired,
+    invoice: PropTypes.string,
+    balance: PropTypes.number.isRequired,
+    currentOpId: PropTypes.number.isRequired,
+    operations: PropTypes.arrayOf(PropTypes.shape({
+      pk: PropTypes.number.isRequired,
+      credit: PropTypes.number.isRequired,
+      debit: PropTypes.number.isRequired,
+      label: PropTypes.string.isRequired,
+      account: PropTypes.number.isRequired,
+      accountFullName: PropTypes.string.isRequired,
+    })).isRequired,
   }).isRequired,
-  balance: PropTypes.number.isRequired,
 };

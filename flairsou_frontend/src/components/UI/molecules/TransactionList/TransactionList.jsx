@@ -13,15 +13,6 @@ const TransactionList = ({ accountID, accountType }) => {
    * accountID : ID du compte dans la base de données Flairsou
    * accountType : type du compte (voir assets/accountTypeMapping.js)
    */
-  const [operationList, setOperationList] = useState([]);
-
-  useEffect(() => {
-    fetch(`/api/accounts/${accountID}/operations/`)
-      .then((response) => response.json())
-      .then((response) => {
-        setOperationList(response.operation_set);
-      });
-  }, [accountID]);
 
   /*
    * Le calcul du solde se fait par défaut avec credit - debit, mais
@@ -30,8 +21,45 @@ const TransactionList = ({ accountID, accountType }) => {
   const invert = (accountType === AccountTypes.ASSET
       || accountType === AccountTypes.EXPENSE);
 
-  // solde flottant qui évolue à chaque opération ajoutée à la liste
-  let solde = 0;
+  // liste des transactions stockées dans l'état du composant
+  const [transactionList, setTransactionList] = useState([]);
+
+  useEffect(() => {
+    fetch(`/api/accounts/${accountID}/transactions/`)
+      .then((response) => response.json())
+      .then((response) => {
+        // solde partiel suite aux opérations
+        let balance = 0;
+
+        // on complète la liste avec le solde partiel et l'ID de l'opération
+        // associée au compte dans les opérations de la transaction
+        setTransactionList(response.transaction_set.map((transaction) => {
+          // recherche de l'opération associée au compte actuel
+          for (let i = 0; i < transaction.operations.length; i += 1) {
+            if (transaction.operations[i].account === accountID) {
+              // l'opération courante est celle-ci
+              const currentOp = transaction.operations[i];
+
+              // calcul du solde partiel suite à l'opération
+              balance += (invert ? -1 : 1) * (currentOp.credit - currentOp.debit);
+
+              // renvoi de l'objet transaction avec le solde associé et l'ID de l'opération
+              return {
+                ...transaction,
+                balance,
+                currentOpId: i,
+              };
+            }
+          }
+
+          // voir si il faut prévoir quelque chose ici en cas de problème
+          return {};
+        }));
+      });
+  }, [accountID, invert]);
+
+  // TODO 3 : mettre en place le système de focus pour déployer les transactions
+  // réparties
 
   return (
     <Table celled>
@@ -49,14 +77,12 @@ const TransactionList = ({ accountID, accountType }) => {
       </Table.Header>
       <Table.Body>
         {
-          operationList.map((operation) => {
-            // mise à jour du solde suite à l'opération courante
-            solde += (invert ? -1 : 1) * (operation.credit - operation.debit);
-            // construction du composant correspondant
-            return (
-              <Operation key={operation.pk} operation={operation} balance={solde} />
-            );
-          })
+          transactionList.map((transaction) => (
+            <Operation
+              key={transaction.operations[transaction.currentOpId].pk}
+              transaction={transaction}
+            />
+          ))
         }
       </Table.Body>
     </Table>
