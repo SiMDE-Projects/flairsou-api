@@ -62,7 +62,7 @@ const TransactionList = ({ accountID, accountType }) => {
   // réparties
 
   return (
-    <Table celled>
+    <Table celled striped>
       <Table.Header>
         <Table.Row textAlign="center">
           <Table.HeaderCell>Date</Table.HeaderCell>
