@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Table } from 'semantic-ui-react';
+import { Table, Icon } from 'semantic-ui-react';
 
 import currencyFormat from '../../../../utils/currencyFormat';
 
@@ -20,14 +20,16 @@ const Operation = ({ transaction }) => {
   // récupération de l'opération liée au compte
   return (
     <Table.Row>
+      <Table.Cell textAlign="center">
+        <Icon name={transaction.checked ? 'lock' : 'unlock'} color={transaction.checked ? 'red' : 'green'} />
+      </Table.Cell>
       <Table.Cell>{transaction.date}</Table.Cell>
       <Table.Cell>{currentOp.label}</Table.Cell>
-      <Table.Cell>o</Table.Cell>
       <Table.Cell>{otherAccountName}</Table.Cell>
-      <Table.Cell>{transaction.checked ? 'o' : 'x'}</Table.Cell>
       <Table.Cell textAlign="right">{currentOp.credit > 0 ? currencyFormat(currentOp.credit) : ''}</Table.Cell>
       <Table.Cell textAlign="right">{currentOp.debit > 0 ? currencyFormat(currentOp.debit) : ''}</Table.Cell>
       <Table.Cell textAlign="right">{currencyFormat(transaction.balance)}</Table.Cell>
+      <Table.Cell textAlign="center">o</Table.Cell>
     </Table.Row>
   );
 };

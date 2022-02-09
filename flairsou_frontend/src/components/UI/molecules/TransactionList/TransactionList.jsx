@@ -65,14 +65,14 @@ const TransactionList = ({ accountID, accountType }) => {
     <Table celled striped>
       <Table.Header>
         <Table.Row textAlign="center">
+          <Table.HeaderCell />
           <Table.HeaderCell>Date</Table.HeaderCell>
           <Table.HeaderCell>Description</Table.HeaderCell>
-          <Table.HeaderCell>Justificatif</Table.HeaderCell>
           <Table.HeaderCell>Compte</Table.HeaderCell>
-          <Table.HeaderCell>Rapproché</Table.HeaderCell>
           <Table.HeaderCell>{invert ? 'Dépense' : 'Recette'}</Table.HeaderCell>
           <Table.HeaderCell>{invert ? 'Recette' : 'Dépense'}</Table.HeaderCell>
           <Table.HeaderCell>Solde</Table.HeaderCell>
+          <Table.HeaderCell>Justificatif</Table.HeaderCell>
         </Table.Row>
       </Table.Header>
       <Table.Body>
