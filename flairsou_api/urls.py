@@ -18,9 +18,9 @@ urlpatterns = [
     path('accounts/<int:pk>/reconciliation/',
          views.ReconciliationView.as_view(),
          name="account-reconciliation"),
-    path('accounts/<int:pk>/operations/',
-         views.AccountOpsList.as_view(),
-         name="account-operation-list"),
+    path('accounts/<int:pk>/transactions/',
+         views.AccountTransactionList.as_view(),
+         name="account-transaction-list"),
     # récupération du livre par l'entité associée
     path('books/byEntity/<uuid:entity>/',
          views.BookListFilter.as_view(),

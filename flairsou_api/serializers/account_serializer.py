@@ -1,8 +1,10 @@
 from .flairsou_serializers import FlairsouModelSerializer
-from flairsou_api.models import Account, Book
+from .transaction_serializers import TransactionSerializer
+from flairsou_api.models import Account, Book, Transaction
 
 from rest_framework import serializers
 from rest_framework.exceptions import PermissionDenied
+from drf_spectacular.utils import extend_schema_field
 
 import uuid
 
@@ -222,3 +224,27 @@ class AccountNestedSerializer(FlairsouModelSerializer):
     def get_account_set(self, instance):
         accounts = instance.account_set.all()
         return AccountNestedSerializer(accounts, many=True).data
+
+
+class AccountTransactionListSerializer(FlairsouModelSerializer):
+    """
+    Serializer qui renvoie la liste des transactions liées
+    à un compte
+    """
+    transaction_set = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Account
+        fields = ['pk', 'transaction_set']
+
+    @extend_schema_field(TransactionSerializer(many=True))
+    def get_transaction_set(self, instance: Account):
+        """
+        Récupère la liste des transactions associées au compte triées
+        par la date associée
+        """
+        transaction_pks = instance.operation_set.values_list("transaction__pk",
+                                                             flat=True)
+        transactions = Transaction.objects.filter(
+            pk__in=transaction_pks).order_by('date')
+        return TransactionSerializer(transactions, many=True).data
