@@ -18,7 +18,14 @@ class OperationSerializer(FlairsouModelSerializer):
 
     class Meta:
         model = Operation
-        fields = ['pk', 'credit', 'debit', 'label', 'account']
+        fields = [
+            'pk',
+            'credit',
+            'debit',
+            'label',
+            'account',
+            'accountFullName',
+        ]
 
     def validate_account(self, account):
         # vérifie que l'opération est liée à un compte non virtuel

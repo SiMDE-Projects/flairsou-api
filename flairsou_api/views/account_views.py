@@ -77,12 +77,13 @@ class AccountBalance(mixins.RetrieveModelMixin, generics.GenericAPIView):
         return self.retrieve(request, *args, **kwargs)
 
 
-class AccountOpsList(mixins.RetrieveModelMixin, generics.GenericAPIView):
+class AccountTransactionList(mixins.RetrieveModelMixin,
+                             generics.GenericAPIView):
     """
-    Vue qui renvoie la liste des opérations associées à un compte
+    Vue qui renvoie la liste des transactions associées à un compte
     """
     queryset = fm.Account.objects.all()
-    serializer_class = fs.AccountOpsListSerializer
+    serializer_class = fs.AccountTransactionListSerializer
     permission_classes = [UserAllowed]
 
     def get(self, request, *args, **kwargs):

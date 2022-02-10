@@ -1,5 +1,5 @@
 from .account_views import AccountDetail, AccountCreation
-from .account_views import AccountBalance, AccountOpsList
+from .account_views import AccountBalance, AccountTransactionList
 from .book_views import BookDetail, BookListFilter
 from .book_views import BookAccountList
 from .transaction_views import TransactionDetail, TransactionCreate
@@ -9,7 +9,7 @@ __all__ = [
     AccountDetail,
     AccountCreation,
     AccountBalance,
-    AccountOpsList,
+    AccountTransactionList,
     BookAccountList,
     BookDetail,
     BookListFilter,
