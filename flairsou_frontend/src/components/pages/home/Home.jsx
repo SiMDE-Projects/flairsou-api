@@ -15,6 +15,7 @@ const Home = () => {
   useEffect(() => {
     fetch(userInfosUrl)
       .then((response) => {
+        console.log(response);
         if (response.status === 200) {
           response.json().then((validResponse) => {
             const fullName = `${validResponse.firstname} ${validResponse.lastname}`;
@@ -35,6 +36,7 @@ const Home = () => {
           window.location.href = response.link;
         });
     }
+    console.log(userName);
   }, [userName]);
 
   // get list of assos when user authenticated

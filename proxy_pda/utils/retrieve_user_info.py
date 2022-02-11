@@ -78,4 +78,5 @@ def request_user_assos(request):
 
         request.session['assos'].append(asso['id'])
 
+
     return request.session['assos']
