@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Table, Icon, Input } from 'semantic-ui-react';
+import { Table, Icon } from 'semantic-ui-react';
 
 import currencyFormat from '../../../../utils/currencyFormat';
 
@@ -22,6 +22,8 @@ const Operation = ({ transaction }) => {
   // récupération du nom de l'autre compte (s'il n'y en a qu'un)
   let otherAccountName = '';
   if (!multiOps) {
+    // détermine l'ID de l'autre opération dans le tableau. Comme il n'y en a que
+    // deux (0 et 1), on fait +1 puis %2 pour avoir 1 -> 0 et 0 -> 1.
     const otherOpId = (transaction.currentOpId + 1) % 2;
     otherAccountName = transaction.operations[otherOpId].accountFullName;
   } else {
@@ -52,19 +54,18 @@ const Operation = ({ transaction }) => {
             // le nom du compte en face
             expandedLine ? operation.accountFullName : otherAccountName
           }
-          {' '}
+          &nbsp;
           {
             // on affiche la flèche si c'est une transaction répartie mais seulement
             // pour la première ligne (donc pas pour les lignes expanded)
             multiOps && !expandedLine
-              ? (
+                && (
                 <Icon
                   link
                   name={expand ? 'angle double up' : 'angle double down'}
                   onClick={toogleExpand}
                 />
-              )
-              : <></>
+                )
           }
         </Table.Cell>
         <Table.Cell active={active} textAlign="right">
@@ -90,20 +91,17 @@ const Operation = ({ transaction }) => {
       </Table.Row>
       {
         // si il faut étendre la transaction, on rajoute autant de lignes que nécessaire
-        expand
-          ? transaction.operations.map((operation) => (
-            <Table.Row>
-              <Table.Cell colSpan="2" />
-              {renderOperation(operation, /* expanded */ true)}
-              <Table.Cell colSpan="2" />
-            </Table.Row>
-          ))
-          : <></>
+        expand && transaction.operations.map((operation) => (
+          <Table.Row>
+            <Table.Cell colSpan="2" />
+            {renderOperation(operation, /* expanded */ true)}
+            <Table.Cell colSpan="2" />
+          </Table.Row>
+        ))
       }
     </>
   );
 };
-export default Operation;
 
 Operation.propTypes = {
   transaction: PropTypes.shape({
@@ -123,3 +121,5 @@ Operation.propTypes = {
     })).isRequired,
   }).isRequired,
 };
+
+export default Operation;
