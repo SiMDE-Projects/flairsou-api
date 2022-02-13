@@ -82,7 +82,14 @@ class TransactionSerializer(FlairsouModelSerializer):
 
     class Meta:
         model = Transaction
-        fields = ['pk', 'date', 'checked', 'invoice', 'operations']
+        fields = [
+            'pk',
+            'date',
+            'is_reconciliated',
+            'checked',
+            'invoice',
+            'operations',
+        ]
 
     def validate(self, data):
         """
