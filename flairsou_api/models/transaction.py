@@ -67,7 +67,7 @@ class Transaction(TimeStampedModel):
             if op.account.reconciliation_set.count() > 0:
                 last_reconc_date = op.account.reconciliation_set.order_by(
                     'date').last().date
-                if self.date < last_reconc_date:
+                if self.date <= last_reconc_date:
                     return True
 
         return False
