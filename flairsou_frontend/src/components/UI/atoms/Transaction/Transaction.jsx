@@ -40,6 +40,7 @@ const Transaction = ({ transaction }) => {
           link
           name={expand ? 'angle double up' : 'angle double down'}
           onClick={toogleExpand}
+          title={`${expand ? 'Replier' : 'Déplier'} la transaction`}
         />
       </>
     );
@@ -52,6 +53,7 @@ const Transaction = ({ transaction }) => {
           <Icon
             name={transaction.is_reconciliated ? 'lock' : 'unlock'}
             color={transaction.is_reconciliated ? 'red' : 'green'}
+            title={`Transaction ${transaction.is_reconciliated ? '' : 'non'} rapprochée`}
           />
         </Table.Cell>
         <Table.Cell>{transaction.date}</Table.Cell>
