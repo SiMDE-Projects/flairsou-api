@@ -6,7 +6,7 @@ import Transaction from '../../atoms/Transaction/Transaction';
 
 import AccountTypes from '../../../../assets/accountTypeMapping';
 
-const TransactionList = ({ accountID, accountType }) => {
+const TransactionList = ({ accountID, accountType, updateBalanceCallback }) => {
   /*
    * accountID : ID du compte dans la base de données Flairsou
    * accountType : type du compte (voir assets/accountTypeMapping.js)
@@ -105,6 +105,9 @@ const TransactionList = ({ accountID, accountType }) => {
 
           // mise à jour de la liste des transactions
           setTransactionList(newTransactionList);
+
+          // la valeur finale de balance correspond au solde du compte à mettre à jour
+          updateBalanceCallback(balance);
         } else {
           console.error(`Erreur de suppression de la transaction ${transactionPk}`);
         }
@@ -160,6 +163,7 @@ const TransactionList = ({ accountID, accountType }) => {
 TransactionList.propTypes = {
   accountID: PropTypes.number.isRequired,
   accountType: PropTypes.number.isRequired,
+  updateBalanceCallback: PropTypes.func.isRequired,
 };
 
 export default TransactionList;
