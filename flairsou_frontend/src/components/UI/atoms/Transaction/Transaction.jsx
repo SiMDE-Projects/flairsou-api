@@ -29,7 +29,7 @@ const Transaction = ({ transaction }) => {
     // détermine l'ID de l'autre opération dans le tableau. Comme il n'y en a que
     // deux (0 et 1), on fait +1 puis %2 pour avoir 1 -> 0 et 0 -> 1.
     const otherOpId = (transaction.currentOpId + 1) % 2;
-    otherAccountName = transaction.operations[otherOpId].accountFullName;
+    otherAccountName = <>{transaction.operations[otherOpId].accountFullName}</>;
   } else {
     // si la transaction est répartie, on crée directement un composant qui affiche
     // la transaction répartie et un petit icône qui permet de déplier la transaction

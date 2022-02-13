@@ -52,7 +52,8 @@ Operation.propTypes = {
   // transfert, et dans le cas d'une transaction répartie, on affiche le nom
   // "Transaction répartie" sur la première ligne et le nom du compte lié à l'opération
   // sur les lignes suivantes)
-  accountName: PropTypes.string.isRequired,
+  // la propriété est un objet jsx
+  accountName: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
   // indique si la ligne correspond à l'opération courante dans la liste des opérations
   // d'une transaction répartie
   active: PropTypes.bool.isRequired,
