@@ -18,7 +18,7 @@ const Transaction = ({ transaction }) => {
   };
 
   // récupération de l'objet correspondant à l'opération à afficher
-  const currentOp = transaction.operations[transaction.currentOpId];
+  const activeOp = transaction.operations[transaction.activeOpId];
 
   // détermination si la transaction est simple ou répartie
   const multiOps = transaction.operations.length > 2;
@@ -28,7 +28,7 @@ const Transaction = ({ transaction }) => {
   if (!multiOps) {
     // détermine l'ID de l'autre opération dans le tableau. Comme il n'y en a que
     // deux (0 et 1), on fait +1 puis %2 pour avoir 1 -> 0 et 0 -> 1.
-    const otherOpId = (transaction.currentOpId + 1) % 2;
+    const otherOpId = (transaction.activeOpId + 1) % 2;
     otherAccountName = transaction.operations[otherOpId].accountFullName;
   } else {
     // si la transaction est répartie, on crée directement un composant qui affiche
@@ -63,7 +63,7 @@ const Transaction = ({ transaction }) => {
         </Table.Cell>
         <Table.Cell>{transaction.date}</Table.Cell>
         <Operation
-          operation={currentOp}
+          operation={activeOp}
           accountName={otherAccountName}
           active={false}
         />
@@ -94,7 +94,7 @@ const Transaction = ({ transaction }) => {
             <Operation
               operation={operation}
               accountName={operation.accountFullName}
-              active={operation.pk === currentOp.pk}
+              active={operation.pk === activeOp.pk}
             />
             <Table.Cell colSpan="4" />
           </Table.Row>
@@ -120,9 +120,10 @@ Transaction.propTypes = {
     checked: PropTypes.bool.isRequired,
     // justificatif associé à la transaction (TODO)
     invoice: PropTypes.string,
-    balance: PropTypes.number.isRequired,
     // solde partiel suite à cette transaction
-    currentOpId: PropTypes.number.isRequired,
+    balance: PropTypes.number.isRequired,
+    // ID de l'opération active dans la transaction
+    activeOpId: PropTypes.number.isRequired,
     // liste des opérations associées à la transaction
     operations: PropTypes.arrayOf(PropTypes.shape({
       // clé primaire de l'opération dans la base de l'API

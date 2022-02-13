@@ -32,20 +32,20 @@ const TransactionList = ({ accountID, accountType }) => {
         // on complète la liste avec le solde partiel et l'ID de l'opération
         // associée au compte dans les opérations de la transaction
         setTransactionList(response.transaction_set.map((transaction) => {
-          // recherche de l'opération associée au compte actuel
+          // recherche de l'opération active (associée au compte actuel)
           for (let i = 0; i < transaction.operations.length; i += 1) {
             if (transaction.operations[i].account === accountID) {
-              // l'opération courante est celle-ci
-              const currentOp = transaction.operations[i];
+              // l'opération active est celle-ci
+              const activeOp = transaction.operations[i];
 
               // calcul du solde partiel suite à l'opération
-              balance += (invert ? -1 : 1) * (currentOp.credit - currentOp.debit);
+              balance += (invert ? -1 : 1) * (activeOp.credit - activeOp.debit);
 
               // renvoi de l'objet transaction avec le solde associé et l'ID de l'opération
               return {
                 ...transaction,
                 balance,
-                currentOpId: i,
+                activeOpId: i,
               };
             }
           }
@@ -91,7 +91,7 @@ const TransactionList = ({ accountID, accountType }) => {
         {
           transactionList.map((transaction) => (
             <Transaction
-              key={transaction.operations[transaction.currentOpId].pk}
+              key={transaction.operations[transaction.activeOpId].pk}
               transaction={transaction}
             />
           ))
