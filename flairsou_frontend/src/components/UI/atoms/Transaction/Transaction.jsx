@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Table, Icon } from 'semantic-ui-react';
+import { Table, Icon, Checkbox } from 'semantic-ui-react';
 
 import Operation from './Operation/Operation';
 import currencyFormat from '../../../../utils/currencyFormat';
@@ -63,6 +63,12 @@ const Transaction = ({ transaction }) => {
           active={false}
         />
         <Table.Cell textAlign="right">{currencyFormat(transaction.balance)}</Table.Cell>
+        <Table.Cell textAlign="center">
+          <Checkbox
+            defaultChecked={transaction.checked}
+            disabled={transaction.is_reconciliated}
+          />
+        </Table.Cell>
         <Table.Cell textAlign="center">o</Table.Cell>
       </Table.Row>
       {

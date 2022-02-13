@@ -69,6 +69,7 @@ const TransactionList = ({ accountID, accountType }) => {
           <Table.HeaderCell>{invert ? 'Dépense' : 'Recette'}</Table.HeaderCell>
           <Table.HeaderCell>{invert ? 'Recette' : 'Dépense'}</Table.HeaderCell>
           <Table.HeaderCell>Solde</Table.HeaderCell>
+          <Table.HeaderCell>Pointée</Table.HeaderCell>
           <Table.HeaderCell>Justificatif</Table.HeaderCell>
         </Table.Row>
       </Table.Header>
