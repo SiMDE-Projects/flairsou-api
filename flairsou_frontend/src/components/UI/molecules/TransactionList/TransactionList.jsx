@@ -59,7 +59,7 @@ const TransactionList = ({ accountID, accountType }) => {
   }, [accountID, invert]);
 
   return (
-    <Table celled striped>
+    <Table celled striped singleLine>
       <Table.Header>
         <Table.Row textAlign="center">
           <Table.HeaderCell />

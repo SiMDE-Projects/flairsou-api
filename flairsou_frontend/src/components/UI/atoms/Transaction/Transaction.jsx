@@ -81,7 +81,7 @@ const Transaction = ({ transaction }) => {
               accountName={operation.accountFullName}
               active={operation.pk === currentOp.pk}
             />
-            <Table.Cell colSpan="2" />
+            <Table.Cell colSpan="3" />
           </Table.Row>
         ))
       }
