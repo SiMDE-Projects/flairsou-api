@@ -84,6 +84,7 @@ const TransactionList = ({ accountID, accountType }) => {
               title="Justificatif de transaction"
             />
           </Table.HeaderCell>
+          <Table.HeaderCell />
         </Table.Row>
       </Table.Header>
       <Table.Body>

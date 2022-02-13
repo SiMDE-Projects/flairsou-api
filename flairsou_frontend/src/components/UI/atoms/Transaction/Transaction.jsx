@@ -75,6 +75,16 @@ const Transaction = ({ transaction }) => {
           />
         </Table.Cell>
         <Table.Cell textAlign="center">o</Table.Cell>
+        <Table.Cell textAlign="center">
+          {!transaction.is_reconciliated && (
+            <Icon
+              name="trash alternate"
+              color="red"
+              link
+              title="Supprimer la transaction"
+            />
+          )}
+        </Table.Cell>
       </Table.Row>
       {
         // si il faut étendre la transaction, on rajoute autant de lignes que nécessaire
@@ -86,7 +96,7 @@ const Transaction = ({ transaction }) => {
               accountName={operation.accountFullName}
               active={operation.pk === currentOp.pk}
             />
-            <Table.Cell colSpan="3" />
+            <Table.Cell colSpan="4" />
           </Table.Row>
         ))
       }
