@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import {
-  Table,
-} from 'semantic-ui-react';
+import { Table, Icon } from 'semantic-ui-react';
 
 import Transaction from '../../atoms/Transaction/Transaction';
 
@@ -69,8 +67,18 @@ const TransactionList = ({ accountID, accountType }) => {
           <Table.HeaderCell>{invert ? 'Dépense' : 'Recette'}</Table.HeaderCell>
           <Table.HeaderCell>{invert ? 'Recette' : 'Dépense'}</Table.HeaderCell>
           <Table.HeaderCell>Solde</Table.HeaderCell>
-          <Table.HeaderCell>Pointée</Table.HeaderCell>
-          <Table.HeaderCell>Justificatif</Table.HeaderCell>
+          <Table.HeaderCell>
+            <Icon
+              name="check circle"
+              title="Transaction pointée ou non"
+            />
+          </Table.HeaderCell>
+          <Table.HeaderCell>
+            <Icon
+              name="attach"
+              title="Justificatif de transaction"
+            />
+          </Table.HeaderCell>
         </Table.Row>
       </Table.Header>
       <Table.Body>
