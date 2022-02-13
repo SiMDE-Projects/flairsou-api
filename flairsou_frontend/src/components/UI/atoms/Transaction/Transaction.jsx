@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Table, Icon } from 'semantic-ui-react';
 
-import RenderOperation from './RenderOperation/RenderOperation';
+import Operation from './Operation/Operation';
 import currencyFormat from '../../../../utils/currencyFormat';
 
 /**
  * Composant effectuant le rendu d'une transaction dans l'affichage d'un compte
  */
-const Operation = ({ transaction }) => {
+const Transaction = ({ transaction }) => {
   // indique si la transaction doit être étendue ou non (i.e. si il faut
   // afficher toutes les opérations de la transaction)
   const [expand, setExpand] = useState(false);
@@ -50,14 +50,15 @@ const Operation = ({ transaction }) => {
       <Table.Row>
         <Table.Cell textAlign="center">
           <Icon
-            name={transaction.checked ? 'lock' : 'unlock'}
-            color={transaction.checked ? 'red' : 'green'}
+            name={transaction.is_reconciliated ? 'lock' : 'unlock'}
+            color={transaction.is_reconciliated ? 'red' : 'green'}
           />
         </Table.Cell>
         <Table.Cell>{transaction.date}</Table.Cell>
-        <RenderOperation
+        <Operation
           operation={currentOp}
           accountName={otherAccountName}
+          active={false}
         />
         <Table.Cell textAlign="right">{currencyFormat(transaction.balance)}</Table.Cell>
         <Table.Cell textAlign="center">o</Table.Cell>
@@ -67,10 +68,9 @@ const Operation = ({ transaction }) => {
         expand && transaction.operations.map((operation) => (
           <Table.Row>
             <Table.Cell colSpan="2" />
-            <RenderOperation
+            <Operation
               operation={operation}
               accountName={operation.accountFullName}
-              expandedLine
               active={operation.pk === currentOp.pk}
             />
             <Table.Cell colSpan="2" />
@@ -81,7 +81,7 @@ const Operation = ({ transaction }) => {
   );
 };
 
-Operation.propTypes = {
+Transaction.propTypes = {
   // objet transaction à afficher
   transaction: PropTypes.shape({
     // clé primaire de la transaction dans la base de l'API
@@ -118,4 +118,4 @@ Operation.propTypes = {
   }).isRequired,
 };
 
-export default Operation;
+export default Transaction;

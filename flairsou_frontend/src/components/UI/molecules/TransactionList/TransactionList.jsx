@@ -4,7 +4,7 @@ import {
   Table,
 } from 'semantic-ui-react';
 
-import Operation from '../../atoms/Operation/Operation';
+import Transaction from '../../atoms/Transaction/Transaction';
 
 import AccountTypes from '../../../../assets/accountTypeMapping';
 
@@ -58,9 +58,6 @@ const TransactionList = ({ accountID, accountType }) => {
       });
   }, [accountID, invert]);
 
-  // TODO 3 : mettre en place le système de focus pour déployer les transactions
-  // réparties
-
   return (
     <Table celled striped>
       <Table.Header>
@@ -78,7 +75,7 @@ const TransactionList = ({ accountID, accountType }) => {
       <Table.Body>
         {
           transactionList.map((transaction) => (
-            <Operation
+            <Transaction
               key={transaction.operations[transaction.currentOpId].pk}
               transaction={transaction}
             />

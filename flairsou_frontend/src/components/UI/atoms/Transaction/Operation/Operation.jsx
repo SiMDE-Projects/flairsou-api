@@ -7,7 +7,7 @@ import currencyFormat from '../../../../../utils/currencyFormat';
 /**
  * Composant effectuant le rendu d'une opération particulière
  */
-const RenderOperation = ({ operation, accountName, active = false }) => {
+const Operation = ({ operation, accountName, active = false }) => {
   // affichage du crédit et du débit seulement si le montant est non nul
   const credit = operation.credit > 0 ? currencyFormat(operation.credit) : '';
   const debit = operation.debit > 0 ? currencyFormat(operation.debit) : '';
@@ -30,7 +30,7 @@ const RenderOperation = ({ operation, accountName, active = false }) => {
   );
 };
 
-RenderOperation.propTypes = {
+Operation.propTypes = {
   // opération à afficher
   operation: PropTypes.shape({
     // clé primaire de l'opération dans la base de l'API
@@ -58,4 +58,4 @@ RenderOperation.propTypes = {
   active: PropTypes.bool.isRequired,
 };
 
-export default RenderOperation;
+export default Operation;
