@@ -8,7 +8,7 @@ import currencyFormat from '../../../../utils/currencyFormat';
 /**
  * Composant effectuant le rendu d'une transaction dans l'affichage d'un compte
  */
-const Transaction = ({ transaction }) => {
+const Transaction = ({ transaction, deleteCallback }) => {
   // indique si la transaction doit être étendue ou non (i.e. si il faut
   // afficher toutes les opérations de la transaction)
   const [expand, setExpand] = useState(false);
@@ -82,6 +82,7 @@ const Transaction = ({ transaction }) => {
               color="red"
               link
               title="Supprimer la transaction"
+              onClick={() => deleteCallback(transaction.pk)}
             />
           )}
         </Table.Cell>
@@ -140,6 +141,7 @@ Transaction.propTypes = {
       accountFullName: PropTypes.string.isRequired,
     })).isRequired,
   }).isRequired,
+  deleteCallback: PropTypes.func.isRequired,
 };
 
 export default Transaction;

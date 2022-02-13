@@ -56,6 +56,61 @@ const TransactionList = ({ accountID, accountType }) => {
       });
   }, [accountID, invert]);
 
+  /**
+   * Supprime la transaction indiquée
+   *
+   * Envoie la demande de suppression à l'API. Si la suppression est validée, met
+   * à jour la liste des transactions.
+   *
+   * @param {number} transactionPk - clé primaire de la transaction à supprimer
+   * @returns {type}
+   */
+  const deleteTransaction = (transactionPk) => {
+    fetch(`/api/transactions/${transactionPk}/`, { method: 'DELETE' })
+      .then((response) => {
+        if (response.status === 204) {
+          // on veut supprimer la transaction de la liste courante
+          // on construit un nouveau tableau (le spreading est nécessaire pour faire
+          // une vraie copie et pas prendre une référence)
+          const newTransactionList = [...transactionList];
+
+          // 1 - on recherche l'indice de la transaction à supprimer dans transactionList
+          let index = 0;
+          for (let i = 0; i < newTransactionList.length; i += 1) {
+            if (newTransactionList[i].pk === transactionPk) {
+              index = i;
+              break;
+            }
+          }
+
+          // 2 - on enlève la transaction à supprimer de la liste
+          newTransactionList.splice(index, 1);
+
+          // 3 - on recalcule les soldes partiels à partir de la transaction supprimée
+          // récupération du solde de la dernière transaction non modifiée
+          let balance = 0;
+          if (index !== 0) {
+            balance = newTransactionList[index - 1].balance;
+          }
+
+          for (let i = index; i < newTransactionList.length; i += 1) {
+            // récupération du crédit et du débit de l'opération active de la transaction
+            const { credit } = newTransactionList[i].operations[newTransactionList[i].activeOpId];
+            const { debit } = newTransactionList[i].operations[newTransactionList[i].activeOpId];
+
+            // mise à jour du solde
+            balance += (invert ? -1 : 1) * (credit - debit);
+            newTransactionList[i].balance = balance;
+          }
+
+          // mise à jour de la liste des transactions
+          setTransactionList(newTransactionList);
+        } else {
+          console.error(`Erreur de suppression de la transaction ${transactionPk}`);
+        }
+      });
+  };
+
   return (
     <Table celled striped singleLine>
       <Table.Header>
@@ -93,6 +148,7 @@ const TransactionList = ({ accountID, accountType }) => {
             <Transaction
               key={transaction.operations[transaction.activeOpId].pk}
               transaction={transaction}
+              deleteCallback={deleteTransaction}
             />
           ))
         }
