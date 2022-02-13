@@ -1,9 +1,62 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Table, Icon, Checkbox } from 'semantic-ui-react';
+import {
+  Table, Icon, Checkbox, Modal, Button, Header,
+} from 'semantic-ui-react';
 
 import Operation from './Operation/Operation';
 import currencyFormat from '../../../../utils/currencyFormat';
+
+/**
+ * Dialogue de confirmation de la suppression d'une transaction
+ */
+const ConfirmDeleteWindow = ({ onConfirm }) => {
+  const [open, setOpen] = React.useState(false);
+
+  return (
+    <Modal
+      basic
+      onClose={() => setOpen(false)}
+      onOpen={() => setOpen(true)}
+      open={open}
+      size="small"
+      trigger={(
+        <Icon
+          name="trash alternate"
+          color="red"
+          link
+          title="Supprimer la transaction"
+          onClick={() => setOpen(true)}
+        />
+      )}
+    >
+      <Header icon>
+        <Icon name="trash alternate" />
+        Supprimer la transaction
+      </Header>
+      <Modal.Content>
+        Voulez-vous vraiment supprimer cette transaction ? Cette action est définitive.
+      </Modal.Content>
+      <Modal.Actions>
+        <Button basic color="grey" inverted onClick={() => setOpen(false)}>
+          <Icon name="remove" />
+          {' '}
+          Annuler
+        </Button>
+        <Button color="red" onClick={onConfirm}>
+          <Icon name="trash alternate" />
+          {' '}
+          Supprimer la transaction
+        </Button>
+      </Modal.Actions>
+    </Modal>
+  );
+};
+
+ConfirmDeleteWindow.propTypes = {
+  // callback de suppression d'une transaction
+  onConfirm: PropTypes.func.isRequired,
+};
 
 /**
  * Composant effectuant le rendu d'une transaction dans l'affichage d'un compte
@@ -77,12 +130,8 @@ const Transaction = ({ transaction, deleteCallback }) => {
         <Table.Cell textAlign="center">o</Table.Cell>
         <Table.Cell textAlign="center">
           {!transaction.is_reconciliated && (
-            <Icon
-              name="trash alternate"
-              color="red"
-              link
-              title="Supprimer la transaction"
-              onClick={() => deleteCallback(transaction.pk)}
+            <ConfirmDeleteWindow
+              onConfirm={() => deleteCallback(transaction.pk)}
             />
           )}
         </Table.Cell>
