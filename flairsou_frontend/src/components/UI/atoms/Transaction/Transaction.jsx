@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import {
-  Table, Icon, Checkbox,
+  Table, Icon, Checkbox, Input,
 } from 'semantic-ui-react';
 
 import Operation from './Operation/Operation';
@@ -32,7 +32,16 @@ const Transaction = ({ transaction, deleteCallback }) => {
     // détermine l'ID de l'autre opération dans le tableau. Comme il n'y en a que
     // deux (0 et 1), on fait +1 puis %2 pour avoir 1 -> 0 et 0 -> 1.
     const otherOpId = (transaction.activeOpId + 1) % 2;
-    otherAccountName = transaction.operations[otherOpId].accountFullName;
+    otherAccountName = (
+      transaction.is_reconciliated ? transaction.operations[otherOpId].accountFullName
+        : (
+          <Input
+            transparent
+            defaultValue={transaction.operations[otherOpId].accountFullName}
+            fluid
+          />
+        )
+    );
   } else {
     // si la transaction est répartie, on crée directement un composant qui affiche
     // la transaction répartie et un petit icône qui permet de déplier la transaction
@@ -64,11 +73,22 @@ const Transaction = ({ transaction, deleteCallback }) => {
             title={`Transaction ${transaction.is_reconciliated ? '' : 'non'} rapprochée`}
           />
         </Table.Cell>
-        <Table.Cell>{transaction.date}</Table.Cell>
+        <Table.Cell textAlign="center">
+          {transaction.is_reconciliated
+            ? new Date(transaction.date).toLocaleDateString()
+            : (
+              <Input
+                type="date"
+                transparent
+                defaultValue={transaction.date}
+              />
+            )}
+        </Table.Cell>
         <Operation
           operation={activeOp}
           accountName={otherAccountName}
           active={false}
+          reconciliated={transaction.is_reconciliated}
         />
         <Table.Cell textAlign="right">{currencyFormat(transaction.balance)}</Table.Cell>
         <Table.Cell textAlign="center">

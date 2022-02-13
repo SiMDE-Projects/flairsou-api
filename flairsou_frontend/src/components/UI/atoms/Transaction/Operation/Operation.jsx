@@ -1,13 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Table } from 'semantic-ui-react';
+import { Table, Input } from 'semantic-ui-react';
 
 import currencyFormat from '../../../../../utils/currencyFormat';
 
 /**
  * Composant effectuant le rendu d'une opération particulière
  */
-const Operation = ({ operation, accountName, active = false }) => {
+const Operation = ({
+  operation, accountName, active, reconciliated,
+}) => {
   // affichage du crédit et du débit seulement si le montant est non nul
   const credit = operation.credit > 0 ? currencyFormat(operation.credit) : '';
   const debit = operation.debit > 0 ? currencyFormat(operation.debit) : '';
@@ -15,16 +17,19 @@ const Operation = ({ operation, accountName, active = false }) => {
   return (
     <>
       <Table.Cell active={active}>
-        {operation.label}
+        { reconciliated ? operation.label
+          : <Input transparent defaultValue={operation.label} />}
       </Table.Cell>
       <Table.Cell active={active}>
         {accountName}
       </Table.Cell>
       <Table.Cell active={active} textAlign="right">
-        {credit}
+        {reconciliated ? credit
+          : <Input transparent defaultValue={credit} fluid />}
       </Table.Cell>
       <Table.Cell active={active} textAlign="right">
-        {debit}
+        {reconciliated ? debit
+          : <Input transparent defaultValue={debit} fluid />}
       </Table.Cell>
     </>
   );
@@ -57,6 +62,9 @@ Operation.propTypes = {
   // indique si la ligne correspond à l'opération courante dans la liste des opérations
   // d'une transaction répartie
   active: PropTypes.bool.isRequired,
+  // indique si l'opération fait partie d'une transaction rapprochée, auquel cas les champs
+  // ne peuvent pas être édités
+  reconciliated: PropTypes.bool.isRequired,
 };
 
 export default Operation;
