@@ -38,3 +38,14 @@ class Reconciliation(TimeStampedModel):
             models.UniqueConstraint(
                 fields=['account', 'date'],
                 name="%(app_label)s_%(class)s_one_reconc_per_date"))
+
+    def check_user_allowed(self, request) -> bool:
+        """
+        Vérifie si l'utilisateur passé dans la requête est autorisé à accéder
+        à l'objet
+        """
+        if 'assos' not in request.session.keys():
+            # utilisateur non connecté
+            return False
+
+        return self.account.check_user_allowed(request)
