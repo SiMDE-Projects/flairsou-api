@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Table, Input } from 'semantic-ui-react';
 
@@ -11,8 +11,16 @@ const Operation = ({
   operation, accountName, active, reconciliated,
 }) => {
   // affichage du crédit et du débit seulement si le montant est non nul
-  const credit = operation.credit > 0 ? currencyFormat(operation.credit) : '';
-  const debit = operation.debit > 0 ? currencyFormat(operation.debit) : '';
+  const [credit, setCredit] = useState(operation.credit > 0 ? currencyFormat(operation.credit) : '');
+  const [debit, setDebit] = useState(operation.debit > 0 ? currencyFormat(operation.debit) : '');
+
+  const updateCredit = (event) => {
+    setCredit(checkCurrencyFormat(event.target.value));
+  };
+
+  const updateDebit = (event) => {
+    setDebit(checkCurrencyFormat(event.target.value));
+  };
 
   return (
     <>
@@ -25,11 +33,25 @@ const Operation = ({
       </Table.Cell>
       <Table.Cell active={active} textAlign="right">
         {reconciliated ? credit
-          : <Input transparent defaultValue={credit} fluid />}
+          : (
+            <Input
+              transparent
+              value={credit}
+              fluid
+              onChange={(event) => updateCredit(event)}
+            />
+          )}
       </Table.Cell>
       <Table.Cell active={active} textAlign="right">
         {reconciliated ? debit
-          : <Input transparent defaultValue={debit} fluid />}
+          : (
+            <Input
+              transparent
+              value={debit}
+              fluid
+              onChange={(event) => updateDebit(event)}
+            />
+          )}
       </Table.Cell>
     </>
   );
