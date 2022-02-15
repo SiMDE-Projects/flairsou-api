@@ -5,7 +5,7 @@ import {
 } from 'semantic-ui-react';
 
 import Operation from './Operation/Operation';
-import currencyFormat from '../../../../utils/currencyFormat';
+import { currencyFormat } from '../../../../utils/currencyFormat';
 import ConfirmDeleteOperation from './ConfirmDeleteOperation';
 
 /**

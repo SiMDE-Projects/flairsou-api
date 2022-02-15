@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Container, Grid, Header } from 'semantic-ui-react';
 import TransactionList from '../../molecules/TransactionList/TransactionList';
 
-import currencyFormat from '../../../../utils/currencyFormat';
+import { currencyFormat } from '../../../../utils/currencyFormat';
 
 import Reconciliation from '../../atoms/Reconciliation/Reconciliation';
 

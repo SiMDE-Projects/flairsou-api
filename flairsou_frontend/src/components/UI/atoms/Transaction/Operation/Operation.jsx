@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Table, Input } from 'semantic-ui-react';
 
-import currencyFormat from '../../../../../utils/currencyFormat';
+import { currencyFormat, checkCurrencyFormat } from '../../../../../utils/currencyFormat';
 
 /**
  * Composant effectuant le rendu d'une opération particulière
