@@ -115,7 +115,7 @@ const TransactionList = ({ accountID, accountType, updateBalanceCallback }) => {
   };
 
   return (
-    <Table celled striped singleLine compact small>
+    <Table celled striped singleLine compact size="small">
       <Table.Header>
         <Table.Row textAlign="center">
           <Table.HeaderCell>
