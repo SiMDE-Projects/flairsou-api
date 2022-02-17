@@ -6,7 +6,7 @@ import Transaction from '../../atoms/Transaction/Transaction';
 
 import AccountTypes from '../../../../assets/accountTypeMapping';
 
-const TransactionList = ({ accountID, accountType }) => {
+const TransactionList = ({ accountID, accountType, updateBalanceCallback }) => {
   /*
    * accountID : ID du compte dans la base de données Flairsou
    * accountType : type du compte (voir assets/accountTypeMapping.js)
@@ -32,20 +32,20 @@ const TransactionList = ({ accountID, accountType }) => {
         // on complète la liste avec le solde partiel et l'ID de l'opération
         // associée au compte dans les opérations de la transaction
         setTransactionList(response.transaction_set.map((transaction) => {
-          // recherche de l'opération associée au compte actuel
+          // recherche de l'opération active (associée au compte actuel)
           for (let i = 0; i < transaction.operations.length; i += 1) {
             if (transaction.operations[i].account === accountID) {
-              // l'opération courante est celle-ci
-              const currentOp = transaction.operations[i];
+              // l'opération active est celle-ci
+              const activeOp = transaction.operations[i];
 
               // calcul du solde partiel suite à l'opération
-              balance += (invert ? -1 : 1) * (currentOp.credit - currentOp.debit);
+              balance += (invert ? -1 : 1) * (activeOp.credit - activeOp.debit);
 
               // renvoi de l'objet transaction avec le solde associé et l'ID de l'opération
               return {
                 ...transaction,
                 balance,
-                currentOpId: i,
+                activeOpId: i,
               };
             }
           }
@@ -56,8 +56,66 @@ const TransactionList = ({ accountID, accountType }) => {
       });
   }, [accountID, invert]);
 
+  /**
+   * Supprime la transaction indiquée
+   *
+   * Envoie la demande de suppression à l'API. Si la suppression est validée, met
+   * à jour la liste des transactions.
+   *
+   * @param {number} transactionPk - clé primaire de la transaction à supprimer
+   * @returns {type}
+   */
+  const deleteTransaction = (transactionPk) => {
+    fetch(`/api/transactions/${transactionPk}/`, { method: 'DELETE' })
+      .then((response) => {
+        if (response.status === 204) {
+          // on veut supprimer la transaction de la liste courante
+          // on construit un nouveau tableau (le spreading est nécessaire pour faire
+          // une vraie copie et pas prendre une référence)
+          const newTransactionList = [...transactionList];
+
+          // 1 - on recherche l'indice de la transaction à supprimer dans transactionList
+          let index = 0;
+          for (let i = 0; i < newTransactionList.length; i += 1) {
+            if (newTransactionList[i].pk === transactionPk) {
+              index = i;
+              break;
+            }
+          }
+
+          // 2 - on enlève la transaction à supprimer de la liste
+          newTransactionList.splice(index, 1);
+
+          // 3 - on recalcule les soldes partiels à partir de la transaction supprimée
+          // récupération du solde de la dernière transaction non modifiée
+          let balance = 0;
+          if (index !== 0) {
+            balance = newTransactionList[index - 1].balance;
+          }
+
+          for (let i = index; i < newTransactionList.length; i += 1) {
+            // récupération du crédit et du débit de l'opération active de la transaction
+            const { credit } = newTransactionList[i].operations[newTransactionList[i].activeOpId];
+            const { debit } = newTransactionList[i].operations[newTransactionList[i].activeOpId];
+
+            // mise à jour du solde
+            balance += (invert ? -1 : 1) * (credit - debit);
+            newTransactionList[i].balance = balance;
+          }
+
+          // mise à jour de la liste des transactions
+          setTransactionList(newTransactionList);
+
+          // la valeur finale de balance correspond au solde du compte à mettre à jour
+          updateBalanceCallback(balance);
+        } else {
+          console.error(`Erreur de suppression de la transaction ${transactionPk}`);
+        }
+      });
+  };
+
   return (
-    <Table celled striped singleLine>
+    <Table celled striped singleLine compact size="small">
       <Table.Header>
         <Table.Row textAlign="center">
           <Table.HeaderCell>
@@ -84,14 +142,16 @@ const TransactionList = ({ accountID, accountType }) => {
               title="Justificatif de transaction"
             />
           </Table.HeaderCell>
+          <Table.HeaderCell />
         </Table.Row>
       </Table.Header>
       <Table.Body>
         {
           transactionList.map((transaction) => (
             <Transaction
-              key={transaction.operations[transaction.currentOpId].pk}
+              key={transaction.operations[transaction.activeOpId].pk}
               transaction={transaction}
+              deleteCallback={deleteTransaction}
             />
           ))
         }
@@ -103,6 +163,7 @@ const TransactionList = ({ accountID, accountType }) => {
 TransactionList.propTypes = {
   accountID: PropTypes.number.isRequired,
   accountType: PropTypes.number.isRequired,
+  updateBalanceCallback: PropTypes.func.isRequired,
 };
 
 export default TransactionList;
