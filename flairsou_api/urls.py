@@ -18,12 +18,10 @@ urlpatterns = [
     path('accounts/<int:pk>/reconciliation/',
          views.ReconciliationView.as_view(),
          name="account-reconciliation"),
-    path('accounts/<int:pk>/operations/',
-         views.AccountOpsList.as_view(),
-         name="account-operation-list"),
-    # sur books/ on a uniquement la création des livres
-    path('books/', views.BookCreation.as_view(), name="book-create"),
-    # on a ensuite les routes de listing par filtre
+    path('accounts/<int:pk>/transactions/',
+         views.AccountTransactionList.as_view(),
+         name="account-transaction-list"),
+    # récupération du livre par l'entité associée
     path('books/byEntity/<uuid:entity>/',
          views.BookListFilter.as_view(),
          name="book-filter-by-entity"),
@@ -33,14 +31,10 @@ urlpatterns = [
          name="book-get-all-accounts"),
     # et la route de détails sur un livre particulier
     path('books/<int:pk>/', views.BookDetail.as_view(), name="book-detail"),
-    # urls operations pour le dev, à retirer ensuite
-    path('operations/', views.OperationList.as_view(), name="operation-list"),
-    path('operations/<int:pk>/',
-         views.OperationDetail.as_view(),
-         name="operation-detail"),
+    # routes transactions
     path('transactions/',
-         views.TransactionList.as_view(),
-         name="transaction-list"),
+         views.TransactionCreate.as_view(),
+         name="transaction-create"),
     path('transactions/<int:pk>/',
          views.TransactionDetail.as_view(),
          name="transaction-detail"),

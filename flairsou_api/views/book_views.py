@@ -1,23 +1,11 @@
 from rest_framework import mixins
 from rest_framework import generics
+from rest_framework.exceptions import PermissionDenied
 
 import flairsou_api.models as fm
 import flairsou_api.serializers as fs
 
-
-class BookCreation(mixins.CreateModelMixin, generics.GenericAPIView):
-    """
-    Vue permettant la création d'un nouveau livre de comptes
-    """
-    serializer_class = fs.BookSerializer
-
-    def post(self, request, *args, **kwargs):
-        """
-        Crée un nouveau livre avec les paramètres suivants :
-        - "name" : nom du livre à créer
-        - "entity" : UUID correspondant à l'entité possédant le livre
-        """
-        return self.create(request, *args, **kwargs)
+from flairsou_api.utils import UserAllowed
 
 
 class BookListFilter(mixins.ListModelMixin, generics.GenericAPIView):
@@ -35,6 +23,10 @@ class BookListFilter(mixins.ListModelMixin, generics.GenericAPIView):
         queryset = fm.Book.objects.all()
 
         entity = self.kwargs.get('entity')
+
+        if not UserAllowed.check_entity_allowed(str(entity), self.request):
+            raise PermissionDenied()
+
         if entity is not None:
             queryset = queryset.filter(entity=entity)
 
@@ -57,6 +49,7 @@ class BookDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
     """
     queryset = fm.Book.objects.all()
     serializer_class = fs.BookSerializer
+    permission_classes = [UserAllowed]
 
     def get(self, request, *args, **kwargs):
         """
@@ -72,16 +65,6 @@ class BookDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
         """
         return self.update(request, *args, **kwargs)
 
-    def delete(self, request, *args, **kwargs):
-        """
-        Supprime le livre passé en paramètre
-        - id : clé primaire du livre à supprimer
-
-        Attention : cette opération supprime tous les comptes associés à
-        ce livre, et toutes les transactions associées à ces comptes !
-        """
-        return self.destroy(request, *args, **kwargs)
-
 
 class BookAccountList(mixins.RetrieveModelMixin, generics.GenericAPIView):
     """
@@ -90,6 +73,7 @@ class BookAccountList(mixins.RetrieveModelMixin, generics.GenericAPIView):
     """
     queryset = fm.Book.objects.all()
     serializer_class = fs.BookWithAccountsSerializer
+    permission_classes = [UserAllowed]
 
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)

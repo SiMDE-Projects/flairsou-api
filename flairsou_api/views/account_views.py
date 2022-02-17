@@ -4,6 +4,8 @@ from rest_framework import generics
 import flairsou_api.models as fm
 import flairsou_api.serializers as fs
 
+from flairsou_api.utils import UserAllowed
+
 
 class AccountCreation(mixins.CreateModelMixin, generics.GenericAPIView):
     """
@@ -36,6 +38,7 @@ class AccountDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
     """
     queryset = fm.Account.objects.all()
     serializer_class = fs.AccountSerializer
+    permission_classes = [UserAllowed]
 
     def get(self, request, *args, **kwargs):
         """
@@ -65,6 +68,7 @@ class AccountBalance(mixins.RetrieveModelMixin, generics.GenericAPIView):
     """
     queryset = fm.Account.objects.all()
     serializer_class = fs.AccountBalanceSerializer
+    permission_classes = [UserAllowed]
 
     def get(self, request, *args, **kwargs):
         """
@@ -73,12 +77,14 @@ class AccountBalance(mixins.RetrieveModelMixin, generics.GenericAPIView):
         return self.retrieve(request, *args, **kwargs)
 
 
-class AccountOpsList(mixins.RetrieveModelMixin, generics.GenericAPIView):
+class AccountTransactionList(mixins.RetrieveModelMixin,
+                             generics.GenericAPIView):
     """
-    Vue qui renvoie la liste des opérations associées à un compte
+    Vue qui renvoie la liste des transactions associées à un compte
     """
     queryset = fm.Account.objects.all()
-    serializer_class = fs.AccountOpsListSerializer
+    serializer_class = fs.AccountTransactionListSerializer
+    permission_classes = [UserAllowed]
 
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
