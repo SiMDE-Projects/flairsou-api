@@ -38,16 +38,8 @@ const ConfirmDeleteWindow = ({ onConfirm }) => {
         Voulez-vous vraiment supprimer cette transaction ? Cette action est définitive.
       </Modal.Content>
       <Modal.Actions>
-        <Button basic color="grey" inverted onClick={() => setOpen(false)}>
-          <Icon name="remove" />
-          {' '}
-          Annuler
-        </Button>
-        <Button color="red" onClick={onConfirm}>
-          <Icon name="trash alternate" />
-          {' '}
-          Supprimer la transaction
-        </Button>
+        <Button basic color="grey" inverted onClick={() => setOpen(false)} content="Annuler" icon="remove" />
+        <Button color="red" onClick={onConfirm} content="Supprimer la transaction" icon="trash alternate" />
       </Modal.Actions>
     </Modal>
   );
