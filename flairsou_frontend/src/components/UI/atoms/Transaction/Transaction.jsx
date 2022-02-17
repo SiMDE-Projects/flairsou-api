@@ -28,24 +28,18 @@ const Transaction = ({ transaction, deleteCallback }) => {
 
   // récupération du nom de l'autre compte (s'il n'y en a qu'un)
   let otherAccountName;
+  let clickToExpand;
   if (!multiOps) {
     // détermine l'ID de l'autre opération dans le tableau. Comme il n'y en a que
     // deux (0 et 1), on fait +1 puis %2 pour avoir 1 -> 0 et 0 -> 1.
     const otherOpId = (transaction.activeOpId + 1) % 2;
-    otherAccountName = (
-      transaction.is_reconciliated ? transaction.operations[otherOpId].accountFullName
-        : (
-          <Input
-            transparent
-            defaultValue={transaction.operations[otherOpId].accountFullName}
-            fluid
-          />
-        )
-    );
+    otherAccountName = transaction.operations[otherOpId].accountFullName;
+    clickToExpand = null;
   } else {
-    // si la transaction est répartie, on crée directement un composant qui affiche
-    // la transaction répartie et un petit icône qui permet de déplier la transaction
-    otherAccountName = (
+    // si la transaction est répartie, on crée un composant qui affiche
+    // la transaction répartie et une petite icône qui permet de déplier la transaction
+    otherAccountName = null;
+    clickToExpand = (
       <div
         onClick={toogleExpand}
         onKeyDown={(event) => { if (event.key === 'Enter') toogleExpand(); }}
@@ -87,6 +81,7 @@ const Transaction = ({ transaction, deleteCallback }) => {
         <Operation
           operation={activeOp}
           accountName={otherAccountName}
+          clickToExpand={clickToExpand}
           active={false}
           reconciliated={transaction.is_reconciliated}
         />
@@ -109,12 +104,13 @@ const Transaction = ({ transaction, deleteCallback }) => {
       {
         // si il faut étendre la transaction, on rajoute autant de lignes que nécessaire
         expand && transaction.operations.map((operation) => (
-          <Table.Row>
+          <Table.Row key={`op-${operation.pk}`}>
             <Table.Cell colSpan="2" />
             <Operation
               operation={operation}
               accountName={operation.accountFullName}
               active={operation.pk === activeOp.pk}
+              reconciliated={transaction.is_reconciliated}
             />
             <Table.Cell colSpan="4" />
           </Table.Row>

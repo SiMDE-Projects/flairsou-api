@@ -63,7 +63,6 @@ const TransactionList = ({ accountID, accountType, updateBalanceCallback }) => {
    * à jour la liste des transactions.
    *
    * @param {number} transactionPk - clé primaire de la transaction à supprimer
-   * @returns {type}
    */
   const deleteTransaction = (transactionPk) => {
     fetch(`/api/transactions/${transactionPk}/`, { method: 'DELETE' })

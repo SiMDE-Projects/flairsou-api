@@ -8,7 +8,7 @@ import { currencyFormat, checkCurrencyFormat } from '../../../../../utils/curren
  * Composant effectuant le rendu d'une opération particulière
  */
 const Operation = ({
-  operation, accountName, active, reconciliated,
+  operation, accountName, clickToExpand, active, reconciliated,
 }) => {
   // affichage du crédit et du débit seulement si le montant est non nul
   const [credit, setCredit] = useState(operation.credit > 0 ? currencyFormat(operation.credit) : '');
@@ -26,10 +26,15 @@ const Operation = ({
     <>
       <Table.Cell active={active}>
         { reconciliated ? operation.label
-          : <Input transparent defaultValue={operation.label} />}
+          : (
+            <Input
+              transparent
+              defaultValue={operation.label}
+            />
+          )}
       </Table.Cell>
       <Table.Cell active={active}>
-        {accountName}
+        {accountName || clickToExpand}
       </Table.Cell>
       <Table.Cell active={active} textAlign="right">
         {reconciliated ? credit
@@ -76,17 +81,21 @@ Operation.propTypes = {
   // nom de compte à afficher (ce nom ne correspond pas forcément au nom
   // du compte lié à l'opération : dans le cas d'une transaction simple, on
   // affiche le nom de l'autre compte pour indiquer vers quel compte se fait le
-  // transfert, et dans le cas d'une transaction répartie, on affiche le nom
-  // "Transaction répartie" sur la première ligne et le nom du compte lié à l'opération
-  // sur les lignes suivantes)
-  // la propriété est un objet jsx
-  accountName: PropTypes.oneOfType([PropTypes.element, PropTypes.string]).isRequired,
+  // transfert). Dans le cas d'une transaction répartie, cette props est null.
+  accountName: PropTypes.string,
+  // bouton permettant d'étendre la transaction dans le cas où elle est répartie
+  clickToExpand: PropTypes.element,
   // indique si la ligne correspond à l'opération courante dans la liste des opérations
   // d'une transaction répartie
   active: PropTypes.bool.isRequired,
   // indique si l'opération fait partie d'une transaction rapprochée, auquel cas les champs
   // ne peuvent pas être édités
   reconciliated: PropTypes.bool.isRequired,
+};
+
+Operation.defaultProps = {
+  accountName: null,
+  clickToExpand: null,
 };
 
 export default Operation;
