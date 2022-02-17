@@ -24,7 +24,7 @@ const Transaction = ({ transaction }) => {
   const multiOps = transaction.operations.length > 2;
 
   // récupération du nom de l'autre compte (s'il n'y en a qu'un)
-  let otherAccountName = '';
+  let otherAccountName;
   if (!multiOps) {
     // détermine l'ID de l'autre opération dans le tableau. Comme il n'y en a que
     // deux (0 et 1), on fait +1 puis %2 pour avoir 1 -> 0 et 0 -> 1.

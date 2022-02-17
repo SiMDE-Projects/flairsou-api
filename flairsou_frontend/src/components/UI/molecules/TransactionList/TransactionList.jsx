@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Table, Icon } from 'semantic-ui-react';
+import { Table, Icon, Popup } from 'semantic-ui-react';
 
 import Transaction from '../../atoms/Transaction/Transaction';
 
@@ -60,7 +60,12 @@ const TransactionList = ({ accountID, accountType }) => {
     <Table celled striped singleLine>
       <Table.Header>
         <Table.Row textAlign="center">
-          <Table.HeaderCell />
+          <Table.HeaderCell>
+            <Popup
+              content="Indique si la transaction est rapprochée ou non. Une transaction rapprochée n'est pas modifiable."
+              trigger={<Icon name="info circle" />}
+            />
+          </Table.HeaderCell>
           <Table.HeaderCell>Date</Table.HeaderCell>
           <Table.HeaderCell>Description</Table.HeaderCell>
           <Table.HeaderCell>Compte</Table.HeaderCell>
