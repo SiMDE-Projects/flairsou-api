@@ -34,15 +34,20 @@ const Transaction = ({ transaction }) => {
     // si la transaction est répartie, on crée directement un composant qui affiche
     // la transaction répartie et un petit icône qui permet de déplier la transaction
     otherAccountName = (
-      <>
+      <div
+        onClick={toogleExpand}
+        onKeyDown={(event) => { if (event.key === 'Enter') toogleExpand(); }}
+        role="button"
+        tabIndex={0}
+        title="Cliquer pour déplier/replier la transaction"
+      >
         Transaction répartie&nbsp;
         <Icon
           link
           name={expand ? 'angle double up' : 'angle double down'}
-          onClick={toogleExpand}
           title={`${expand ? 'Replier' : 'Déplier'} la transaction`}
         />
-      </>
+      </div>
     );
   }
 
