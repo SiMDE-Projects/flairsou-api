@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 
 from flairsou import config
 from .timestamped import TimeStampedModel
@@ -77,6 +78,10 @@ class Transaction(TimeStampedModel):
         Vérifie si l'utilisateur passé dans la requête est autorisé à
         accéder à l'objet
         """
+        if settings.DEBUG:
+            # si l'app est en debug, on ne vérifie pas les autorisations
+            return True
+
         # l'utilisateur peut accéder à la transaction s'il peut accéder à
         # toutes les opérations
         for op in self.operations():
