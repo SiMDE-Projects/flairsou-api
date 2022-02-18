@@ -10,7 +10,6 @@ import {
   BrowserRouter, Redirect, Route, Switch,
 } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 
 import Home from './pages/home/Home';
 import Account from './pages/account/Account';
@@ -47,7 +46,7 @@ PrivateRoute.defaultProps = {
   location: null,
 };
 
-const App = ({ userIdentified }) => (
+const App = () => (
   <React.StrictMode>
     <BrowserRouter>
       <Switch>
@@ -58,10 +57,4 @@ const App = ({ userIdentified }) => (
   </React.StrictMode>
 );
 
-App.propTypes = {
-  userIdentified: PropTypes.bool.isRequired,
-};
-
-export default connect((store) => ({
-  userIdentified: store.user.identified,
-}))(App);
+export default App;
