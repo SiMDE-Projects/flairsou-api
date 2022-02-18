@@ -1,5 +1,7 @@
 from rest_framework.permissions import BasePermission
 
+from django.conf import settings
+
 
 class UserAllowed(BasePermission):
     """
@@ -10,11 +12,14 @@ class UserAllowed(BasePermission):
     """
 
     def has_object_permission(self, request, view, obj):
-        return True  # temporaire pour faciliter les tests
         """
         Fonction qui indique si la requête est autorisée à
         accéder à l'objet passé en paramètre
         """
+        if settings.DEBUG:
+            # si l'app est en debug, on ne vérifie pas les autorisations
+            return True  # temporaire pour faciliter les tests
+
         if 'assos' not in request.session.keys():
             # l'utilisateur n'est pas connecté, accès refusé
             return False
@@ -25,11 +30,14 @@ class UserAllowed(BasePermission):
         return obj.check_user_allowed(request)
 
     def check_entity_allowed(entity: str, request):
-        return True  # temporaire pour faciliter les tests
         """
         Fonction qui vérifie si la requête est autorisée à
         accéder à l'entité passée en paramètre.
         """
+        if settings.DEBUG:
+            # si l'app est en debug, on ne vérifie pas les autorisations
+            return True  # temporaire pour faciliter les tests
+
         if 'assos' not in request.session.keys():
             # l'utilisateur n'est pas connecté, accès refusé
             return False
