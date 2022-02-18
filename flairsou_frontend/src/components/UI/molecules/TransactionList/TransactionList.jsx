@@ -6,6 +6,56 @@ import Transaction from '../../atoms/Transaction/Transaction';
 
 import AccountTypes from '../../../../assets/accountTypeMapping';
 
+/**
+ * Récupère l'indice de l'opération correspondant au compte passé en paramètre dans la
+ * transaction (par rapport à la liste d'opérations de la transaction)
+ *
+ * @param {object} transaction - objet représentant la transaction à traiter
+ * @param {number} accountID - clé primaire du compte actuel
+ *
+ * @return {number} indice de l'opération correspondant au compte
+ */
+const getActiveOpID = (transaction, accountID) => {
+  for (let i = 0; i < transaction.operations.length; i += 1) {
+    if (transaction.operations[i].account === accountID) return i;
+  }
+  return -1;
+};
+
+/**
+ * Fonction de (re)calcul des soldes partiels dans la liste des opérations
+ *
+ * @params {?} transactionList - liste de transactions
+ * @params {bool} invert - indique si le compte inverse ou non les calculs de solde
+ * @params {number} i0 - indique à partir de où les soldes partiels doivent être calculés
+ */
+const recomputeBalances = (transactionList, invert, i0 = 0) => {
+  // solde partiel
+  let balance = 0;
+  if (i0 > 0) {
+    // si un i0 est donné, on part du solde partiel précédent
+    balance = transactionList[i0 - 1].balance;
+  }
+
+  return transactionList.map((transaction, i) => {
+    if (i < i0) {
+      return transaction;
+    }
+
+    // recalcul du solde à partir de l'opération
+    const { credit } = transaction.operations[transaction.activeOpId];
+    const { debit } = transaction.operations[transaction.activeOpId];
+
+    // mise à jour du solde
+    balance += (invert ? -1 : 1) * (credit - debit);
+
+    return {
+      ...transaction,
+      balance,
+    };
+  });
+};
+
 const TransactionList = ({ accountID, accountType, updateBalanceCallback }) => {
   /*
    * accountID : ID du compte dans la base de données Flairsou
@@ -26,35 +76,30 @@ const TransactionList = ({ accountID, accountType, updateBalanceCallback }) => {
     fetch(`/api/accounts/${accountID}/transactions/`)
       .then((response) => response.json())
       .then((response) => {
-        // solde partiel suite aux opérations
-        let balance = 0;
+        // récupéation des IDs des opérations actives par transaction
+        const newTransactionList = response.transaction_set.map((transaction) => (
+          {
+            ...transaction,
+            balance: 0,
+            activeOpId: getActiveOpID(transaction, accountID),
+          }));
 
-        // on complète la liste avec le solde partiel et l'ID de l'opération
-        // associée au compte dans les opérations de la transaction
-        setTransactionList(response.transaction_set.map((transaction) => {
-          // recherche de l'opération active (associée au compte actuel)
-          for (let i = 0; i < transaction.operations.length; i += 1) {
-            if (transaction.operations[i].account === accountID) {
-              // l'opération active est celle-ci
-              const activeOp = transaction.operations[i];
-
-              // calcul du solde partiel suite à l'opération
-              balance += (invert ? -1 : 1) * (activeOp.credit - activeOp.debit);
-
-              // renvoi de l'objet transaction avec le solde associé et l'ID de l'opération
-              return {
-                ...transaction,
-                balance,
-                activeOpId: i,
-              };
-            }
-          }
-
-          // voir si il faut prévoir quelque chose ici en cas de problème
-          return {};
-        }));
+        // calcul des soldes partiels depuis le début
+        setTransactionList(recomputeBalances(newTransactionList, invert));
       });
   }, [accountID, invert]);
+
+  /**
+   * Mise à jour du solde global du compte
+   */
+  useEffect(() => {
+    if (transactionList.length === 0) return;
+
+    const lastBalance = transactionList[transactionList.length - 1].balance;
+
+    // la valeur finale de solde correspond au solde du compte à mettre à jour
+    updateBalanceCallback(lastBalance);
+  }, [transactionList, updateBalanceCallback]);
 
   /**
    * Supprime la transaction indiquée
@@ -85,28 +130,8 @@ const TransactionList = ({ accountID, accountType, updateBalanceCallback }) => {
           // 2 - on enlève la transaction à supprimer de la liste
           newTransactionList.splice(index, 1);
 
-          // 3 - on recalcule les soldes partiels à partir de la transaction supprimée
-          // récupération du solde de la dernière transaction non modifiée
-          let balance = 0;
-          if (index !== 0) {
-            balance = newTransactionList[index - 1].balance;
-          }
-
-          for (let i = index; i < newTransactionList.length; i += 1) {
-            // récupération du crédit et du débit de l'opération active de la transaction
-            const { credit } = newTransactionList[i].operations[newTransactionList[i].activeOpId];
-            const { debit } = newTransactionList[i].operations[newTransactionList[i].activeOpId];
-
-            // mise à jour du solde
-            balance += (invert ? -1 : 1) * (credit - debit);
-            newTransactionList[i].balance = balance;
-          }
-
           // mise à jour de la liste des transactions
-          setTransactionList(newTransactionList);
-
-          // la valeur finale de balance correspond au solde du compte à mettre à jour
-          updateBalanceCallback(balance);
+          setTransactionList(recomputeBalances(newTransactionList, invert, index));
         } else {
           console.error(`Erreur de suppression de la transaction ${transactionPk}`);
         }
