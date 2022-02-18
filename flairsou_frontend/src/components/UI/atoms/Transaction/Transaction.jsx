@@ -11,7 +11,7 @@ import ConfirmDeleteOperation from './ConfirmDeleteOperation';
 /**
  * Composant effectuant le rendu d'une transaction dans l'affichage d'un compte
  */
-const Transaction = ({ transaction, deleteCallback }) => {
+const Transaction = ({ transaction, deleteCallback, updateCallback }) => {
   // indique si la transaction doit être étendue ou non (i.e. si il faut
   // afficher toutes les opérations de la transaction)
   const [expand, setExpand] = useState(false);
@@ -27,18 +27,17 @@ const Transaction = ({ transaction, deleteCallback }) => {
   const multiOps = transaction.operations.length > 2;
 
   // récupération du nom de l'autre compte (s'il n'y en a qu'un)
-  let otherAccountName;
-  let clickToExpand;
+  let otherAccountName = null;
+  let clickToExpand = null;
+  let otherOpId = null;
   if (!multiOps) {
     // détermine l'ID de l'autre opération dans le tableau. Comme il n'y en a que
     // deux (0 et 1), on fait +1 puis %2 pour avoir 1 -> 0 et 0 -> 1.
-    const otherOpId = (transaction.activeOpId + 1) % 2;
+    otherOpId = (transaction.activeOpId + 1) % 2;
     otherAccountName = transaction.operations[otherOpId].accountFullName;
-    clickToExpand = null;
   } else {
     // si la transaction est répartie, on crée un composant qui affiche
     // la transaction répartie et une petite icône qui permet de déplier la transaction
-    otherAccountName = null;
     clickToExpand = (
       <div
         onClick={toogleExpand}
@@ -56,6 +55,28 @@ const Transaction = ({ transaction, deleteCallback }) => {
       </div>
     );
   }
+
+  const operationValidatedCallback = (operation) => {
+    // mise à jour de l'opération dans la transaction
+    // spreading pour faire une copie profonde
+    const newTransaction = { ...transaction };
+
+    if (!multiOps) {
+      // dans le cas où ce n'est pas une transaction répartie, on a uniquement
+      // deux opérations : l'opération associée au compte actuel, et celle associée
+      // au compte en face.
+      // op1 : opération modifiée
+      const op1 = operation;
+
+      // Dans le cas où le montant de l'opération 1 a été modifié, il faut le répercuter sur
+      // l'opération en face en inversant les débits et les crédits
+      const op2 = { ...transaction.operations[otherOpId], credit: op1.debit, debit: op1.credit };
+
+      newTransaction.operations = [op1, op2];
+    }
+
+    updateCallback(newTransaction);
+  };
 
   return (
     <>
@@ -84,6 +105,7 @@ const Transaction = ({ transaction, deleteCallback }) => {
           clickToExpand={clickToExpand}
           active={false}
           reconciliated={transaction.is_reconciliated}
+          updateCallback={operationValidatedCallback}
         />
         <Table.Cell textAlign="right">{currencyFormat(transaction.balance)}</Table.Cell>
         <Table.Cell textAlign="center">
@@ -110,6 +132,7 @@ const Transaction = ({ transaction, deleteCallback }) => {
               operation={operation}
               accountName={operation.accountFullName}
               active={operation.pk === activeOp.pk}
+              updateCallback={operationValidatedCallback}
               reconciliated={transaction.is_reconciliated}
             />
             <Table.Cell colSpan="4" />
@@ -157,6 +180,7 @@ Transaction.propTypes = {
     })).isRequired,
   }).isRequired,
   deleteCallback: PropTypes.func.isRequired,
+  updateCallback: PropTypes.func.isRequired,
 };
 
 export default Transaction;

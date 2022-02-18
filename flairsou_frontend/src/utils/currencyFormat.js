@@ -46,4 +46,11 @@ const checkCurrencyFormat = (value) => {
   return newValue;
 };
 
-export { currencyFormat, checkCurrencyFormat };
+const strToCents = (strValue) => {
+  if (strValue === '') return 0;
+
+  // force le renvoi d'un entier
+  return Math.floor(parseFloat(strValue) * 100);
+};
+
+export { currencyFormat, checkCurrencyFormat, strToCents };

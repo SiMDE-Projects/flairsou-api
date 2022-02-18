@@ -138,6 +138,64 @@ const TransactionList = ({ accountID, accountType, updateBalanceCallback }) => {
       });
   };
 
+  /**
+   * Met à jour la transaction envoyée
+   *
+   * Envoie la demande de mise à jour de la transaction sur l'API
+   *
+   * @params {object} transaction - Transaction à mettre à jour
+   */
+  const updateTransaction = (transaction) => {
+    fetch(`/api/transactions/${transaction.pk}/`,
+      {
+        method: 'PUT',
+        // construction de l'objet transaction à envoyer à l'API
+        body: JSON.stringify({
+          pk: transaction.pk,
+          date: transaction.date,
+          checked: transaction.checked,
+          invoice: null,
+          operations: transaction.operations.map((operation) => ({
+            pk: operation.pk,
+            credit: operation.credit,
+            debit: operation.debit,
+            label: operation.label,
+            account: operation.account,
+          })),
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+      .then((response) => {
+        if (response.status === 200) {
+          response.json().then((updatedTransaction) => {
+            // on construit une nouvelle liste de transactions avec la mise à jour
+            // de la transaction récupérée
+            let iUpdatedTransaction = 0;
+            const newTransactionList = transactionList.map((tmpTransaction, i) => {
+              if (tmpTransaction.pk === updatedTransaction.pk) {
+                // récupération de l'ID de la transaction dans la liste
+                iUpdatedTransaction = i;
+
+                // renvoi de la nouvelle transaction mise à jour par l'API
+                return ({
+                  ...updatedTransaction,
+                  activeOpId: getActiveOpID(updatedTransaction, accountID),
+                  balance: 0, // solde à recalculer par la suite
+                });
+              }
+              return (tmpTransaction);
+            });
+
+            setTransactionList(recomputeBalances(newTransactionList, invert, iUpdatedTransaction));
+          });
+        } else {
+          console.log('error');
+        }
+      });
+  };
+
   return (
     <Table celled striped singleLine compact size="small">
       <Table.Header>
@@ -176,6 +234,7 @@ const TransactionList = ({ accountID, accountType, updateBalanceCallback }) => {
               key={transaction.operations[transaction.activeOpId].pk}
               transaction={transaction}
               deleteCallback={deleteTransaction}
+              updateCallback={updateTransaction}
             />
           ))
         }

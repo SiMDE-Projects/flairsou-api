@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Table, Input } from 'semantic-ui-react';
 
-import { currencyFormat, checkCurrencyFormat } from '../../../../../utils/currencyFormat';
+import { currencyFormat, checkCurrencyFormat, strToCents } from '../../../../../utils/currencyFormat';
 
 /**
  * Composant effectuant le rendu d'une opération particulière
  */
 const Operation = ({
-  operation, accountName, clickToExpand, active, reconciliated,
+  operation, accountName, clickToExpand, active, reconciliated, updateCallback,
 }) => {
   // affichage du crédit et du débit seulement si le montant est non nul
   const [credit, setCredit] = useState('');
@@ -25,6 +25,18 @@ const Operation = ({
 
   const updateDebit = (event) => {
     setDebit(checkCurrencyFormat(event.target.value));
+  };
+
+  const keyPressedCallback = (event) => {
+    // TODO : récupérer la liste des comptes et faire une liste déroulante avec les options
+    // mettre à jour les éléments de l'opération et renvoyer le callback
+    if (event.key === 'Enter') {
+      updateCallback({
+        ...operation,
+        debit: strToCents(debit),
+        credit: strToCents(credit),
+      });
+    }
   };
 
   return (
@@ -49,6 +61,7 @@ const Operation = ({
               value={credit}
               fluid
               onChange={(event) => updateCredit(event)}
+              onKeyPress={keyPressedCallback}
             />
           )}
       </Table.Cell>
@@ -60,6 +73,7 @@ const Operation = ({
               value={debit}
               fluid
               onChange={(event) => updateDebit(event)}
+              onKeyPress={keyPressedCallback}
             />
           )}
       </Table.Cell>
@@ -96,6 +110,12 @@ Operation.propTypes = {
   // indique si l'opération fait partie d'une transaction rapprochée, auquel cas les champs
   // ne peuvent pas être édités
   reconciliated: PropTypes.bool.isRequired,
+  updateCallback: PropTypes.func.isRequired,
+};
+
+Operation.defaultProps = {
+  accountName: null,
+  clickToExpand: null,
 };
 
 Operation.defaultProps = {
