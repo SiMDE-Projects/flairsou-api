@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Table, Icon, Checkbox } from 'semantic-ui-react';
+import {
+  Table, Icon, Checkbox,
+} from 'semantic-ui-react';
 
 import Operation from './Operation/Operation';
 import currencyFormat from '../../../../utils/currencyFormat';
+import ConfirmDeleteOperation from './ConfirmDeleteOperation';
 
 /**
  * Composant effectuant le rendu d'une transaction dans l'affichage d'un compte
  */
-const Transaction = ({ transaction }) => {
+const Transaction = ({ transaction, deleteCallback }) => {
   // indique si la transaction doit être étendue ou non (i.e. si il faut
   // afficher toutes les opérations de la transaction)
   const [expand, setExpand] = useState(false);
@@ -18,31 +21,36 @@ const Transaction = ({ transaction }) => {
   };
 
   // récupération de l'objet correspondant à l'opération à afficher
-  const currentOp = transaction.operations[transaction.currentOpId];
+  const activeOp = transaction.operations[transaction.activeOpId];
 
   // détermination si la transaction est simple ou répartie
   const multiOps = transaction.operations.length > 2;
 
   // récupération du nom de l'autre compte (s'il n'y en a qu'un)
-  let otherAccountName = '';
+  let otherAccountName;
   if (!multiOps) {
     // détermine l'ID de l'autre opération dans le tableau. Comme il n'y en a que
     // deux (0 et 1), on fait +1 puis %2 pour avoir 1 -> 0 et 0 -> 1.
-    const otherOpId = (transaction.currentOpId + 1) % 2;
-    otherAccountName = <>{transaction.operations[otherOpId].accountFullName}</>;
+    const otherOpId = (transaction.activeOpId + 1) % 2;
+    otherAccountName = transaction.operations[otherOpId].accountFullName;
   } else {
     // si la transaction est répartie, on crée directement un composant qui affiche
     // la transaction répartie et un petit icône qui permet de déplier la transaction
     otherAccountName = (
-      <>
+      <div
+        onClick={toogleExpand}
+        onKeyDown={(event) => { if (event.key === 'Enter') toogleExpand(); }}
+        role="button"
+        tabIndex={0}
+        title="Cliquer pour déplier/replier la transaction"
+      >
         Transaction répartie&nbsp;
         <Icon
           link
           name={expand ? 'angle double up' : 'angle double down'}
-          onClick={toogleExpand}
           title={`${expand ? 'Replier' : 'Déplier'} la transaction`}
         />
-      </>
+      </div>
     );
   }
 
@@ -58,7 +66,7 @@ const Transaction = ({ transaction }) => {
         </Table.Cell>
         <Table.Cell>{transaction.date}</Table.Cell>
         <Operation
-          operation={currentOp}
+          operation={activeOp}
           accountName={otherAccountName}
           active={false}
         />
@@ -70,6 +78,13 @@ const Transaction = ({ transaction }) => {
           />
         </Table.Cell>
         <Table.Cell textAlign="center">o</Table.Cell>
+        <Table.Cell textAlign="center">
+          {!transaction.is_reconciliated && (
+            <ConfirmDeleteOperation
+              onConfirm={() => deleteCallback(transaction.pk)}
+            />
+          )}
+        </Table.Cell>
       </Table.Row>
       {
         // si il faut étendre la transaction, on rajoute autant de lignes que nécessaire
@@ -79,9 +94,9 @@ const Transaction = ({ transaction }) => {
             <Operation
               operation={operation}
               accountName={operation.accountFullName}
-              active={operation.pk === currentOp.pk}
+              active={operation.pk === activeOp.pk}
             />
-            <Table.Cell colSpan="3" />
+            <Table.Cell colSpan="4" />
           </Table.Row>
         ))
       }
@@ -105,9 +120,10 @@ Transaction.propTypes = {
     checked: PropTypes.bool.isRequired,
     // justificatif associé à la transaction (TODO)
     invoice: PropTypes.string,
-    balance: PropTypes.number.isRequired,
     // solde partiel suite à cette transaction
-    currentOpId: PropTypes.number.isRequired,
+    balance: PropTypes.number.isRequired,
+    // ID de l'opération active dans la transaction
+    activeOpId: PropTypes.number.isRequired,
     // liste des opérations associées à la transaction
     operations: PropTypes.arrayOf(PropTypes.shape({
       // clé primaire de l'opération dans la base de l'API
@@ -124,6 +140,7 @@ Transaction.propTypes = {
       accountFullName: PropTypes.string.isRequired,
     })).isRequired,
   }).isRequired,
+  deleteCallback: PropTypes.func.isRequired,
 };
 
 export default Transaction;
