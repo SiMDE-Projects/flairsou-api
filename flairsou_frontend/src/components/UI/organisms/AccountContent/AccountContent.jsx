@@ -5,14 +5,16 @@ import TransactionList from '../../molecules/TransactionList/TransactionList';
 
 import currencyFormat from '../../../../utils/currencyFormat';
 
+import Reconciliation from '../../atoms/Reconciliation/Reconciliation';
+
 const AccountContent = ({ account }) => (
   <Container>
     <Grid>
-      <Grid.Column floated='left' width={8}>
+      <Grid.Column floated="left" width={8}>
         <Header as="h1">{account.name}</Header>
         <Header sub>{account.fullName}</Header>
       </Grid.Column>
-      <Grid.Column floated='right' width={8}>
+      <Grid.Column floated="right" width={8}>
         <p style={{ textAlign: 'right' }}>
           Solde :
           &nbsp;
@@ -20,6 +22,12 @@ const AccountContent = ({ account }) => (
           &nbsp;
           €
         </p>
+        <div style={{ textAlign: 'right' }}>
+          <Reconciliation
+            accountID={account.pk}
+            accountFullName={account.fullName}
+          />
+        </div>
       </Grid.Column>
     </Grid>
 
