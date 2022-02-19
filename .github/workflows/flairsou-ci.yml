@@ -46,14 +46,14 @@ jobs:
             flairsou_frontend/static/**
             flairsou_frontend/migrations/**
     outputs:
-      frontend-changed: ${{ steps.changed-frontend-files.outputs.any_changed }}
-      backend-changed: ${{ steps.changed-backend-files.outputs.any_changed }}
+      frontend-changed: ${{ steps.changed-frontend-files.outputs.any_modified}}
+      backend-changed: ${{ steps.changed-backend-files.outputs.any_modified }}
 
   npm-build:
     name: "Build Frontend"
     needs:
       - changed-files
-    if: ${{ needs.changed-files.frontend-changed }}
+    if: ${{ needs.changed-files.frontend-changed == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -75,7 +75,7 @@ jobs:
     name: "Test API"
     needs:
       - changed-files
-    if: ${{ needs.changed-files.backend-changed }}
+    if: ${{ needs.changed-files.backend-changed == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
