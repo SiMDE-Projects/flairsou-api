@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 from datetime import datetime
 
 from .timestamped import TimeStampedModel
@@ -172,6 +173,10 @@ class Account(TimeStampedModel):
         Vérifie si l'utilisateur passé dans la requête est autorisé à accéder
         à l'objet
         """
+        if settings.DEBUG:
+            # si l'app est en debug, on ne vérifie pas les autorisations
+            return True
+
         if 'assos' not in request.session.keys():
             # utilisateur non connecté
             return False
