@@ -1,16 +1,28 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import logo from '../../../../assets/logo.svg';
 import './header.css';
 
-const Header = ({ connected }) => (
-  <div className="header">
-    <div className="flairsou-logo">
-      <img src={logo} alt="logo de flairsou" className="flairsou-image" />
-      <h1 className="flairsou-title">Flairsou</h1>
-    </div>
+import { AppContext } from '../../../contexts/contexts';
 
-    <a className="deco-button" href="#"> déconnexion </a>
-  </div>
-);
+const Header = () => {
+  const appContext = useContext(AppContext);
+
+  return (
+    <div className="header">
+      <div className="flairsou-logo">
+        <img src={logo} alt="logo de flairsou" className="flairsou-image" />
+        <h1 className="flairsou-title">Flairsou</h1>
+      </div>
+
+      <p>
+        {
+          appContext.user.id
+            ? `${appContext.user.firstname} ${appContext.user.lastname}`
+            : 'Non connecté'
+        }
+      </p>
+    </div>
+  );
+};
 
 export default Header;
