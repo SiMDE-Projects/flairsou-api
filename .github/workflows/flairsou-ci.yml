@@ -21,9 +21,10 @@ jobs:
       - pre-commit
     name: "Getting changed files"
     steps:
+      - uses: actions/checkout@v2
       - name: "Get backend changed files"
         id: changed-backend-files
-        uses: tj-actions/changed-files@v2.1
+        uses: tj-actions/changed-files@v16
         with:
           files: |
             *.py
@@ -35,7 +36,7 @@ jobs:
             flairsou_frontend/**.py
       - name: "Get frontend changed files"
         id: changed-frontend-files
-        uses: tj-actions/changed-files@v2.1
+        uses: tj-actions/changed-files@v16
         with:
           files: |
             flairsou_frontend/**
