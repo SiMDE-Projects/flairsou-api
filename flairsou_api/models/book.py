@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 
 from .timestamped import TimeStampedModel
 
@@ -50,6 +51,10 @@ class Book(TimeStampedModel):
         Vérifie si l'utilisateur passé dans la requête est autorisé à accéder
         à l'objet
         """
+        if settings.DEBUG:
+            # si l'app est en debug, on ne vérifie pas les autorisations
+            return True
+
         if ('assos' not in request.session
                 or str(self.entity) not in request.session['assos']):
             return False
