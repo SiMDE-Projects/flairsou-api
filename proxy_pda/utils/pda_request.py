@@ -9,7 +9,7 @@ def pda_request(url, token):
     return requests.get(
         url,
         headers={
-            'Authorization': 'Bearer {}'.format(token),
-            'Content-Type': 'application/x-www-form-urlencoded',
+            "Authorization": "Bearer {}".format(token),
+            "Content-Type": "application/x-www-form-urlencoded",
         },
     )

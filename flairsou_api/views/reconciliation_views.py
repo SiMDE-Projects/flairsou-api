@@ -7,11 +7,13 @@ import flairsou_api.serializers as fs
 from flairsou_api.utils import UserAllowed
 
 
-class ReconciliationView(mixins.RetrieveModelMixin, mixins.CreateModelMixin,
-                         generics.GenericAPIView):
+class ReconciliationView(
+    mixins.RetrieveModelMixin, mixins.CreateModelMixin, generics.GenericAPIView
+):
     """
     Vue qui gère le rapprochement du compte
     """
+
     serializer_class = fs.ReconciliationSerializer
     permission_classes = [UserAllowed]
 
@@ -36,8 +38,7 @@ class ReconciliationView(mixins.RetrieveModelMixin, mixins.CreateModelMixin,
         account_pk = self.kwargs[self.lookup_field]
 
         # on récupère le compte avec la gestion du 404 par drf
-        account = generics.get_object_or_404(fm.Account.objects.all(),
-                                             id=account_pk)
+        account = generics.get_object_or_404(fm.Account.objects.all(), id=account_pk)
 
         # on renvoie l'objet rapprochement
         obj = account.last_reconciliation

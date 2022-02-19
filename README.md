@@ -206,7 +206,7 @@ In [1]: Account.objects.count()
 Out[1]: 93
 
 In [2]: Operation.objects.count()
-Out[2]: 9290 
+Out[2]: 9290
 ```
 
 Pour créer une nouvelle base de test, on peut utiliser la commande `dumpdata` :
