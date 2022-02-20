@@ -31,11 +31,11 @@ const Reconciliation = ({ accountID, accountFullName }) => {
       });
   }, [accountID]);
 
-  const date = new Date();
+  const today = new Date().toISOString().split('T')[0]; // yyyy-mm-dd
 
-  const today = new Date(date).toISOString().split('T')[0]; // yyyy-mm-dd
-
-  const lastTime = reconciliationObject.date == null ? '1994-01-01' : reconciliationObject.date;
+  const getLastTime = () => (
+    reconciliationObject.date == null ? '1994-01-01' : reconciliationObject.date
+  );
 
   const [reconciliationDate, setDate] = useState(today);
   const [reconciliationBalance, setBalance] = useState('');
@@ -68,7 +68,7 @@ const Reconciliation = ({ accountID, accountFullName }) => {
     }
 
     // on vérifie que la date demandée est cohérente
-    if ((reconciliationDate > today) || (reconciliationDate <= lastTime)) {
+    if ((reconciliationDate > today) || (reconciliationDate <= getLastTime)) {
       setError('Impossible d\'effectuer un rapprochement avant le dernier rapprochement ou après la date du jour');
       setErrorDate(true);
       return false;
@@ -143,7 +143,7 @@ const Reconciliation = ({ accountID, accountFullName }) => {
           <p>
             Date :
             {' '}
-            <Input error={errorDate} defaultValue={today} type="date" min={lastTime} max={today} onChange={(event) => changeDate(event.target.value)} />
+            <Input error={errorDate} defaultValue={today} type="date" min={getLastTime} max={today} onChange={(event) => changeDate(event.target.value)} />
           </p>
           <p>
             Montant :
