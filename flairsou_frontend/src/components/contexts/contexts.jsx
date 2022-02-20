@@ -9,4 +9,5 @@ export const AppContext = createContext({
   assos: [],
   assoActive: '',
   updateAssoActive: (assoId) => {}, /* eslint-disable-line no-unused-vars */
+  accountList: [],
 });

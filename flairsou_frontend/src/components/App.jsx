@@ -62,6 +62,9 @@ const App = () => {
   // association active dans l'application
   const [assoActive, setAssoActive] = useState('');
 
+  // liste des comptes liés à l'association active dans l'application
+  const [accountList, setAccountList] = useState([]);
+
   // fonction permettant de récupérer la clé primaire de chaque livre associé à chaque
   // association de la liste fournie, puis de mettre à jour l'état de la liste des
   // assos
@@ -129,10 +132,32 @@ const App = () => {
       });
   }, [user]);
 
+  // récupération des comptes de l'association active
+  useEffect(() => {
+    if (assoActive === '') return;
+
+    let bookPk = -1;
+    for (let i = 0; i < assos.length; i += 1) {
+      if (assos[i].asso_id === assoActive) {
+        bookPk = assos[i].book;
+        break;
+      }
+    }
+    fetch(`/api/books/${bookPk}/accounts/`)
+      .then((response) => response.json())
+      .then((response) => {
+        setAccountList(response.account_set);
+      });
+  }, [assos, assoActive]);
+
   return (
     <React.StrictMode>
       <AppContext.Provider value={{
-        user, assos, assoActive, updateAssoActive: (assoId) => { setAssoActive(assoId); },
+        user,
+        assos,
+        assoActive,
+        updateAssoActive: (assoId) => { setAssoActive(assoId); },
+        accountList,
       }}
       >
         <BrowserRouter>
