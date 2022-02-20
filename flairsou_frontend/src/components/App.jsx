@@ -62,6 +62,37 @@ const App = () => {
   // association active dans l'application
   const [assoActive, setAssoActive] = useState('');
 
+  // fonction permettant de récupérer la clé primaire de chaque livre associé à chaque
+  // association de la liste fournie, puis de mettre à jour l'état de la liste des
+  // assos
+  async function fetchBookPks(assosList) {
+    // récupération des livres associés aux entités
+    const responses = await Promise.all(
+      assosList.map((asso) => fetch(`/api/books/byEntity/${asso.asso_id}/`)),
+    );
+
+    // récupérer les retours des appels
+    const results = Promise.all(
+      responses.map(async (response) => {
+        if (response.status !== 200) return { entity: '-1' };
+
+        return response.json();
+      }),
+    );
+
+    // associer les clés des livres à chaque asso
+    results.then((newAssos) => {
+      setAssos(assosList.map((asso) => {
+        for (let i = 0; i < newAssos[0].length; i += 1) {
+          if (asso.asso_id === newAssos[0][i].entity) {
+            return { ...asso, book: newAssos[0][i].pk };
+          }
+        }
+        return { ...asso, book: '-1' };
+      }));
+    });
+  }
+
   // récupération des informations de l'utilisateur
   useEffect(() => {
     fetch(userInfosUrl)
@@ -92,7 +123,7 @@ const App = () => {
       .then((response) => {
         if (response.status === 200) {
           response.json().then((newResponse) => {
-            setAssos(newResponse);
+            fetchBookPks(newResponse);
           });
         }
       });

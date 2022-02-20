@@ -1,3 +1,5 @@
+/* eslint-disable import/prefer-default-export */
+
 import { createContext } from 'react';
 
 // contexte contenant les informations de l'utilisateur pour l'application
@@ -6,5 +8,5 @@ export const AppContext = createContext({
   user: {},
   assos: [],
   assoActive: '',
-  updateAssoActive: (assoId) => {},
+  updateAssoActive: (assoId) => {}, /* eslint-disable-line no-unused-vars */
 });
