@@ -96,6 +96,10 @@ const App = () => {
     });
   }
 
+  // TODO : peut être fetch tous les comptes de toutes les assos pour ne pas fetch une liste
+  // à chaque fois que l'utilisateur clique sur le bouton ? après c'est mis en cache du navigateur
+  // donc bon... à voir
+
   // récupération des informations de l'utilisateur
   useEffect(() => {
     fetch(userInfosUrl)
