@@ -8,7 +8,7 @@ const Header = () => {
   const appContext = useContext(AppContext);
 
   return (
-    <div className="header">
+    <div className="flairsou-header">
       <div className="flairsou-logo">
         <img src={logo} alt="logo de flairsou" className="flairsou-image" />
         <h1 className="flairsou-title">Flairsou</h1>
