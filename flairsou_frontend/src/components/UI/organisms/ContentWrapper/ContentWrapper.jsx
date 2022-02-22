@@ -9,7 +9,9 @@ const ContentWrapper = ({ content }) => (
     <Header />
     <div className="content-wrapper-h">
       <Navbar />
-      {content}
+      <div className="final-content">
+        {content}
+      </div>
     </div>
   </div>
 );

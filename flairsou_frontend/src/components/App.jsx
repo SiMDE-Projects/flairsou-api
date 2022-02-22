@@ -14,6 +14,7 @@ import PropTypes from 'prop-types';
 import { AppContext } from './contexts/contexts';
 
 import Home from './pages/home/Home';
+import Account from './pages/account/Account';
 
 const PrivateRoute = ({ component: Component, userIdentified, ...rest }) => (
   <Route
@@ -167,6 +168,7 @@ const App = () => {
         <BrowserRouter>
           <Switch>
             <Route path="/" exact component={Home} />
+            <Route path="/account/:accountID" exact component={Account} />
           </Switch>
         </BrowserRouter>
       </AppContext.Provider>

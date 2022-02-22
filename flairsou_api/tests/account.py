@@ -8,7 +8,13 @@ from flairsou_api.models import Account, Book, Transaction, Operation
 
 
 class AccountBalanceTestCase(APITestCase):
+
     def setUp(self):
+        # on autorise le client sur l'entité créée
+        session = self.client.session
+        session['assos'] = [str(uuid.UUID(int=1))]
+        session.save()
+
         book = Book.objects.create(name="Comptes", entity=uuid.UUID(int=1))
         self.assets = Account.objects.create(
             name="Actifs",
@@ -69,7 +75,13 @@ class AccountBalanceTestCase(APITestCase):
 
 
 class AccountAPITestCase(APITestCase):
+
     def setUp(self):
+        # on autorise le client sur l'entité créée
+        session = self.client.session
+        session['assos'] = [str(uuid.UUID(int=1))]
+        session.save()
+
         self.book = Book.objects.create(name="Comptes",
                                         entity=uuid.UUID(int=1))
         self.assets = Account.objects.create(
@@ -214,7 +226,8 @@ class AccountAPITestCase(APITestCase):
             "parent": self.expenses.pk,
             "book": self.book.pk
         }
-        self.client.post(url, data, format='json')
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         # on change le compte parent vers un compte qui n'est pas du même type
         # l'API doit refuser

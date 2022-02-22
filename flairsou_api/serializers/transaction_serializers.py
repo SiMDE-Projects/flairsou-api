@@ -2,6 +2,7 @@ from .flairsou_serializers import FlairsouModelSerializer
 from flairsou_api.models import Transaction, Operation, Account
 
 from django.db import transaction
+from rest_framework.exceptions import PermissionDenied
 
 
 class OperationSerializer(FlairsouModelSerializer):
@@ -17,7 +18,14 @@ class OperationSerializer(FlairsouModelSerializer):
 
     class Meta:
         model = Operation
-        fields = ['pk', 'credit', 'debit', 'label', 'account']
+        fields = [
+            'pk',
+            'credit',
+            'debit',
+            'label',
+            'account',
+            'accountFullName',
+        ]
 
     def validate_account(self, account):
         # vérifie que l'opération est liée à un compte non virtuel
@@ -31,6 +39,14 @@ class OperationSerializer(FlairsouModelSerializer):
         """
         Validation de l'opération au niveau global.
         """
+
+        if 'request' in self.context:
+            # si la création est effectuée à partir d'une requête, on vérifie
+            # que l'utilisateur connecté a les droits sur les comptes pour
+            # créer la transaction
+            account = data['account']
+            if not account.check_user_allowed(self.context['request']):
+                raise PermissionDenied()
 
         # vérifie que credit et debit sont correctement définis (un seul
         # des deux montants >= 0)
@@ -66,7 +82,14 @@ class TransactionSerializer(FlairsouModelSerializer):
 
     class Meta:
         model = Transaction
-        fields = ['pk', 'date', 'checked', 'invoice', 'operations']
+        fields = [
+            'pk',
+            'date',
+            'is_reconciliated',
+            'checked',
+            'invoice',
+            'operations',
+        ]
 
     def validate(self, data):
         """
