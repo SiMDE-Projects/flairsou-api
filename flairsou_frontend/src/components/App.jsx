@@ -6,14 +6,13 @@
 */
 
 import React from 'react';
-import { BrowserRouter, Redirect, Route } from 'react-router-dom';
+import {
+  BrowserRouter, Redirect, Route, Switch,
+} from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 
-import PageContainer from './containers/PageContainer';
-
-import HomePage from './pages/HomePage';
-import TestPage from './pages/TestPublicPage';
+import Home from './pages/home/Home';
+import Account from './pages/account/Account';
 
 const PrivateRoute = ({ component: Component, userIdentified, ...rest }) => (
   <Route
@@ -47,30 +46,15 @@ PrivateRoute.defaultProps = {
   location: null,
 };
 
-const App = ({ userIdentified }) => (
-  <BrowserRouter>
-    <PageContainer>
-      <>
-        <Route path="/" exact component={HomePage} />
-        <Route path="/test" component={TestPage} />
-        <PrivateRoute
-          path="/private"
-          component={() => (
-            <>
-              This is a private route
-            </>
-          )}
-          userIdentified={userIdentified}
-        />
-      </>
-    </PageContainer>
-  </BrowserRouter>
+const App = () => (
+  <React.StrictMode>
+    <BrowserRouter>
+      <Switch>
+        <Route path="/" exact component={Home} />
+        <Route path="/account/:accountID" exact component={Account} />
+      </Switch>
+    </BrowserRouter>
+  </React.StrictMode>
 );
 
-App.propTypes = {
-  userIdentified: PropTypes.bool.isRequired,
-};
-
-export default connect((store) => ({
-  userIdentified: store.user.identified,
-}))(App);
+export default App;

@@ -6,6 +6,8 @@ from rest_framework import serializers
 from rest_framework.exceptions import PermissionDenied
 from drf_spectacular.utils import extend_schema_field
 
+from datetime import datetime
+
 import uuid
 
 
@@ -191,9 +193,23 @@ class AccountSerializer(FlairsouModelSerializer):
 
 
 class AccountBalanceSerializer(FlairsouModelSerializer):
+
+    balance = serializers.SerializerMethodField()
+
     class Meta:
         model = Account
         fields = ["pk", "balance"]
+
+    def get_balance(self, instance: Account):
+        request = self.context["request"]
+        date = request.query_params.get("date")
+        if date is not None:
+            try:
+                date = datetime.strptime(date, "%Y-%m-%d").date()
+                return instance.balance_at_date(date)
+            except ValueError:
+                pass
+        return instance.balance
 
 
 class AccountNestedSerializer(FlairsouModelSerializer):
