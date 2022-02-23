@@ -11,6 +11,7 @@ class TransactionCreate(mixins.CreateModelMixin, generics.GenericAPIView):
     """
     Vue qui permet de créer une nouvelle transaction.
     """
+
     serializer_class = fs.TransactionSerializer
 
     def post(self, request, *args, **kwargs):
@@ -20,11 +21,16 @@ class TransactionCreate(mixins.CreateModelMixin, generics.GenericAPIView):
         return self.create(request, *args, **kwargs)
 
 
-class TransactionDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
-                        mixins.DestroyModelMixin, generics.GenericAPIView):
+class TransactionDetail(
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.DestroyModelMixin,
+    generics.GenericAPIView,
+):
     """
     Vue qui fournit le détail d'une transaction par son identifiant
     """
+
     queryset = fm.Transaction.objects.all()
     serializer_class = fs.TransactionSerializer
     permission_classes = [UserAllowed]

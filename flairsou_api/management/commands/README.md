@@ -77,7 +77,7 @@ Date;Description;Full Account Name;Amount Num.
 ```
 
 La commande a été testée avec des exports de GnuCASH.
-Si des fichiers créés à partir d'autres logiciels sont utilisés, les colonnes doivent être ajustées pour correspondre au nom exact et au contenu de la colonne. 
+Si des fichiers créés à partir d'autres logiciels sont utilisés, les colonnes doivent être ajustées pour correspondre au nom exact et au contenu de la colonne.
 
 ### Paramètres optionnels
 

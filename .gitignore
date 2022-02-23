@@ -8,6 +8,7 @@ flairsou/config.py
 
 # IDE Specific
 .vscode/
+.idea
 *.swp
 .idea/
 **/.DS_Store

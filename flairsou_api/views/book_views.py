@@ -12,6 +12,7 @@ class BookListFilter(mixins.ListModelMixin, generics.GenericAPIView):
     """
     Vue qui fournit une liste de livres à partir d'un certain filtre
     """
+
     serializer_class = fs.BookSerializer
 
     def get_queryset(self):
@@ -22,7 +23,7 @@ class BookListFilter(mixins.ListModelMixin, generics.GenericAPIView):
         """
         queryset = fm.Book.objects.all()
 
-        entity = self.kwargs.get('entity')
+        entity = self.kwargs.get("entity")
 
         if not UserAllowed.check_entity_allowed(str(entity), self.request):
             raise PermissionDenied()
@@ -41,12 +42,17 @@ class BookListFilter(mixins.ListModelMixin, generics.GenericAPIView):
         return self.list(request, *args, **kwargs)
 
 
-class BookDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
-                 mixins.DestroyModelMixin, generics.GenericAPIView):
+class BookDetail(
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.DestroyModelMixin,
+    generics.GenericAPIView,
+):
     """
     Vue qui fournit le détail d'un livre et qui permet de mettre à jour
     un livre existant
     """
+
     queryset = fm.Book.objects.all()
     serializer_class = fs.BookSerializer
     permission_classes = [UserAllowed]
@@ -71,6 +77,7 @@ class BookAccountList(mixins.RetrieveModelMixin, generics.GenericAPIView):
     Vue qui renvoie l'ensemble des comptes associés au livre passé dans
     la requête
     """
+
     queryset = fm.Book.objects.all()
     serializer_class = fs.BookWithAccountsSerializer
     permission_classes = [UserAllowed]

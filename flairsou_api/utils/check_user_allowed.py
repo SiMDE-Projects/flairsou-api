@@ -20,7 +20,7 @@ class UserAllowed(BasePermission):
             # si l'app est en debug, on ne vérifie pas les autorisations
             return True  # temporaire pour faciliter les tests
 
-        if 'assos' not in request.session.keys():
+        if "assos" not in request.session.keys():
             # l'utilisateur n'est pas connecté, accès refusé
             return False
 
@@ -38,11 +38,11 @@ class UserAllowed(BasePermission):
             # si l'app est en debug, on ne vérifie pas les autorisations
             return True  # temporaire pour faciliter les tests
 
-        if 'assos' not in request.session.keys():
+        if "assos" not in request.session.keys():
             # l'utilisateur n'est pas connecté, accès refusé
             return False
 
-        if entity not in request.session['assos']:
+        if entity not in request.session["assos"]:
             # l'entité ne fait pas partie de la liste des associations
             # de l'utilisateur, accès refusé
             return False

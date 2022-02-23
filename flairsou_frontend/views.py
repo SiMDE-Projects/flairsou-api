@@ -4,4 +4,4 @@ from django.shortcuts import render
 
 
 def index(request):
-    return render(request, 'flairsou_frontend/index.html')
+    return render(request, "flairsou_frontend/index.html")

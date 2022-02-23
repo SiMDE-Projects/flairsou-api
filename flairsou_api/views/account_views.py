@@ -11,6 +11,7 @@ class AccountCreation(mixins.CreateModelMixin, generics.GenericAPIView):
     """
     Vue qui qui permet de créer un nouveau compte dans la base.
     """
+
     serializer_class = fs.AccountSerializer
 
     def post(self, request, *args, **kwargs):
@@ -30,12 +31,17 @@ class AccountCreation(mixins.CreateModelMixin, generics.GenericAPIView):
         return self.create(request, *args, **kwargs)
 
 
-class AccountDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
-                    mixins.DestroyModelMixin, generics.GenericAPIView):
+class AccountDetail(
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.DestroyModelMixin,
+    generics.GenericAPIView,
+):
     """
     Vue qui fournit le détail d'un compte et qui permet de mettre à jour
     un compte existant
     """
+
     queryset = fm.Account.objects.all()
     serializer_class = fs.AccountSerializer
     permission_classes = [UserAllowed]
@@ -66,6 +72,7 @@ class AccountBalance(mixins.RetrieveModelMixin, generics.GenericAPIView):
     """
     Vue qui fournit le solde d'un compte
     """
+
     queryset = fm.Account.objects.all()
     serializer_class = fs.AccountBalanceSerializer
     permission_classes = [UserAllowed]
@@ -77,11 +84,11 @@ class AccountBalance(mixins.RetrieveModelMixin, generics.GenericAPIView):
         return self.retrieve(request, *args, **kwargs)
 
 
-class AccountTransactionList(mixins.RetrieveModelMixin,
-                             generics.GenericAPIView):
+class AccountTransactionList(mixins.RetrieveModelMixin, generics.GenericAPIView):
     """
     Vue qui renvoie la liste des transactions associées à un compte
     """
+
     queryset = fm.Account.objects.all()
     serializer_class = fs.AccountTransactionListSerializer
     permission_classes = [UserAllowed]

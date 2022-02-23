@@ -11,5 +11,5 @@ def check_user_logged_in(request):
     TODO : voir si on ne peut pas mettre en place un modèle
     d'utilisateur quelque part
     """
-    if 'token' not in request.session:
+    if "token" not in request.session:
         raise NotAuthenticated()
