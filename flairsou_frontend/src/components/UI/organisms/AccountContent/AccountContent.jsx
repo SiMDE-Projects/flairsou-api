@@ -5,6 +5,8 @@ import TransactionList from '../../molecules/TransactionList/TransactionList';
 
 import currencyFormat from '../../../../utils/currencyFormat';
 
+import Reconciliation from '../../atoms/Reconciliation/Reconciliation';
+
 const AccountContent = ({ account }) => {
   // solde affiché du compte
   const [balance, setBalance] = useState(account.balance);
@@ -26,6 +28,12 @@ const AccountContent = ({ account }) => {
             &nbsp;
             €
           </p>
+          <div style={{ textAlign: 'right' }}>
+            <Reconciliation
+              accountID={account.pk}
+              accountFullName={account.fullName}
+            />
+          </div>
         </Grid.Column>
       </Grid>
       {
