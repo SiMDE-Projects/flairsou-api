@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import './navbar.css';
 
+import { List } from 'semantic-ui-react';
 import SearchBar from '../../atoms/SearchBar/SearchBar';
 import { AppContext } from '../../../contexts/contexts';
 import NavAccount from '../../atoms/NavAccount/NavAccount';
@@ -20,26 +21,35 @@ const Navbar = () => {
   return (
     <div className="navbar">
       <SearchBar />
-      {
-        appContext.assos.map((asso) => (
-          <div key={`asso-${asso.asso_id}`}>
-            <button
-              className={`navbar-element ${appContext.assoActive === asso.asso_id ? 'active' : ''}`}
-              type="button"
-              onClick={() => { handleClick(asso.asso_id); }}
+      <List>
+        {
+          appContext.assos.map((asso) => (
+            <List.Item
+              key={`asso-${asso.asso_id}`}
             >
-              <p>{asso.shortname}</p>
-            </button>
-            <ul>
+              <List.Icon
+                name={appContext.assoActive === asso.asso_id ? 'caret down' : 'caret right'}
+              />
+              <List.Content
+                onClick={() => { handleClick(asso.asso_id); }}
+              >
+                {asso.shortname}
+              </List.Content>
               {
                 appContext.assoActive === asso.asso_id
-                && appContext.accountList.map((account) => (
-                  <NavAccount key={`acc-${account.pk}`} account={account} />))
+                && (
+                  <List.List>
+                    {
+                        appContext.accountList.map((account) => (
+                          <NavAccount key={`acc-${account.pk}`} account={account} />))
+                    }
+                  </List.List>
+                )
               }
-            </ul>
-          </div>
-        ))
-      }
+            </List.Item>
+          ))
+        }
+      </List>
     </div>
   );
 };

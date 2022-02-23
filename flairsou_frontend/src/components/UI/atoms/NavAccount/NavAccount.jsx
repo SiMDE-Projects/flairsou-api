@@ -1,24 +1,37 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import { List } from 'semantic-ui-react';
 
 // affiche le nom du compte dans la navbar ainsi que la liste de ses sous-comptes,
 // et met en place un lien pour arriver sur la page correspondant à la liste des
 // opérations du compte
 const NavAccount = ({ account }) => (
-  <>
-    <li>
-      <Link to={`/account/${account.pk}`}>
-        {account.name}
-      </Link>
-    </li>
-    <ul>
+  <List.Item>
+    <List.Icon name="university" />
+    <List.Content>
       {
-        account.account_set.map((subaccount) => (
-          <NavAccount key={`acc-${subaccount.pk}`} account={subaccount} />))
+      account.virtual
+        ? account.name
+        : (
+          <Link to={`/account/${account.pk}`}>
+            {account.name}
+          </Link>
+        )
       }
-    </ul>
-  </>
+    </List.Content>
+    {
+      account.account_set.length > 0
+      && (
+        <List.List>
+          {
+            account.account_set.map((subaccount) => (
+              <NavAccount key={`acc-${subaccount.pk}`} account={subaccount} />))
+          }
+        </List.List>
+      )
+      }
+  </List.Item>
 );
 
 // voir si y'a pas moyen de factoriser ça quelque part, genre définir à un endroit
