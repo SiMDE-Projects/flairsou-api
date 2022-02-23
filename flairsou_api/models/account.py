@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 from datetime import datetime
 
 from .timestamped import TimeStampedModel
@@ -52,26 +53,16 @@ class Account(TimeStampedModel):
         EXPENSE = 3  # Dépenses
         EQUITY = 4  # Capitaux Propres
 
-    name = models.CharField("Account name",
-                            max_length=64,
-                            blank=False,
-                            null=False)
-    account_type = models.IntegerField(choices=AccountType.choices,
-                                       blank=False,
-                                       null=False)
-    virtual = models.BooleanField('virtual', default=False)
-    parent = models.ForeignKey('self',
-                               on_delete=models.CASCADE,
-                               blank=False,
-                               null=True)
-    book = models.ForeignKey('Book',
-                             on_delete=models.CASCADE,
-                             blank=False,
-                             null=False)
-    associated_entity = models.UUIDField('associated_entity',
-                                         blank=False,
-                                         null=True,
-                                         default=None)
+    name = models.CharField("Account name", max_length=64, blank=False, null=False)
+    account_type = models.IntegerField(
+        choices=AccountType.choices, blank=False, null=False
+    )
+    virtual = models.BooleanField("virtual", default=False)
+    parent = models.ForeignKey("self", on_delete=models.CASCADE, blank=False, null=True)
+    book = models.ForeignKey("Book", on_delete=models.CASCADE, blank=False, null=False)
+    associated_entity = models.UUIDField(
+        "associated_entity", blank=False, null=True, default=None
+    )
 
     def __str__(self) -> str:
         return "{}-{}".format(self.book, self.fullName)
@@ -82,13 +73,16 @@ class Account(TimeStampedModel):
         # (name, parent) : pas deux comptes du même nom sous le même parent
         constraints.append(
             models.UniqueConstraint(
-                fields=['name', 'parent', 'book'],
-                name="%(app_label)s_%(class)s_unique_name_in_parent_and_book"))
+                fields=["name", "parent", "book"],
+                name="%(app_label)s_%(class)s_unique_name_in_parent_and_book",
+            )
+        )
 
         constraints.append(
             models.CheckConstraint(
-                check=~models.Q(name=''),
-                name="%(app_label)s_%(class)s_name_not_null"))
+                check=~models.Q(name=""), name="%(app_label)s_%(class)s_name_not_null"
+            )
+        )
 
     @property
     def fullName(self) -> str:
@@ -137,8 +131,10 @@ class Account(TimeStampedModel):
                 debits += op.debit
 
             # calcule le solde selon le type de compte
-            if self.account_type == Account.AccountType.ASSET \
-                    or self.account_type == Account.AccountType.EXPENSE:
+            if (
+                self.account_type == Account.AccountType.ASSET
+                or self.account_type == Account.AccountType.EXPENSE
+            ):
                 balance = debits - credits
             else:
                 balance = credits - debits
@@ -163,7 +159,7 @@ class Account(TimeStampedModel):
         Renvoie le dernier rapprochement du compte
         """
         if self.reconciliation_set.count() > 0:
-            return self.reconciliation_set.order_by('-date')[0]
+            return self.reconciliation_set.order_by("-date")[0]
         else:
             return None
 
@@ -172,12 +168,18 @@ class Account(TimeStampedModel):
         Vérifie si l'utilisateur passé dans la requête est autorisé à accéder
         à l'objet
         """
-        if 'assos' not in request.session.keys():
+        if settings.DEBUG:
+            # si l'app est en debug, on ne vérifie pas les autorisations
+            return True
+
+        if "assos" not in request.session.keys():
             # utilisateur non connecté
             return False
 
-        if (str(self.book.entity) not in request.session['assos'] and str(
-                self.associated_entity) not in request.session['assos']):
+        if (
+            str(self.book.entity) not in request.session["assos"]
+            and str(self.associated_entity) not in request.session["assos"]
+        ):
             return False
 
         return True

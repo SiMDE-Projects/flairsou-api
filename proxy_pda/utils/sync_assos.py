@@ -28,22 +28,24 @@ def sync_assos():
     bulk_create = []
     bulk_update = []
 
-    print('{} assos à traiter...'.format(len(assos_pda)))
+    print("{} assos à traiter...".format(len(assos_pda)))
 
     # pour chaque association renvoyée par le portail
     for i, asso_pda in enumerate(assos_pda):
-        print("Traitement de l'asso {} ({}/{})".format(asso_pda['shortname'],
-                                                       i + 1, len(assos_pda)))
+        print(
+            "Traitement de l'asso {} ({}/{})".format(
+                asso_pda["shortname"], i + 1, len(assos_pda)
+            )
+        )
 
         # récupération des informations détaillées sur l'asso
-        r = requests.get('https://assos.utc.fr/api/v1/assos/{}'.format(
-            asso_pda['id']))
+        r = requests.get("https://assos.utc.fr/api/v1/assos/{}".format(asso_pda["id"]))
         detailed_asso_pda = r.json()
 
         # recherche d'une association existante dans la liste des assos
         existing_asso = None
         for i, tmp_asso in enumerate(existing_assos):
-            if tmp_asso.asso_id == uuid.UUID(detailed_asso_pda['id']):
+            if tmp_asso.asso_id == uuid.UUID(detailed_asso_pda["id"]):
                 existing_asso = tmp_asso
                 existing_assos.pop(i)
                 break
@@ -61,8 +63,7 @@ def sync_assos():
                 # création avec l'ID de son parent (il faut que toutes les
                 # assos soient créées pour que le parent puisse être ajouté)
                 new_asso = copy.deepcopy(new_asso)  # copie profonde de l'asso
-                new_asso.parent = Asso(
-                    asso_id=detailed_asso_pda['parent']['id'])
+                new_asso.parent = Asso(asso_id=detailed_asso_pda["parent"]["id"])
                 bulk_update.append(new_asso)
         else:
             # on a trouvé une association correspondante en local
@@ -70,7 +71,7 @@ def sync_assos():
             # on perd l'historique de la comptabilité (à voir plus tard si on
             # peut rattacher ailleurs...)
             # on fait donc une mise à jour de l'association si nécessaire
-            last_updated = date_to_timezone(detailed_asso_pda['updated_at'])
+            last_updated = date_to_timezone(detailed_asso_pda["updated_at"])
             if last_updated > existing_asso.last_updated:
                 bulk_update.append(new_asso)
 
@@ -79,15 +80,17 @@ def sync_assos():
     # application des opérations bdd en une fois
     with transaction.atomic():
         Asso.objects.bulk_create(bulk_create)
-        Asso.objects.bulk_update(bulk_update,
-                                 fields=[
-                                     'shortname',
-                                     'name',
-                                     'parent',
-                                     'asso_type',
-                                     'in_cemetery',
-                                     'last_updated',
-                                 ])
+        Asso.objects.bulk_update(
+            bulk_update,
+            fields=[
+                "shortname",
+                "name",
+                "parent",
+                "asso_type",
+                "in_cemetery",
+                "last_updated",
+            ],
+        )
 
     print("Création des livres de compte de base")
 
@@ -112,9 +115,9 @@ def create_books():
         if Book.objects.filter(entity=asso_id).count() == 0:
             # pas de livre avec cet ID, on en crée un nouveau
             print("Création d'un livre pour l'asso {}".format(asso.shortname))
-            book = Book.objects.create(name='Comptes {}'.format(
-                asso.shortname),
-                                       entity=asso_id)
+            book = Book.objects.create(
+                name="Comptes {}".format(asso.shortname), entity=asso_id
+            )
 
             # on crée une structure basique de comptes à associer à ce
             # nouveau livre si l'asso a des comptes séparés
@@ -128,10 +131,10 @@ def create_accounts(account_list, book, parent=None):
     """
     for account in account_list:
         # on sort les sous-comptes de l'élément
-        account_set = account.pop('account_set')
+        account_set = account.pop("account_set")
 
         # ajout du livre
-        account['book'] = book
+        account["book"] = book
 
         # création du compte
         account_obj = Account(**account)

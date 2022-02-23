@@ -7,7 +7,8 @@ class Command(BaseCommand):
     """
     Classe Command appelée par manage.py
     """
-    help = 'Charge la liste des associations depuis le portail des assos'
+
+    help = "Charge la liste des associations depuis le portail des assos"
 
     def handle(self, *args, **options):
         """

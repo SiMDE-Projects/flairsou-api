@@ -80,6 +80,4 @@ def request_user_assos(request):
 
         request.session["assos"].append(asso["id"])
 
-    request.session["assos"].append("6dff8940-3af5-11e9-a76b-d5944de919ff")
-
     return request.session["assos"]

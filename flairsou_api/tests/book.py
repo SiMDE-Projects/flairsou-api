@@ -8,15 +8,13 @@ import uuid
 
 
 class BookAPITestCase(APITestCase):
-
     def setUp(self):
         # on autorise le client sur l'entité créée
         session = self.client.session
-        session['assos'] = [str(uuid.UUID(int=1))]
+        session["assos"] = [str(uuid.UUID(int=1))]
         session.save()
 
-        self.book = Book.objects.create(name="Comptes BDE",
-                                        entity=uuid.UUID(int=1))
+        self.book = Book.objects.create(name="Comptes BDE", entity=uuid.UUID(int=1))
 
     def test_create_book(self):
         """
@@ -35,21 +33,22 @@ class BookAPITestCase(APITestCase):
         """
         Vérifie que le filtrage des livres par clé primaire fonctionne
         """
-        url = reverse('flairsou_api:book-detail', kwargs={'pk': self.book.pk})
-        response = self.client.get(url, format='json')
+        url = reverse("flairsou_api:book-detail", kwargs={"pk": self.book.pk})
+        response = self.client.get(url, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        url = reverse('flairsou_api:book-detail', kwargs={'pk': 12})
-        response = self.client.get(url, format='json')
+        url = reverse("flairsou_api:book-detail", kwargs={"pk": 12})
+        response = self.client.get(url, format="json")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_filter_book_by_entity(self):
         """
         Vérifie que le filtrage des livres par entité fonctionne
         """
-        url = reverse('flairsou_api:book-filter-by-entity',
-                      kwargs={'entity': self.book.entity})
-        response = self.client.get(url, format='json')
+        url = reverse(
+            "flairsou_api:book-filter-by-entity", kwargs={"entity": self.book.entity}
+        )
+        response = self.client.get(url, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
 
@@ -57,11 +56,11 @@ class BookAPITestCase(APITestCase):
         """
         Vérifie que le changement d'entité associée à un livre est refusée
         """
-        url = reverse('flairsou_api:book-detail', kwargs={'pk': self.book.pk})
-        response = self.client.get(url, format='json')
+        url = reverse("flairsou_api:book-detail", kwargs={"pk": self.book.pk})
+        response = self.client.get(url, format="json")
         data = response.data
-        data['entity'] = str(uuid.UUID(int=2))
-        response = self.client.put(url, data, format='json')
+        data["entity"] = str(uuid.UUID(int=2))
+        response = self.client.put(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
@@ -73,7 +72,7 @@ class BookAccountsAPITestCase(APITestCase):
     def setUp(self):
         # on autorise le client sur l'entité créée
         session = self.client.session
-        session['assos'] = [str(uuid.UUID(int=1))]
+        session["assos"] = [str(uuid.UUID(int=1))]
         session.save()
 
         book1 = Book.objects.create(name="Comptes", entity=uuid.UUID(int=1))
@@ -82,25 +81,30 @@ class BookAccountsAPITestCase(APITestCase):
             account_type=Account.AccountType.ASSET,
             virtual=True,
             parent=None,
-            book=book1)
-        Account.objects.create(name="Passifs",
-                               account_type=Account.AccountType.LIABILITY,
-                               virtual=True,
-                               parent=None,
-                               book=book1)
-        Account.objects.create(name="Dépenses",
-                               account_type=Account.AccountType.EXPENSE,
-                               virtual=True,
-                               parent=None,
-                               book=book1)
+            book=book1,
+        )
+        Account.objects.create(
+            name="Passifs",
+            account_type=Account.AccountType.LIABILITY,
+            virtual=True,
+            parent=None,
+            book=book1,
+        )
+        Account.objects.create(
+            name="Dépenses",
+            account_type=Account.AccountType.EXPENSE,
+            virtual=True,
+            parent=None,
+            book=book1,
+        )
 
     def test_filter_by_book(self):
         # on récupère les comptes liés au book 1 (seulement les comptes de
         # niveau 1)
-        url = reverse('flairsou_api:book-get-all-accounts', kwargs={'pk': 1})
-        response = self.client.get(url, format='json')
+        url = reverse("flairsou_api:book-get-all-accounts", kwargs={"pk": 1})
+        response = self.client.get(url, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data['account_set']), 3)
+        self.assertEqual(len(response.data["account_set"]), 3)
 
     def test_associated_entities(self):
         # création d'un deuxième livre
@@ -112,11 +116,11 @@ class BookAccountsAPITestCase(APITestCase):
 
         # on autorise l'entité 2 pour l'utilisateur
         session = self.client.session
-        session['assos'] = [str(uuid.UUID(int=2))]
+        session["assos"] = [str(uuid.UUID(int=2))]
         session.save()
 
         # on veut récupérer les comptes du livre 2
-        url = reverse('flairsou_api:book-get-all-accounts', kwargs={'pk': 2})
-        response = self.client.get(url, format='json')
+        url = reverse("flairsou_api:book-get-all-accounts", kwargs={"pk": 2})
+        response = self.client.get(url, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data['associated_account_set']), 1)
+        self.assertEqual(len(response.data["associated_account_set"]), 1)
