@@ -22,13 +22,13 @@ class Reconciliation(TimeStampedModel):
         Solde rapproché du compte à la date de fin de période, qui doit
         correspondre à celui indiqué sur le relevé de banque.
     """
-    account = models.ForeignKey('Account', on_delete=models.CASCADE)
+
+    account = models.ForeignKey("Account", on_delete=models.CASCADE)
     date = models.DateField("Date")
     balance = models.IntegerField("solde")
 
     def __str__(self):
-        return "Reconciliation of account {} on {}".format(
-            self.account, self.date)
+        return "Reconciliation of account {} on {}".format(self.account, self.date)
 
     class Meta:
         constraints = []
@@ -36,15 +36,17 @@ class Reconciliation(TimeStampedModel):
         # on ne peut avoir qu'un rapprochement par date pour un compte
         constraints.append(
             models.UniqueConstraint(
-                fields=['account', 'date'],
-                name="%(app_label)s_%(class)s_one_reconc_per_date"))
+                fields=["account", "date"],
+                name="%(app_label)s_%(class)s_one_reconc_per_date",
+            )
+        )
 
     def check_user_allowed(self, request) -> bool:
         """
         Vérifie si l'utilisateur passé dans la requête est autorisé à accéder
         à l'objet
         """
-        if 'assos' not in request.session.keys():
+        if "assos" not in request.session.keys():
             # utilisateur non connecté
             return False
 

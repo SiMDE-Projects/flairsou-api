@@ -21,7 +21,8 @@ class Command(BaseCommand):
     """
     Classe Command appelée par manage.py
     """
-    help = 'Importe le fichier CSV passé en paramètre'
+
+    help = "Importe le fichier CSV passé en paramètre"
 
     def add_arguments(self, parser):
         """
@@ -29,27 +30,35 @@ class Command(BaseCommand):
         """
         # nom du fichier contenant la structure des comptes
         parser.add_argument(
-            'accounts_filename',
+            "accounts_filename",
             nargs=1,
             type=str,
-            help="Nom du fichier contenant la structure des comptes")
+            help="Nom du fichier contenant la structure des comptes",
+        )
         # nom du fichier contenant les transactions
-        parser.add_argument('transactions_filename',
-                            nargs=1,
-                            type=str,
-                            help="Nom du fichier contenant les transactions")
+        parser.add_argument(
+            "transactions_filename",
+            nargs=1,
+            type=str,
+            help="Nom du fichier contenant les transactions",
+        )
         # identifiant du livre sur lequel charger les transactions
-        parser.add_argument('--book',
-                            nargs='?',
-                            type=int,
-                            default=0,
-                            help="Clé primaire du livre à ajouter")
+        parser.add_argument(
+            "--book",
+            nargs="?",
+            type=int,
+            default=0,
+            help="Clé primaire du livre à ajouter",
+        )
 
         parser.add_argument(
-            '--randomize',
-            action='store_true',
-            help=("Génère un texte aléatoire pour labelliser les opérations"
-                  "au lieu d'utiliser les vrais labels"))
+            "--randomize",
+            action="store_true",
+            help=(
+                "Génère un texte aléatoire pour labelliser les opérations"
+                "au lieu d'utiliser les vrais labels"
+            ),
+        )
 
     def handle(self, *args, **options):
         """
@@ -58,24 +67,25 @@ class Command(BaseCommand):
 
         # test de l'ouverture des fichiers
         try:
-            accountsFile = open(options['accounts_filename'][0], 'r')
+            accountsFile = open(options["accounts_filename"][0], "r")
         except FileNotFoundError:
-            raise CommandError('Le fichier %s n\'existe pas' %
-                               options['accounts_filename'][0])
+            raise CommandError(
+                "Le fichier %s n'existe pas" % options["accounts_filename"][0]
+            )
 
         try:
-            transactionsFile = open(options['transactions_filename'][0], 'r')
+            transactionsFile = open(options["transactions_filename"][0], "r")
         except FileNotFoundError:
-            raise CommandError('Le fichier %s n\'existe pas' %
-                               options['transactions_filename'][0])
+            raise CommandError(
+                "Le fichier %s n'existe pas" % options["transactions_filename"][0]
+            )
 
         # test de la récupération du livre
-        if options['book'] != 0:
+        if options["book"] != 0:
             try:
-                bookObj = Book.objects.get(id=options['book'][0])
+                bookObj = Book.objects.get(id=options["book"][0])
             except Book.DoesNotExist:
-                raise CommandError('Le livre %d n\'existe pas' %
-                                   options['book'][0])
+                raise CommandError("Le livre %d n'existe pas" % options["book"][0])
         else:
             bookObj = None
 
@@ -95,15 +105,13 @@ class Command(BaseCommand):
                     if Book.objects.filter(entity=entityUUID).count() == 0:
                         generateAgain = False
 
-                bookObj = Book.objects.create(name=entityName,
-                                              entity=entityUUID)
+                bookObj = Book.objects.create(name=entityName, entity=entityUUID)
 
             # création des comptes
             accounts = createAccountsStructure(accountsFile, bookObj)
 
             # création des transactions
-            createTransactions(transactionsFile, accounts,
-                               options['randomize'])
+            createTransactions(transactionsFile, accounts, options["randomize"])
 
         accountsFile.close()
         transactionsFile.close()
@@ -115,7 +123,7 @@ def createAccountsStructure(accountsFile: TextIO, bookObj: Book):
     fichier contenant la description des comptes, sur le livre indiqué
     """
     # ouverture du fichier csv délimité par des ;
-    csvReader = csv.reader(accountsFile, delimiter=';')
+    csvReader = csv.reader(accountsFile, delimiter=";")
 
     # récupération des indices en fonction des champs qui nous intéressent
     # les noms des champs sont sur la première ligne du fichier et
@@ -131,13 +139,13 @@ def createAccountsStructure(accountsFile: TextIO, bookObj: Book):
         if firstRow:
             firstRow = False
             for i in range(len(row)):
-                if row[i] == 'Type':
+                if row[i] == "Type":
                     # type du compte
                     iType = i
-                if row[i] == 'Full Account Name':
+                if row[i] == "Full Account Name":
                     # nom complet du compte avec tout son héritage
                     iFullName = i
-                if row[i] == 'Virtuel':
+                if row[i] == "Virtuel":
                     # compte virtuel ou non
                     iVirtual = i
 
@@ -145,9 +153,9 @@ def createAccountsStructure(accountsFile: TextIO, bookObj: Book):
             continue
 
         # création du compte et enregistrement de l'objet dans un dictionnaire
-        accounts[row[iFullName]] = createAccount(row[iFullName], row[iType],
-                                                 row[iVirtual], bookObj,
-                                                 accounts)
+        accounts[row[iFullName]] = createAccount(
+            row[iFullName], row[iType], row[iVirtual], bookObj, accounts
+        )
 
     # correction du statut virtuel lors de l'import : si un compte non virtuel
     # a des sous-comptes, on le passe en virtuel
@@ -161,8 +169,9 @@ def createAccountsStructure(accountsFile: TextIO, bookObj: Book):
     return accounts
 
 
-def createAccount(accFullNameStr: str, accTypeStr: str, accVirtualStr: str,
-                  book: Book, accounts):
+def createAccount(
+    accFullNameStr: str, accTypeStr: str, accVirtualStr: str, book: Book, accounts
+):
     """
     Fonction qui crée un compte à partir des champs extraits du fichier csv
     """
@@ -185,7 +194,7 @@ def createAccount(accFullNameStr: str, accTypeStr: str, accVirtualStr: str,
     # on coupe donc sur le dernier ':' et on obtient une liste à deux éléments
     # [nom_compte_parent, nom_final] (sauf si le compte est à la racine, auquel
     # cas on a un seul élément dans la liste résultante)
-    nameSplitted = accFullNameStr.rsplit(':', 1)
+    nameSplitted = accFullNameStr.rsplit(":", 1)
 
     if len(nameSplitted) == 1:
         fatherAccount = None
@@ -196,19 +205,21 @@ def createAccount(accFullNameStr: str, accTypeStr: str, accVirtualStr: str,
         accName = nameSplitted[1]
 
     # compte virtuel ou non
-    if accVirtualStr == 'T':
+    if accVirtualStr == "T":
         accVirtual = True
-    elif accVirtualStr == 'F':
+    elif accVirtualStr == "F":
         accVirtual = False
     else:
         raise ValueError("Valeur incorrecte pour Virtuel")
 
     # création du compte
-    return Account.objects.create(name=accName,
-                                  account_type=accType,
-                                  virtual=accVirtual,
-                                  parent=fatherAccount,
-                                  book=book)
+    return Account.objects.create(
+        name=accName,
+        account_type=accType,
+        virtual=accVirtual,
+        parent=fatherAccount,
+        book=book,
+    )
 
 
 def createTransactions(transactionsFile: TextIO, accounts, randomize):
@@ -222,7 +233,7 @@ def createTransactions(transactionsFile: TextIO, accounts, randomize):
     date sur une ligne.
     """
     # ouverture du fichier csv limité par des ;
-    csvReader = csv.reader(transactionsFile, delimiter=';')
+    csvReader = csv.reader(transactionsFile, delimiter=";")
 
     # récupération des champs intéressants basés sur les noms des champs de
     # l'export gnucash
@@ -238,22 +249,22 @@ def createTransactions(transactionsFile: TextIO, accounts, randomize):
         if firstRow:
             firstRow = False
             for i in range(len(row)):
-                if row[i] == 'Date':
+                if row[i] == "Date":
                     # date de la transaction
                     iDate = i
-                if row[i] == 'Full Account Name':
+                if row[i] == "Full Account Name":
                     # nom complet du compte associé
                     iAccount = i
-                if row[i] == 'Description':
+                if row[i] == "Description":
                     # label de la transaction / opération
                     iLabel = i
-                if row[i] == 'Amount Num.':
+                if row[i] == "Amount Num.":
                     # montant (positif / négatif)
                     iAmount = i
             continue
 
         # on a trouvé une nouvelle date, on crée une nouvelle transaction
-        if row[iDate] != '':
+        if row[iDate] != "":
             if currentTransaction is not None:
                 # on vérifie qu'on a bien ajouté des opérations, sinon
                 # on supprime la transaction
@@ -262,8 +273,7 @@ def createTransactions(transactionsFile: TextIO, accounts, randomize):
 
             # on a une date, donc on a une nouvelle transaction à créer
             date = datetime.datetime.strptime(row[iDate], "%d/%m/%Y").date()
-            currentTransaction = Transaction.objects.create(date=date,
-                                                            checked=False)
+            currentTransaction = Transaction.objects.create(date=date, checked=False)
             # le label est porté uniquement par la transaction
             if randomize:
                 transactionLabel = randomString(20)
@@ -272,7 +282,7 @@ def createTransactions(transactionsFile: TextIO, accounts, randomize):
 
         # on récupère les éléments de l'opération
         account = accounts[row[iAccount]]
-        if row[iLabel] == '':
+        if row[iLabel] == "":
             opLabel = transactionLabel
         else:
             if randomize:
@@ -282,8 +292,8 @@ def createTransactions(transactionsFile: TextIO, accounts, randomize):
 
         # correction du montant pour enlever la virgule et enlever les espaces
         # étranges mis dans le CSV pour séparer les milliers
-        opAmountStr = row[iAmount].replace(',', '')
-        opAmountStr = opAmountStr.replace('\u202f', '')
+        opAmountStr = row[iAmount].replace(",", "")
+        opAmountStr = opAmountStr.replace("\u202f", "")
         opAmount = int(opAmountStr)
 
         if opAmount == 0:
@@ -304,7 +314,8 @@ def createTransactions(transactionsFile: TextIO, accounts, randomize):
             # lever ?)
             try:
                 existingOp = Operation.objects.get(
-                    transaction=currentTransaction, account=account)
+                    transaction=currentTransaction, account=account
+                )
             except Operation.DoesNotExist:
                 existingOp = None
 
@@ -316,16 +327,18 @@ def createTransactions(transactionsFile: TextIO, accounts, randomize):
                 existingOp.save()
             else:
                 # on crée la nouvelle opération
-                Operation.objects.create(transaction=currentTransaction,
-                                         account=account,
-                                         label=opLabel,
-                                         credit=credit,
-                                         debit=debit)
+                Operation.objects.create(
+                    transaction=currentTransaction,
+                    account=account,
+                    label=opLabel,
+                    credit=credit,
+                    debit=debit,
+                )
 
         except django.db.utils.IntegrityError as ex:
             # récupération d'une erreur d'intégrité au cas où pour afficher
             # l'erreur
-            print('Erreur attrapée dans la transaction :')
+            print("Erreur attrapée dans la transaction :")
             print(currentTransaction.date)
             print(opLabel)
             print(account)
@@ -345,7 +358,7 @@ def createTransactions(transactionsFile: TextIO, accounts, randomize):
             generateAgain = True
 
             while generateAgain:
-                newName = acc.name + '_sub_' + randomString(10)
+                newName = acc.name + "_sub_" + randomString(10)
 
                 if acc.account_set.filter(name=newName).count() == 0:
                     # on vérifie que ce nom de compte n'est pas déjà
@@ -353,11 +366,13 @@ def createTransactions(transactionsFile: TextIO, accounts, randomize):
                     generateAgain = False
 
             # création d'un nouveau sous-compte
-            subAcc = Account.objects.create(name=newName,
-                                            account_type=acc.account_type,
-                                            virtual=False,
-                                            parent=acc,
-                                            book=acc.book)
+            subAcc = Account.objects.create(
+                name=newName,
+                account_type=acc.account_type,
+                virtual=False,
+                parent=acc,
+                book=acc.book,
+            )
 
             # conversion de la queryset en liste pour modifier les
             # opérations correctement
@@ -370,4 +385,4 @@ def createTransactions(transactionsFile: TextIO, accounts, randomize):
 
 
 def randomString(N: int):
-    return ''.join(random.choice(string.ascii_letters) for _ in range(N))
+    return "".join(random.choice(string.ascii_letters) for _ in range(N))

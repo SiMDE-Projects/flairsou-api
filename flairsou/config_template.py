@@ -13,35 +13,35 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # on peut générer une clé avec la commande suivante
 # (exécutée depuis la racine du projet) :
 # python manage.py shell -c 'from django.core.management import utils; print(utils.get_random_secret_key())'
-SECRET_KEY = '<SECRET_KEY>'
+SECRET_KEY = "<SECRET_KEY>"
 
 # activation du debug ou non
 DEBUG = True
 
 # timezone
-TIME_ZONE = 'UTC'
+TIME_ZONE = "UTC"
 
 # database config
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
     }
 }
 
 ALLOWED_HOSTS = []
 
-UPLOAD_PATH = 'uploads/'
+UPLOAD_PATH = "uploads/"
 
 OAUTH_SETTINGS = {
-    'client_id': 'xxxxxxx',
-    'client_secret': 'xxxxxxx',
-    'authorization_url': 'https://assos.utc.fr/oauth/authorize',
-    'token_url': 'https://assos.utc.fr/oauth/token',
-    'redirect_uri': 'http://xxxxxxxxx',
-    'scopes': [
-        'user-get-info',
-        'user-get-roles',
-        'user-get-assos',
+    "client_id": "xxxxxxx",
+    "client_secret": "xxxxxxx",
+    "authorization_url": "https://assos.utc.fr/oauth/authorize",
+    "token_url": "https://assos.utc.fr/oauth/token",
+    "redirect_uri": "http://xxxxxxxxx",
+    "scopes": [
+        "user-get-info",
+        "user-get-roles",
+        "user-get-assos",
     ],
 }

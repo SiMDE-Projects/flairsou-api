@@ -14,7 +14,7 @@ class UserAllowed(BasePermission):
         Fonction qui indique si la requête est autorisée à
         accéder à l'objet passé en paramètre
         """
-        if 'assos' not in request.session.keys():
+        if "assos" not in request.session.keys():
             # l'utilisateur n'est pas connecté, accès refusé
             return False
 
@@ -28,11 +28,11 @@ class UserAllowed(BasePermission):
         Fonction qui vérifie si la requête est autorisée à
         accéder à l'entité passée en paramètre.
         """
-        if 'assos' not in request.session.keys():
+        if "assos" not in request.session.keys():
             # l'utilisateur n'est pas connecté, accès refusé
             return False
 
-        if entity not in request.session['assos']:
+        if entity not in request.session["assos"]:
             # l'entité ne fait pas partie de la liste des associations
             # de l'utilisateur, accès refusé
             return False

@@ -10,24 +10,23 @@ import uuid
 
 
 class AccountSerializer(FlairsouModelSerializer):
-
     class Meta:
         model = Account
         fields = [
-            'pk',
-            'name',
-            'fullName',
-            'account_type',
-            'virtual',
-            'parent',
-            'book',
-            'associated_entity',
-            'balance',
+            "pk",
+            "name",
+            "fullName",
+            "account_type",
+            "virtual",
+            "parent",
+            "book",
+            "associated_entity",
+            "balance",
         ]
 
         read_only_fields = [
-            'balance',
-            'fullName',
+            "balance",
+            "fullName",
         ]
 
     def check_same_book_parent(self, parent: Account, book: Book):
@@ -38,10 +37,12 @@ class AccountSerializer(FlairsouModelSerializer):
         if parent is not None:
             if book != parent.book:
                 raise self.ValidationError(
-                    'Un compte doit être rattaché au même livre que son père')
+                    "Un compte doit être rattaché au même livre que son père"
+                )
 
-    def check_same_type_parent(self, parent: Account,
-                               account_type: Account.AccountType):
+    def check_same_type_parent(
+        self, parent: Account, account_type: Account.AccountType
+    ):
         """
         Vérifie que le compte est du même type que son père. Si le compte
         n'a pas de père, le type est validé par défaut.
@@ -49,7 +50,8 @@ class AccountSerializer(FlairsouModelSerializer):
         if parent is not None:
             if account_type != parent.account_type:
                 raise self.ValidationError(
-                    'Un compte doit avoir le même type que son père')
+                    "Un compte doit avoir le même type que son père"
+                )
 
     def check_name_unique_in_parent(self, parent: Account, name: str):
         """
@@ -61,8 +63,8 @@ class AccountSerializer(FlairsouModelSerializer):
             if parent is not None:
                 if parent.account_set.filter(name=name).count() > 0:
                     raise self.ValidationError(
-                        'Un compte avec ce nom existe déjà dans le compte '
-                        'parent')
+                        "Un compte avec ce nom existe déjà dans le compte " "parent"
+                    )
 
     def check_name_unique_in_book(self, book: Book, name: str):
         """
@@ -74,11 +76,10 @@ class AccountSerializer(FlairsouModelSerializer):
             if book is not None:
                 if book.account_set.filter(name=name).count() > 0:
                     raise self.ValidationError(
-                        'Un compte avec ce nom existe déjà dans le livre '
-                        'parent')
+                        "Un compte avec ce nom existe déjà dans le livre " "parent"
+                    )
 
-    def check_associated_entity(self, parent: Account,
-                                associated_entity: uuid.UUID):
+    def check_associated_entity(self, parent: Account, associated_entity: uuid.UUID):
         """
         Si on délègue la vision d'un compte à une entité, on s'assure
         qu'un de ses comptes parents n'est pas déjà associé à une autre
@@ -90,10 +91,11 @@ class AccountSerializer(FlairsouModelSerializer):
             if existing_entity is not None:
                 # si une entité est déjà associée à un compte parent,
                 # on refuse l'ajout
-                raise self.ValidationError({
-                    'associated_entity':
-                    'Un compte parent est déjà associé à une autre entité'
-                })
+                raise self.ValidationError(
+                    {
+                        "associated_entity": "Un compte parent est déjà associé à une autre entité"
+                    }
+                )
 
     def validate(self, data):
         """
@@ -102,22 +104,22 @@ class AccountSerializer(FlairsouModelSerializer):
         base de données. La méthode exécute les différentes vérifications
         à effectuer.
         """
-        name = data['name']
-        account_type = data['account_type']
-        parent = data['parent']
-        book = data['book']
-        if 'associated_entity' not in data.keys():
+        name = data["name"]
+        account_type = data["account_type"]
+        parent = data["parent"]
+        book = data["book"]
+        if "associated_entity" not in data.keys():
             # le champ est facultatif dans le modèle donc il n'est pas
             # forcément fourni au serializer
-            data['associated_entity'] = None
+            data["associated_entity"] = None
 
-        associated_entity = data['associated_entity']
+        associated_entity = data["associated_entity"]
 
-        if 'request' in self.context:
+        if "request" in self.context:
             # si la création est effectuée à partir d'une requête, on vérifie
             # que l'utilisateur connecté a les droits sur le livre
             # pour créer le compte
-            if not book.check_user_allowed(self.context['request']):
+            if not book.check_user_allowed(self.context["request"]):
                 raise PermissionDenied()
 
         self.check_same_book_parent(parent, book)
@@ -139,7 +141,7 @@ class AccountSerializer(FlairsouModelSerializer):
         """
         if self.is_update_request():
             if book != self.instance.book:
-                raise self.ValidationError('Le livre ne peut pas être modifié')
+                raise self.ValidationError("Le livre ne peut pas être modifié")
 
         return book
 
@@ -150,7 +152,7 @@ class AccountSerializer(FlairsouModelSerializer):
         """
         if self.is_update_request():
             if account_type != self.instance.account_type:
-                raise self.ValidationError('Le type ne peut pas être modifié')
+                raise self.ValidationError("Le type ne peut pas être modifié")
 
         return account_type
 
@@ -167,49 +169,50 @@ class AccountSerializer(FlairsouModelSerializer):
             if virtual is True and self.instance.operation_set.count() > 0:
                 # si le compte devient virtuel, il ne doit pas avoir
                 # d'opérations associées
-                raise self.ValidationError('Un compte avec des transactions '
-                                           'ne peut pas devenir virtuel')
+                raise self.ValidationError(
+                    "Un compte avec des transactions " "ne peut pas devenir virtuel"
+                )
 
             if virtual is False and self.instance.account_set.count() > 0:
                 # si le compte devient réel, il ne doit pas avoir
                 # de sous-comptes
-                raise self.ValidationError('Un compte avec des sous-comptes '
-                                           'ne peut pas devenir non-virtuel')
+                raise self.ValidationError(
+                    "Un compte avec des sous-comptes " "ne peut pas devenir non-virtuel"
+                )
 
         return virtual
 
     def validate_parent(self, parent: Account):
         if parent is not None:
             if not parent.virtual:
-                raise self.ValidationError(
-                    'Le compte parent doit être virtuel')
+                raise self.ValidationError("Le compte parent doit être virtuel")
 
         return parent
 
 
 class AccountBalanceSerializer(FlairsouModelSerializer):
-
     class Meta:
         model = Account
-        fields = ['pk', 'balance']
+        fields = ["pk", "balance"]
 
 
 class AccountNestedSerializer(FlairsouModelSerializer):
     """
     Serializer qui renvoie une liste imbriquée des comptes
     """
+
     account_set = serializers.SerializerMethodField()
 
     class Meta:
         model = Account
         fields = [
-            'pk',
-            'name',
-            'account_type',
-            'virtual',
-            'balance',
-            'associated_entity',
-            'account_set',
+            "pk",
+            "name",
+            "account_type",
+            "virtual",
+            "balance",
+            "associated_entity",
+            "account_set",
         ]
 
     def get_fields(self):
@@ -218,7 +221,7 @@ class AccountNestedSerializer(FlairsouModelSerializer):
         nécessaire à cause de la représentation imbriquée récursive.
         """
         fields = super(AccountNestedSerializer, self).get_fields()
-        fields['account_set'] = AccountNestedSerializer(many=True)
+        fields["account_set"] = AccountNestedSerializer(many=True)
         return fields
 
     def get_account_set(self, instance):
@@ -231,11 +234,12 @@ class AccountTransactionListSerializer(FlairsouModelSerializer):
     Serializer qui renvoie la liste des transactions liées
     à un compte
     """
+
     transaction_set = serializers.SerializerMethodField()
 
     class Meta:
         model = Account
-        fields = ['pk', 'transaction_set']
+        fields = ["pk", "transaction_set"]
 
     @extend_schema_field(TransactionSerializer(many=True))
     def get_transaction_set(self, instance: Account):
@@ -243,8 +247,10 @@ class AccountTransactionListSerializer(FlairsouModelSerializer):
         Récupère la liste des transactions associées au compte triées
         par la date associée
         """
-        transaction_pks = instance.operation_set.values_list("transaction__pk",
-                                                             flat=True)
-        transactions = Transaction.objects.filter(
-            pk__in=transaction_pks).order_by('date')
+        transaction_pks = instance.operation_set.values_list(
+            "transaction__pk", flat=True
+        )
+        transactions = Transaction.objects.filter(pk__in=transaction_pks).order_by(
+            "date"
+        )
         return TransactionSerializer(transactions, many=True).data

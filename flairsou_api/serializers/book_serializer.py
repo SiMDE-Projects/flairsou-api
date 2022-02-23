@@ -9,10 +9,9 @@ from flairsou_api.models import Book, Account
 
 
 class BookSerializer(FlairsouModelSerializer):
-
     class Meta:
         model = Book
-        fields = ['pk', 'name', 'entity']
+        fields = ["pk", "name", "entity"]
 
     def validate_entity(self, entity: uuid.UUID):
         """
@@ -23,13 +22,15 @@ class BookSerializer(FlairsouModelSerializer):
         books = Book.objects.all()
         for book in books:
             if book.entity == entity:
-                raise self.ValidationError('Un livre est déjà associé '
-                                           'à cette entité')
+                raise self.ValidationError(
+                    "Un livre est déjà associé " "à cette entité"
+                )
 
         if self.is_update_request():
             if entity != self.instance.entity:
-                raise self.ValidationError('L\'entité associée au livre '
-                                           'ne peut pas être modifiée')
+                raise self.ValidationError(
+                    "L'entité associée au livre " "ne peut pas être modifiée"
+                )
 
         return entity
 
@@ -41,11 +42,11 @@ class BookWithAccountsSerializer(FlairsouModelSerializer):
     class Meta:
         model = Book
         fields = [
-            'pk',
-            'name',
-            'entity',
-            'account_set',
-            'associated_account_set',
+            "pk",
+            "name",
+            "entity",
+            "account_set",
+            "associated_account_set",
         ]
 
     @extend_schema_field(AccountNestedSerializer(many=True))
