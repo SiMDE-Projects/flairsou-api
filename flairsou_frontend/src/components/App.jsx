@@ -15,6 +15,7 @@ import { AppContext } from './contexts/contexts';
 
 import Home from './pages/home/Home';
 import Account from './pages/account/Account';
+import CrudActions from '../assets/crudActions';
 
 const PrivateRoute = ({ component: Component, userIdentified, ...rest }) => (
   <Route
@@ -52,6 +53,24 @@ PrivateRoute.defaultProps = {
 const authlinkUrl = '/oauth/authlink';
 const userInfosUrl = '/proxy_pda/get_user_infos';
 const assosUrl = '/proxy_pda/get_list_assos';
+const App = () => (
+  <React.StrictMode>
+    <BrowserRouter>
+      <Switch>
+        <Route path="/" exact component={Home} />
+        <Route path="/accounts/create" exact>
+          <Account action={CrudActions.CREATE} />
+        </Route>
+        <Route path="/accounts/edit/:accountID" exact>
+          <Account action={CrudActions.UPDATE} />
+        </Route>
+        <Route path="/accounts/:accountID" exact>
+          <Account action={CrudActions.READ} />
+        </Route>
+      </Switch>
+    </BrowserRouter>
+  </React.StrictMode>
+);
 
 const App = () => {
   // informations sur l'utilisateur

@@ -1,14 +1,17 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { useParams } from 'react-router-dom';
+import { Redirect, useParams } from 'react-router-dom';
+import PropTypes from 'prop-types';
 
 import ContentWrapper from '../../UI/organisms/ContentWrapper/ContentWrapper';
 import AccountContent from '../../UI/organisms/AccountContent/AccountContent';
 import { AppContext } from '../../contexts/contexts';
+import CrudActions from '../../../assets/crudActions';
+import AccountForm from '../../UI/molecules/AccountForm/AccountForm';
+import ErrorLevels from '../../../assets/errorLevels';
 
-const Account = () => {
+const SpecificAccount = ({ action }) => {
   // contexte de l'application
   const appContext = useContext(AppContext);
-
   // récupération des paramètres de requête
   const params = useParams();
   // récupération de l'ID du compte en base 10
@@ -51,13 +54,52 @@ const Account = () => {
 
   if (accountObject.pk === -1) {
     return (
-      <ContentWrapper content={<h1>Forbidden</h1>} />
+      <Redirect to={{
+        pathname: '/',
+        state: {
+          alert: {
+            message: 'Accès interdit',
+            level: ErrorLevels.ERROR,
+          },
+        },
+      }}
+      />
     );
   }
 
-  return (
-    <ContentWrapper content={<AccountContent account={accountObject} />} />
-  );
+  switch (action) {
+    case CrudActions.READ:
+      return <ContentWrapper content={<AccountContent account={accountObject} />} />;
+    case CrudActions.UPDATE:
+      return <ContentWrapper content={<AccountForm account={accountObject} />} />;
+    default:
+      return (
+        <Redirect to={{
+          pathname: '/',
+          state: {
+            alert: {
+              message: 'Unknown error',
+              level: ErrorLevels.ERROR,
+            },
+          },
+        }}
+        />
+      );
+  }
 };
+
+const Account = ({ action }) => {
+  switch (action) {
+    case CrudActions.CREATE:
+      return <ContentWrapper content={<AccountForm />} />;
+    default:
+      return <SpecificAccount action={action} />;
+  }
+};
+
+Account.propTypes = {
+  action: PropTypes.number.isRequired,
+};
+SpecificAccount.propTypes = Account.propTypes;
 
 export default Account;

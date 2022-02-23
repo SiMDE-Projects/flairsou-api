@@ -5,5 +5,17 @@ const AccountTypes = {
   EXPENSE: 3,
   EQUITY: 4,
 };
+const AccountTypesString = [
+  'Actif',
+  'Passif',
+  'Revenus',
+  'Dépenses',
+  'Capitaux Propres',
+];
+export const AccountTypesSelect = AccountTypesString.map((v, i) => ({
+  key: i,
+  text: v,
+  value: i,
+}));
 
 export default AccountTypes;
