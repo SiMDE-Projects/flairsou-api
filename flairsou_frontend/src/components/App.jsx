@@ -66,6 +66,9 @@ const App = () => {
   // liste des comptes liés à l'association active dans l'application
   const [accountList, setAccountList] = useState([]);
 
+  // clé primaire du compte actif
+  const [accountActive, setAccountActive] = useState(-1);
+
   // fonction permettant de récupérer la clé primaire de chaque livre associé à chaque
   // association de la liste fournie, puis de mettre à jour l'état de la liste des
   // assos
@@ -163,6 +166,8 @@ const App = () => {
         assoActive,
         updateAssoActive: (asso) => { setAssoActive(asso); },
         accountList,
+        accountActive,
+        setAccountActive: (accountPk) => { setAccountActive(accountPk); },
       }}
       >
         <BrowserRouter>

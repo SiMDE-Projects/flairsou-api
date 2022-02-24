@@ -10,4 +10,6 @@ export const AppContext = createContext({
   assoActive: {},
   updateAssoActive: (assoId) => {}, /* eslint-disable-line no-unused-vars */
   accountList: [],
+  accountActive: -1,
+  setAccountActive: (accountPk) => {}, /* eslint-disable-line no-unused-vars */
 });

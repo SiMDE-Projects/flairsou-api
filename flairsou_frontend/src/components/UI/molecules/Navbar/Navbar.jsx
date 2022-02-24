@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { Fragment, useContext } from 'react';
 import './navbar.css';
 
 import { List } from 'semantic-ui-react';
@@ -19,10 +19,8 @@ const Navbar = () => {
   };
 
   const assoElement = (asso, prefix = '') => (
-    <>
-      <List.Item
-        key={`asso-${asso.asso_id}`}
-      >
+    <Fragment key={`${prefix}asso-${asso.asso_id}`}>
+      <List.Item>
         <List.Icon
           name={(appContext.assoActive && appContext.assoActive.asso_id === asso.asso_id)
             ? 'caret down' : 'caret right'}
@@ -50,7 +48,7 @@ const Navbar = () => {
           assoElement(subasso, `${asso.shortname}/`)
         ))
       }
-    </>
+    </Fragment>
   );
 
   return (
