@@ -16,6 +16,7 @@ import { AppContext } from './contexts/contexts';
 import Home from './pages/home/Home';
 import Account from './pages/account/Account';
 import CrudActions from '../assets/crudActions';
+import Logout from './pages/logout/Logout';
 
 const PrivateRoute = ({ component: Component, userIdentified, ...rest }) => (
   <Route
@@ -57,7 +58,12 @@ const App = () => (
   <React.StrictMode>
     <BrowserRouter>
       <Switch>
-        <Route path="/" exact component={Home} />
+        <Route path="/" exact>
+          <Home />
+        </Route>
+        <Route path="/logout" exact>
+          <Logout />
+        </Route>
         <Route path="/accounts/create" exact>
           <Account action={CrudActions.CREATE} />
         </Route>
