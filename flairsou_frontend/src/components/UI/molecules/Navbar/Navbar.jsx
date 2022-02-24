@@ -9,14 +9,49 @@ import NavAccount from '../../atoms/NavAccount/NavAccount';
 const Navbar = () => {
   const appContext = useContext(AppContext);
 
-  const handleClick = (assoId) => {
+  const handleClick = (asso) => {
     // toogle l'association active dans le contexte
-    if (assoId === appContext.assoActive) {
-      appContext.updateAssoActive('');
+    if (asso === appContext.assoActive) {
+      appContext.updateAssoActive(null);
     } else {
-      appContext.updateAssoActive(assoId);
+      appContext.updateAssoActive(asso);
     }
   };
+
+  const assoElement = (asso, prefix = '') => (
+    <>
+      <List.Item
+        key={`asso-${asso.asso_id}`}
+      >
+        <List.Icon
+          name={(appContext.assoActive && appContext.assoActive.asso_id === asso.asso_id)
+            ? 'caret down' : 'caret right'}
+        />
+        <List.Content
+          onClick={() => { handleClick(asso); }}
+        >
+          {prefix}
+          {asso.shortname}
+        </List.Content>
+        {
+          (appContext.assoActive && appContext.assoActive.asso_id === asso.asso_id)
+          && (
+            <List.List>
+              {
+                  appContext.accountList.map((account) => (
+                    <NavAccount key={`acc-${account.pk}`} account={account} />))
+              }
+            </List.List>
+          )
+        }
+      </List.Item>
+      {
+        asso.asso_set.map((subasso) => (
+          assoElement(subasso, `${asso.shortname}/`)
+        ))
+      }
+    </>
+  );
 
   return (
     <div className="navbar">
@@ -24,29 +59,7 @@ const Navbar = () => {
       <List>
         {
           appContext.assos.map((asso) => (
-            <List.Item
-              key={`asso-${asso.asso_id}`}
-            >
-              <List.Icon
-                name={appContext.assoActive === asso.asso_id ? 'caret down' : 'caret right'}
-              />
-              <List.Content
-                onClick={() => { handleClick(asso.asso_id); }}
-              >
-                {asso.shortname}
-              </List.Content>
-              {
-                appContext.assoActive === asso.asso_id
-                && (
-                  <List.List>
-                    {
-                        appContext.accountList.map((account) => (
-                          <NavAccount key={`acc-${account.pk}`} account={account} />))
-                    }
-                  </List.List>
-                )
-              }
-            </List.Item>
+            assoElement(asso)
           ))
         }
       </List>

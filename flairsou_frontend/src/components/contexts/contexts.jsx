@@ -7,7 +7,7 @@ import { createContext } from 'react';
 export const AppContext = createContext({
   user: {},
   assos: [],
-  assoActive: '',
+  assoActive: {},
   updateAssoActive: (assoId) => {}, /* eslint-disable-line no-unused-vars */
   accountList: [],
 });

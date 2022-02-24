@@ -61,7 +61,7 @@ const App = () => {
   const [assos, setAssos] = useState([]);
 
   // association active dans l'application
-  const [assoActive, setAssoActive] = useState('');
+  const [assoActive, setAssoActive] = useState(null);
 
   // liste des comptes liés à l'association active dans l'application
   const [accountList, setAccountList] = useState([]);
@@ -70,31 +70,33 @@ const App = () => {
   // association de la liste fournie, puis de mettre à jour l'état de la liste des
   // assos
   async function fetchBookPks(assosList) {
-    // récupération des livres associés aux entités
-    const responses = await Promise.all(
-      assosList.map((asso) => fetch(`/api/books/byEntity/${asso.asso_id}/`)),
+    // fonction de récupération des livres associés aux entités
+    const fetchAssoBook = async (asso) => {
+      // appel de l'API pour récupérer le livre associé à l'asso
+      const response = await fetch(`/api/books/byEntity/${asso.asso_id}/`);
+      let bookId = '-1';
+      if (response.status === 200) {
+        const json = await response.json();
+        bookId = json[0].pk;
+      }
+
+      // récupération récursive des livres pour les sous-assos
+      const subAssos = await Promise.all(
+        asso.asso_set.map((subAsso) => fetchAssoBook(subAsso)),
+      );
+
+      // renvoi du résultat
+      return {
+        ...asso,
+        asso_set: subAssos,
+        book: bookId,
+      };
+    };
+
+    const newAssos = await Promise.all(
+      assosList.map((asso) => fetchAssoBook(asso)),
     );
-
-    // récupérer les retours des appels
-    const results = Promise.all(
-      responses.map(async (response) => {
-        if (response.status !== 200) return { entity: '-1' };
-
-        return response.json();
-      }),
-    );
-
-    // associer les clés des livres à chaque asso
-    results.then((newAssos) => {
-      setAssos(assosList.map((asso) => {
-        for (let i = 0; i < newAssos[0].length; i += 1) {
-          if (asso.asso_id === newAssos[0][i].entity) {
-            return { ...asso, book: newAssos[0][i].pk };
-          }
-        }
-        return { ...asso, book: '-1' };
-      }));
-    });
+    setAssos(newAssos);
   }
 
   // TODO : peut être fetch tous les comptes de toutes les assos pour ne pas fetch une liste
@@ -139,15 +141,13 @@ const App = () => {
 
   // récupération des comptes de l'association active
   useEffect(() => {
-    if (assoActive === '') return;
+    if (assoActive === null) return;
 
-    let bookPk = -1;
-    for (let i = 0; i < assos.length; i += 1) {
-      if (assos[i].asso_id === assoActive) {
-        bookPk = assos[i].book;
-        break;
-      }
-    }
+    // réinitialise l'affichage avant de récupérer les nouveaux
+    setAccountList([]);
+
+    const bookPk = assoActive.book;
+
     fetch(`/api/books/${bookPk}/accounts/`)
       .then((response) => response.json())
       .then((response) => {
@@ -161,7 +161,7 @@ const App = () => {
         user,
         assos,
         assoActive,
-        updateAssoActive: (assoId) => { setAssoActive(assoId); },
+        updateAssoActive: (asso) => { setAssoActive(asso); },
         accountList,
       }}
       >
