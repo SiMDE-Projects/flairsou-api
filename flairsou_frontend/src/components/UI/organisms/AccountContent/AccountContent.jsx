@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Container, Grid, Header } from 'semantic-ui-react';
 import TransactionList from '../../molecules/TransactionList/TransactionList';
@@ -9,9 +9,24 @@ import Reconciliation from '../../atoms/Reconciliation/Reconciliation';
 
 const AccountContent = ({ account }) => {
   // solde affiché du compte
-  const [balance, setBalance] = useState(account.balance);
+  const [balance, setBalance] = useState(0);
+
+  useEffect(() => {
+    if (account.pk > 0) {
+      setBalance(account.balance);
+    }
+  }, [account]);
 
   const updateBalance = (newBalance) => setBalance(newBalance);
+
+  if (account.pk === 0) {
+    // compte pas encore fetch
+    return (<></>);
+  }
+
+  if (account.pk === -1) {
+    return (<h1>Forbidden</h1>);
+  }
 
   return (
     <Container>

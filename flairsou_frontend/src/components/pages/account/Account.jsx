@@ -13,6 +13,8 @@ const Account = () => {
   const [accountObject, setAccountObject] = useState({ pk: 0 });
 
   useEffect(() => {
+    // réinitialise l'affichage quand on change de compte
+    setAccountObject({ pk: 0 });
     fetch(`/api/accounts/${accountID}/`)
       .then((response) => {
         if (response.status === 200) {
@@ -26,14 +28,6 @@ const Account = () => {
         }
       });
   }, [accountID]);
-
-  if (accountObject.pk === 0) {
-    // objet pas encore fetch
-    return (<></>);
-  }
-  if (accountObject.pk === -1) {
-    return (<h1>Forbidden</h1>);
-  }
 
   return (
     <ContentWrapper content={<AccountContent account={accountObject} />} />
