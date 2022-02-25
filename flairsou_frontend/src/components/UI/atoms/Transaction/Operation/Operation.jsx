@@ -4,7 +4,7 @@ import { Table, Input } from 'semantic-ui-react';
 
 import { currencyFormat, checkCurrencyFormat, strToCents } from '../../../../../utils/currencyFormat';
 
-import './Transaction.css';
+import './Operation.css';
 
 /**
  * Composant effectuant le rendu d'une opération particulière
