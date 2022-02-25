@@ -1,10 +1,29 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Table, Input } from 'semantic-ui-react';
 
 import { currencyFormat, checkCurrencyFormat, strToCents } from '../../../../../utils/currencyFormat';
+import { AppContext } from '../../../../contexts/contexts';
 
 import './Operation.css';
+
+const findAccount = (accountList, hierarchy, level) => {
+  for (let i = 0; i < accountList.length; i += 1) {
+    if (accountList[i].name === hierarchy[level]) {
+      // on a trouvé le compte ou un parent
+      if (accountList[i].virtual) {
+        // c'est un compte parent, on descend
+        return findAccount(accountList[i].account_set, hierarchy, level + 1);
+      }
+
+      // sinon on a trouvé le bon compte, on renvoie la clé
+      return accountList[i].pk;
+    }
+  }
+
+  // le compte n'existe pas
+  return -1;
+};
 
 /**
  * Composant effectuant le rendu d'une opération particulière
@@ -15,6 +34,10 @@ const Operation = ({
   // affichage du crédit et du débit seulement si le montant est non nul
   const [credit, setCredit] = useState('');
   const [debit, setDebit] = useState('');
+  const [account, setAccount] = useState(-1);
+  const [accountError, setAccountError] = useState(null);
+
+  const appContext = useContext(AppContext);
 
   useEffect(() => {
     setCredit(operation.credit > 0 ? currencyFormat(operation.credit) : '');
@@ -29,10 +52,26 @@ const Operation = ({
     setDebit(checkCurrencyFormat(event.target.value));
   };
 
+  const updateAccount = (event) => {
+    setAccountError(null);
+    const newAccount = event.target.value;
+
+    // on découpe le nom du compte pour récupérer son arborescence
+    const hierarchy = newAccount.split(':');
+
+    // on trouve la clé du compte et on la met à jour
+    const accountPk = findAccount(appContext.accountList, hierarchy, 0);
+    setAccount(accountPk);
+  };
+
   const keyPressedCallback = (event) => {
-    // TODO : récupérer la liste des comptes et faire une liste déroulante avec les options
-    // mettre à jour les éléments de l'opération et renvoyer le callback
     if (event.key === 'Enter') {
+      // on vérifie que le compte est valide
+      if (account === -1) {
+        setAccountError('Compte invalide');
+        return;
+      }
+
       updateCallback({
         ...operation,
         debit: strToCents(debit),
@@ -57,12 +96,20 @@ const Operation = ({
         {
           accountName
             ? (
-              <Input
-                list="accounts"
-                defaultValue={accountName}
-                transparent
-                className="input-full-width"
-              />
+              <>
+                <Input
+                  list="accounts"
+                  defaultValue={accountName}
+                  transparent
+                  className="input-full-width"
+                  error={accountError !== null}
+                  onChange={(event) => updateAccount(event)}
+                  onKeyPress={keyPressedCallback}
+                />
+                <p className="error">
+                  {accountError}
+                </p>
+              </>
             )
             : clickToExpand
         }
