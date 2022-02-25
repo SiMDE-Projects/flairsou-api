@@ -36,6 +36,7 @@ const Operation = ({
   const [debit, setDebit] = useState('');
   const [account, setAccount] = useState(-1);
   const [accountError, setAccountError] = useState(null);
+  const [label, setLabel] = useState('');
 
   const appContext = useContext(AppContext);
 
@@ -43,7 +44,8 @@ const Operation = ({
     // met en place les crédits et débits
     setCredit(operation.credit > 0 ? currencyFormat(operation.credit) : '');
     setDebit(operation.debit > 0 ? currencyFormat(operation.debit) : '');
-  }, [operation]);
+    setLabel(operation.label);
+  }, [operation.credit, operation.debit, operation.label]);
 
   useEffect(() => {
     // récupère la clé du compte initialement associé à l'opération
@@ -74,6 +76,10 @@ const Operation = ({
     setAccount(accountPk);
   };
 
+  const updateLabel = (event) => {
+    setLabel(event.target.value);
+  };
+
   const keyPressedCallback = (event) => {
     if (event.key === 'Enter') {
       // on vérifie que le compte est valide
@@ -87,6 +93,7 @@ const Operation = ({
         ...operation,
         debit: strToCents(debit),
         credit: strToCents(credit),
+        label,
       }, account);
     }
   };
@@ -127,6 +134,8 @@ const Operation = ({
               transparent
               defaultValue={operation.label}
               className="input-full-width"
+              onChange={(event) => updateLabel(event)}
+              onKeyPress={keyPressedCallback}
             />
           )}
       </Table.Cell>

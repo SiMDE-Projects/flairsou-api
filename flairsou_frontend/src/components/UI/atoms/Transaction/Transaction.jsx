@@ -72,11 +72,13 @@ const Transaction = ({ transaction, deleteCallback, updateCallback }) => {
       // l'opération en face en inversant les débits et les crédits
       // Dans le cas d'une transaction simple, si le compte est modifié, alors il s'agit du
       // compte de l'opération en face.
+      // Le label est le même pour les deux opérations dans ce cas.
       const op2 = {
         ...transaction.operations[otherOpId],
         credit: op1.debit,
         debit: op1.credit,
         account: accountID,
+        label: op1.label,
       };
 
       newTransaction.operations = [op1, op2];
