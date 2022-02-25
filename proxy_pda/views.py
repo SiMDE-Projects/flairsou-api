@@ -42,11 +42,7 @@ class GetListAssos(mixins.ListModelMixin, generics.GenericAPIView):
         Construit la queryset adaptée à l'utilisateur
         """
 
-        # si les associations ne sont pas en cache dans la session, on les
-        # récupère et on les met en cache
-        if "assos" not in self.request.session:
-            request_user_assos(self.request)
-
+        request_user_assos(self.request)
         allowedAssos = self.request.session["assos"]
 
         return Asso.objects.filter(pk__in=allowedAssos)

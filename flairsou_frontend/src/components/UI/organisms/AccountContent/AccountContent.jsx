@@ -9,7 +9,7 @@ import Reconciliation from '../../atoms/Reconciliation/Reconciliation';
 
 const AccountContent = ({ account }) => {
   // solde affiché du compte
-  const [balance, setBalance] = useState(account.balance);
+  const [balance, setBalance] = useState(0);
 
   const updateBalance = (newBalance) => setBalance(newBalance);
 

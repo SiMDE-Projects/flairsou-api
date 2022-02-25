@@ -1,12 +1,12 @@
-header{
+.flairsou-header{
     height: 90px;
     background-color: rgba(0,0,0,0.8);
-
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding-left: 30px;
     padding-right: 30px;
+    color: #F5E15E;
 }
 
 .flairsou-logo{
@@ -28,7 +28,6 @@ header{
     font-size: 36px;
     text-shadow: 0 4px 4px rgba(0, 0, 0, 0.5);
     color: white;
-
     margin-top:0;
 }
 
