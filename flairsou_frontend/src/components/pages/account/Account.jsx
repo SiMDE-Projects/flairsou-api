@@ -56,7 +56,9 @@ const Account = () => {
   }
 
   return (
-    <ContentWrapper content={<AccountContent account={accountObject} />} />
+    <>
+      <ContentWrapper content={<AccountContent account={accountObject} />} />
+    </>
   );
 };
 

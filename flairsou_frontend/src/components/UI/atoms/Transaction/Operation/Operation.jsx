@@ -51,7 +51,17 @@ const Operation = ({
           )}
       </Table.Cell>
       <Table.Cell active={active}>
-        {accountName || clickToExpand}
+        {
+          accountName
+            ? (
+              <Input
+                list="accounts"
+                defaultValue={accountName}
+                transparent
+              />
+            )
+            : clickToExpand
+        }
       </Table.Cell>
       <Table.Cell active={active} textAlign="right">
         {reconciliated ? credit

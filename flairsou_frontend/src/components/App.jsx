@@ -66,6 +66,9 @@ const App = () => {
   // liste des comptes liés à l'association active dans l'application
   const [accountList, setAccountList] = useState([]);
 
+  // datalist pour pré-remplir le champ de compte dans les transactions
+  const [accountDatalist, setAccountDatalist] = useState(null);
+
   // clé primaire du compte actif
   const [accountActive, setAccountActive] = useState(-1);
 
@@ -158,6 +161,24 @@ const App = () => {
       });
   }, [assos, assoActive]);
 
+  // création de la datalist de comptes
+  useEffect(() => {
+    // liste des comptes non virtuels pour sélectionner dans les opérations
+    const buildOptions = (accountSet) => (
+      accountSet.map((account) => (
+        account.virtual
+          ? buildOptions(account.account_set)
+          : <option value={account.fullName}>{account.fullName}</option>
+      ))
+    );
+
+    setAccountDatalist(
+      <datalist id="accounts">
+        {buildOptions(accountList)}
+      </datalist>,
+    );
+  }, [accountList]);
+
   return (
     <React.StrictMode>
       <AppContext.Provider value={{
@@ -170,6 +191,7 @@ const App = () => {
         setAccountActive: (accountPk) => { setAccountActive(accountPk); },
       }}
       >
+        {accountDatalist}
         <BrowserRouter>
           <Switch>
             <Route path="/" exact component={Home} />
