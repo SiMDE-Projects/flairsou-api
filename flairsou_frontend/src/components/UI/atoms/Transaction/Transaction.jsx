@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import {
   Table, Icon, Checkbox, Input,
@@ -16,9 +16,15 @@ const Transaction = ({ transaction, deleteCallback, updateCallback }) => {
   // afficher toutes les opérations de la transaction)
   const [expand, setExpand] = useState(false);
 
+  const [date, setDate] = useState('');
+
   const toogleExpand = () => {
     setExpand(!expand);
   };
+
+  useEffect(() => {
+    setDate(transaction.date);
+  }, [transaction.date]);
 
   // récupération de l'objet correspondant à l'opération à afficher
   const activeOp = transaction.operations[transaction.activeOpId];
@@ -59,7 +65,7 @@ const Transaction = ({ transaction, deleteCallback, updateCallback }) => {
   const operationValidatedCallback = (operation, accountID) => {
     // mise à jour de l'opération dans la transaction
     // spreading pour faire une copie profonde
-    const newTransaction = { ...transaction };
+    const newTransaction = { ...transaction, date };
 
     if (!multiOps) {
       // dans le cas où ce n'est pas une transaction répartie, on a uniquement
@@ -89,6 +95,13 @@ const Transaction = ({ transaction, deleteCallback, updateCallback }) => {
     updateCallback(newTransaction);
   };
 
+  const dateUpdated = (event) => {
+    // On met à jour l'état, et on attend une saisie de Enter pour mettre à jour la transaction,
+    // pour éviter de faire une maj API à chaque caractère entré pour une saisie manuelle et pas
+    // au calendrier.
+    setDate(event.target.value);
+  };
+
   return (
     <>
       <Table.Row>
@@ -101,12 +114,13 @@ const Transaction = ({ transaction, deleteCallback, updateCallback }) => {
         </Table.Cell>
         <Table.Cell textAlign="center" collapsing>
           {transaction.is_reconciliated
-            ? new Date(transaction.date).toLocaleDateString()
+            ? new Date(date).toLocaleDateString()
             : (
               <Input
                 type="date"
                 transparent
-                defaultValue={transaction.date}
+                defaultValue={date}
+                onChange={dateUpdated}
               />
             )}
         </Table.Cell>
