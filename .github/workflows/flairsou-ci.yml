@@ -23,7 +23,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          fetch-depth: 2  # récupère 2 commits, nécessaire pour comparer avec le précédent sur un push 
+          fetch-depth: 2  # récupère 2 commits, nécessaire pour comparer avec le précédent sur un push
       - name: "Get backend changed files"
         id: changed-backend-files
         uses: tj-actions/changed-files@v16
