@@ -14,40 +14,46 @@ const AccountContent = ({ account }) => {
   const updateBalance = (newBalance) => setBalance(newBalance);
 
   return (
-    <Container>
-      <Grid>
-        <Grid.Column floated="left" width={8}>
-          <Header as="h1">{account.name}</Header>
-          <Header sub>{account.fullName}</Header>
-        </Grid.Column>
-        <Grid.Column floated="right" width={8}>
-          <p style={{ textAlign: 'right' }}>
-            Solde :
-            &nbsp;
-            {currencyFormat(balance)}
-            &nbsp;
-            €
-          </p>
-          <div style={{ textAlign: 'right' }}>
-            <Reconciliation
-              accountID={account.pk}
-              accountFullName={account.fullName}
-            />
-          </div>
+    <>
+      <Container>
+        <Grid>
+          <Grid.Column floated="left" width={8}>
+            <Header as="h1">{account.name}</Header>
+            <Header sub>{account.fullName}</Header>
+          </Grid.Column>
+          <Grid.Column floated="right" width={8}>
+            <p style={{ textAlign: 'right' }}>
+              Solde :
+              &nbsp;
+              {currencyFormat(balance)}
+              &nbsp;
+              €
+            </p>
+            <div style={{ textAlign: 'right' }}>
+              <Reconciliation
+                accountID={account.pk}
+                accountFullName={account.fullName}
+              />
+            </div>
+          </Grid.Column>
+        </Grid>
+      </Container>
+      <Grid centered>
+        <Grid.Column width={14}>
+          {
+            account.virtual
+              ? <>Compte virtuel</>
+              : (
+                <TransactionList
+                  accountID={account.pk}
+                  accountType={account.account_type}
+                  updateBalanceCallback={updateBalance}
+                />
+              )
+          }
         </Grid.Column>
       </Grid>
-      {
-        account.virtual
-          ? <>Compte virtuel</>
-          : (
-            <TransactionList
-              accountID={account.pk}
-              accountType={account.account_type}
-              updateBalanceCallback={updateBalance}
-            />
-          )
-      }
-    </Container>
+    </>
   );
 };
 

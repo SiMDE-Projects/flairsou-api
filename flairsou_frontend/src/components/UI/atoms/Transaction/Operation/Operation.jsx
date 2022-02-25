@@ -4,6 +4,8 @@ import { Table, Input } from 'semantic-ui-react';
 
 import { currencyFormat, checkCurrencyFormat, strToCents } from '../../../../../utils/currencyFormat';
 
+import './Transaction.css';
+
 /**
  * Composant effectuant le rendu d'une opération particulière
  */
@@ -47,6 +49,7 @@ const Operation = ({
             <Input
               transparent
               defaultValue={operation.label}
+              className="input-full-width"
             />
           )}
       </Table.Cell>
@@ -58,6 +61,7 @@ const Operation = ({
                 list="accounts"
                 defaultValue={accountName}
                 transparent
+                className="input-full-width"
               />
             )
             : clickToExpand

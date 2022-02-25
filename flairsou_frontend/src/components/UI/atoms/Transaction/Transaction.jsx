@@ -88,7 +88,7 @@ const Transaction = ({ transaction, deleteCallback, updateCallback }) => {
             title={`Transaction ${transaction.is_reconciliated ? '' : 'non'} rapprochée`}
           />
         </Table.Cell>
-        <Table.Cell textAlign="center">
+        <Table.Cell textAlign="center" collapsing>
           {transaction.is_reconciliated
             ? new Date(transaction.date).toLocaleDateString()
             : (
