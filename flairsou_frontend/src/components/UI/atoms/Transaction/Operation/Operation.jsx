@@ -40,9 +40,19 @@ const Operation = ({
   const appContext = useContext(AppContext);
 
   useEffect(() => {
+    // met en place les crédits et débits
     setCredit(operation.credit > 0 ? currencyFormat(operation.credit) : '');
     setDebit(operation.debit > 0 ? currencyFormat(operation.debit) : '');
   }, [operation]);
+
+  useEffect(() => {
+    // récupère la clé du compte initialement associé à l'opération
+    // si c'est une transaction simple, on récupère la clé du compte en face, sinon
+    // on utilise la clé du compte associé à l'opération
+    setAccount(accountName
+      ? findAccount(appContext.accountList, accountName.split(':'), 0)
+      : operation.account);
+  }, [accountName, appContext.accountList, operation.account]);
 
   const updateCredit = (event) => {
     setCredit(checkCurrencyFormat(event.target.value));
@@ -68,6 +78,7 @@ const Operation = ({
     if (event.key === 'Enter') {
       // on vérifie que le compte est valide
       if (account === -1) {
+        // si le compte n'est pas valide, on ne met pas à jour l'opération
         setAccountError('Compte invalide');
         return;
       }
@@ -76,9 +87,36 @@ const Operation = ({
         ...operation,
         debit: strToCents(debit),
         credit: strToCents(credit),
-      });
+      }, account);
     }
   };
+
+  // construction de l'élément correspondant au nom du compte
+  let accountNameElement = null;
+  if (accountName) {
+    if (reconciliated) {
+      accountNameElement = accountName;
+    } else {
+      accountNameElement = (
+        <>
+          <Input
+            list="accounts"
+            defaultValue={accountName}
+            transparent
+            className="input-full-width"
+            error={accountError !== null}
+            onChange={(event) => updateAccount(event)}
+            onKeyPress={keyPressedCallback}
+          />
+          <p className="ui error">
+            {accountError}
+          </p>
+        </>
+      );
+    }
+  } else {
+    accountNameElement = clickToExpand;
+  }
 
   return (
     <>
@@ -93,26 +131,7 @@ const Operation = ({
           )}
       </Table.Cell>
       <Table.Cell active={active}>
-        {
-          accountName
-            ? (
-              <>
-                <Input
-                  list="accounts"
-                  defaultValue={accountName}
-                  transparent
-                  className="input-full-width"
-                  error={accountError !== null}
-                  onChange={(event) => updateAccount(event)}
-                  onKeyPress={keyPressedCallback}
-                />
-                <p className="error">
-                  {accountError}
-                </p>
-              </>
-            )
-            : clickToExpand
-        }
+        {accountNameElement}
       </Table.Cell>
       <Table.Cell active={active} textAlign="right">
         {reconciliated ? credit

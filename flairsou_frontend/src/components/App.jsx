@@ -16,6 +16,15 @@ import { AppContext } from './contexts/contexts';
 import Home from './pages/home/Home';
 import Account from './pages/account/Account';
 
+// liste des comptes non virtuels pour sélectionner dans les opérations
+const buildOptions = (accountSet) => (
+  accountSet.map((account) => (
+    account.virtual
+      ? buildOptions(account.account_set)
+      : <option key={`opt-${account.pk}`} value={account.fullName}>{account.fullName}</option>
+  ))
+);
+
 const PrivateRoute = ({ component: Component, userIdentified, ...rest }) => (
   <Route
     {...rest}
@@ -163,15 +172,6 @@ const App = () => {
 
   // création de la datalist de comptes
   useEffect(() => {
-    // liste des comptes non virtuels pour sélectionner dans les opérations
-    const buildOptions = (accountSet) => (
-      accountSet.map((account) => (
-        account.virtual
-          ? buildOptions(account.account_set)
-          : <option value={account.fullName}>{account.fullName}</option>
-      ))
-    );
-
     setAccountDatalist(
       <datalist id="accounts">
         {buildOptions(accountList)}

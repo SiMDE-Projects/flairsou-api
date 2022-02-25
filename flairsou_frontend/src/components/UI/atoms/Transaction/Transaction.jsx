@@ -56,7 +56,7 @@ const Transaction = ({ transaction, deleteCallback, updateCallback }) => {
     );
   }
 
-  const operationValidatedCallback = (operation) => {
+  const operationValidatedCallback = (operation, accountID) => {
     // mise à jour de l'opération dans la transaction
     // spreading pour faire une copie profonde
     const newTransaction = { ...transaction };
@@ -65,14 +65,23 @@ const Transaction = ({ transaction, deleteCallback, updateCallback }) => {
       // dans le cas où ce n'est pas une transaction répartie, on a uniquement
       // deux opérations : l'opération associée au compte actuel, et celle associée
       // au compte en face.
-      // op1 : opération modifiée
+      // op1 : opération modifiée (affichée en front)
       const op1 = operation;
 
       // Dans le cas où le montant de l'opération 1 a été modifié, il faut le répercuter sur
       // l'opération en face en inversant les débits et les crédits
-      const op2 = { ...transaction.operations[otherOpId], credit: op1.debit, debit: op1.credit };
+      // Dans le cas d'une transaction simple, si le compte est modifié, alors il s'agit du
+      // compte de l'opération en face.
+      const op2 = {
+        ...transaction.operations[otherOpId],
+        credit: op1.debit,
+        debit: op1.credit,
+        account: accountID,
+      };
 
       newTransaction.operations = [op1, op2];
+    } else {
+      // TODO pour une transaction répartie, mais comment ? ...
     }
 
     updateCallback(newTransaction);
