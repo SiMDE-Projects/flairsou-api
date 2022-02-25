@@ -54,29 +54,6 @@ PrivateRoute.defaultProps = {
 const authlinkUrl = '/oauth/authlink';
 const userInfosUrl = '/proxy_pda/get_user_infos';
 const assosUrl = '/proxy_pda/get_list_assos';
-const App = () => (
-  <React.StrictMode>
-    <BrowserRouter>
-      <Switch>
-        <Route path="/" exact>
-          <Home />
-        </Route>
-        <Route path="/logout" exact>
-          <Logout />
-        </Route>
-        <Route path="/accounts/create" exact>
-          <Account action={CrudActions.CREATE} />
-        </Route>
-        <Route path="/accounts/edit/:accountID" exact>
-          <Account action={CrudActions.UPDATE} />
-        </Route>
-        <Route path="/accounts/:accountID" exact>
-          <Account action={CrudActions.READ} />
-        </Route>
-      </Switch>
-    </BrowserRouter>
-  </React.StrictMode>
-);
 
 const App = () => {
   // informations sur l'utilisateur
@@ -197,8 +174,21 @@ const App = () => {
       >
         <BrowserRouter>
           <Switch>
-            <Route path="/" exact component={Home} />
-            <Route path="/account/:accountID" exact component={Account} />
+            <Route path="/" exact>
+              <Home />
+            </Route>
+            <Route path="/logout" exact>
+              <Logout />
+            </Route>
+            <Route path="/accounts/create" exact>
+              <Account action={CrudActions.CREATE} />
+            </Route>
+            <Route path="/accounts/edit/:accountID" exact>
+              <Account action={CrudActions.UPDATE} />
+            </Route>
+            <Route path="/accounts/:accountID" exact>
+              <Account action={CrudActions.READ} />
+            </Route>
           </Switch>
         </BrowserRouter>
       </AppContext.Provider>

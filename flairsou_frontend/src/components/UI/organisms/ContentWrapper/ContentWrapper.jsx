@@ -8,7 +8,7 @@ import Navbar from '../../molecules/Navbar/Navbar';
 import './ContentWrapper.css';
 import ErrorLevels from '../../../../assets/errorLevels';
 
-const ContentWrapper = ({ content }) => (
+const ContentWrapper = ({ content }) => {
   const location = useLocation();
   const [messageVisible, setMessageVisible] = useState(true);
 
