@@ -49,8 +49,11 @@ const checkCurrencyFormat = (value) => {
 const strToCents = (strValue) => {
   if (strValue === '') return 0;
 
+  // supprime les espaces utilisés comme séparateurs de milliers
+  const newValue = strValue.replace(/ /g, '');
+
   // force le renvoi d'un entier
-  return Math.floor(parseFloat(strValue) * 100);
+  return Math.floor(parseFloat(newValue) * 100);
 };
 
 export { currencyFormat, checkCurrencyFormat, strToCents };
