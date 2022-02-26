@@ -17,6 +17,7 @@ const Transaction = ({ transaction, deleteCallback, updateCallback }) => {
   const [expand, setExpand] = useState(false);
 
   const [date, setDate] = useState('');
+  const [checked, setChecked] = useState(false);
 
   const toogleExpand = () => {
     setExpand(!expand);
@@ -24,7 +25,8 @@ const Transaction = ({ transaction, deleteCallback, updateCallback }) => {
 
   useEffect(() => {
     setDate(transaction.date);
-  }, [transaction.date]);
+    setChecked(transaction.checked);
+  }, [transaction.date, transaction.checked]);
 
   // récupération de l'objet correspondant à l'opération à afficher
   const activeOp = transaction.operations[transaction.activeOpId];
@@ -65,7 +67,7 @@ const Transaction = ({ transaction, deleteCallback, updateCallback }) => {
   const operationValidatedCallback = (operation, accountID) => {
     // mise à jour de l'opération dans la transaction
     // spreading pour faire une copie profonde
-    const newTransaction = { ...transaction, date };
+    const newTransaction = { ...transaction, date, checked };
 
     if (!multiOps) {
       // dans le cas où ce n'est pas une transaction répartie, on a uniquement
@@ -102,6 +104,17 @@ const Transaction = ({ transaction, deleteCallback, updateCallback }) => {
     setDate(event.target.value);
   };
 
+  const checkedUpdated = (data) => {
+    // met à jour l'état de la transaction
+    setChecked(data.checked);
+
+    // met à jour en base aussi : en principe, l'utilisateur va pointer
+    // une transaction déjà créée et donc ne va pas nécessairement éditer les
+    // champs de la transaction, donc on enregistre systématiquement en base
+    // la modification.
+    updateCallback({ ...transaction, checked: data.checked });
+  };
+
   return (
     <>
       <Table.Row>
@@ -135,8 +148,9 @@ const Transaction = ({ transaction, deleteCallback, updateCallback }) => {
         <Table.Cell textAlign="right">{currencyFormat(transaction.balance)}</Table.Cell>
         <Table.Cell textAlign="center">
           <Checkbox
-            defaultChecked={transaction.checked}
+            checked={checked}
             disabled={transaction.is_reconciliated}
+            onChange={(event, data) => checkedUpdated(data)}
           />
         </Table.Cell>
         <Table.Cell textAlign="center" collapsing>o</Table.Cell>

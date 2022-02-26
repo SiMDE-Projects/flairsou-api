@@ -188,6 +188,8 @@ const TransactionList = ({ accountID, accountType, updateBalanceCallback }) => {
               return (tmpTransaction);
             });
 
+            // TODO : éventuellement repositionner la nouvelle transaction à sa place par rapport à
+            // la date modifiée ?
             setTransactionList(recomputeBalances(newTransactionList, invert, iUpdatedTransaction));
           });
         } else {
