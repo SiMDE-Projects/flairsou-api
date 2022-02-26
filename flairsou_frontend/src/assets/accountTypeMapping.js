@@ -13,7 +13,6 @@ const AccountTypesString = [
   'Capitaux Propres',
 ];
 export const AccountTypesSelect = AccountTypesString.map((v, i) => ({
-  key: i,
   text: v,
   value: i,
 }));

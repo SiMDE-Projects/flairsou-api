@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Redirect, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 import ContentWrapper from '../../UI/organisms/ContentWrapper/ContentWrapper';
@@ -7,7 +7,7 @@ import AccountContent from '../../UI/organisms/AccountContent/AccountContent';
 import { AppContext } from '../../contexts/contexts';
 import CrudActions from '../../../assets/crudActions';
 import AccountForm from '../../UI/molecules/AccountForm/AccountForm';
-import ErrorLevels from '../../../assets/errorLevels';
+import { Unknown, Forbidden, NotFound } from '../errors/Errors';
 
 const SpecificAccount = ({ action }) => {
   // contexte de l'application
@@ -46,25 +46,16 @@ const SpecificAccount = ({ action }) => {
       });
   }, [appContext, accountID]);
 
+  if (Number.isNaN(accountID)) {
+    return <NotFound />;
+  }
+
   if (accountObject.pk === 0) {
-    return (
-      <ContentWrapper content={<></>} />
-    );
+    return <ContentWrapper content={<></>} />;
   }
 
   if (accountObject.pk === -1) {
-    return (
-      <Redirect to={{
-        pathname: '/',
-        state: {
-          alert: {
-            message: 'Accès interdit',
-            level: ErrorLevels.ERROR,
-          },
-        },
-      }}
-      />
-    );
+    return <Forbidden />;
   }
 
   switch (action) {
@@ -73,18 +64,7 @@ const SpecificAccount = ({ action }) => {
     case CrudActions.UPDATE:
       return <ContentWrapper content={<AccountForm account={accountObject} />} />;
     default:
-      return (
-        <Redirect to={{
-          pathname: '/',
-          state: {
-            alert: {
-              message: 'Unknown error',
-              level: ErrorLevels.ERROR,
-            },
-          },
-        }}
-        />
-      );
+      return <Unknown />;
   }
 };
 
