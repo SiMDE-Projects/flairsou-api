@@ -151,6 +151,7 @@ const Operation = ({
               fluid
               onChange={(event) => updateCredit(event)}
               onKeyPress={keyPressedCallback}
+              className="input-full-width amount-input"
             />
           )}
       </Table.Cell>
@@ -163,6 +164,7 @@ const Operation = ({
               fluid
               onChange={(event) => updateDebit(event)}
               onKeyPress={keyPressedCallback}
+              className="input-full-width amount-input"
             />
           )}
       </Table.Cell>

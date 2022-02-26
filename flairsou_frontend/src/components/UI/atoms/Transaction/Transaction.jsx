@@ -105,7 +105,7 @@ const Transaction = ({ transaction, deleteCallback, updateCallback }) => {
   return (
     <>
       <Table.Row>
-        <Table.Cell textAlign="center">
+        <Table.Cell textAlign="center" collapsing>
           <Icon
             name={transaction.is_reconciliated ? 'lock' : 'unlock'}
             color={transaction.is_reconciliated ? 'red' : 'green'}
@@ -139,8 +139,8 @@ const Transaction = ({ transaction, deleteCallback, updateCallback }) => {
             disabled={transaction.is_reconciliated}
           />
         </Table.Cell>
-        <Table.Cell textAlign="center">o</Table.Cell>
-        <Table.Cell textAlign="center">
+        <Table.Cell textAlign="center" collapsing>o</Table.Cell>
+        <Table.Cell textAlign="center" collapsing>
           {!transaction.is_reconciliated && (
             <ConfirmDeleteOperation
               onConfirm={() => deleteCallback(transaction.pk)}

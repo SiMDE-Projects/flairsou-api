@@ -1,3 +1,7 @@
 .input-full-width {
     width: 100%;
 }
+
+.amount-input > input {
+  text-align: right !important;
+}
