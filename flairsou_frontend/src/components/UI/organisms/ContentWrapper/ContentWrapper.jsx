@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { useLocation } from 'react-router-dom';
-import { Message } from 'semantic-ui-react';
+import { Container, Message } from 'semantic-ui-react';
 
 import Header from '../../molecules/Header/Header';
 import Navbar from '../../molecules/Navbar/Navbar';
@@ -31,15 +31,17 @@ const ContentWrapper = ({ content }) => {
         <Navbar />
         <div className="final-content">
           {messageVisible && location.state?.alert && (
-            <Message
-              compact
-              info={messageProps.info}
-              warning={messageProps.warning}
-              error={messageProps.error}
-              header={messageProps.header}
-              onDismiss={() => { setMessageVisible(false); }}
-              content={location.state.alert.message}
-            />
+            <Container text>
+              <Message
+                compact
+                info={messageProps.info}
+                warning={messageProps.warning}
+                error={messageProps.error}
+                header={messageProps.header}
+                onDismiss={() => { setMessageVisible(false); }}
+                content={location.state.alert.message}
+              />
+            </Container>
           )}
           {content}
         </div>
