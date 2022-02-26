@@ -103,6 +103,8 @@ const TransactionList = ({ accountID, accountType, updateBalanceCallback }) => {
   // liste des transactions stockées dans l'état du composant
   const [transactionList, setTransactionList] = useState([]);
 
+  const [newTransactionVal, setNewTransactionVal] = useState(0);
+
   useEffect(() => {
     fetch(`/api/accounts/${accountID}/transactions/`)
       .then((response) => response.json())
@@ -270,6 +272,8 @@ const TransactionList = ({ accountID, accountType, updateBalanceCallback }) => {
             setTransactionList(
               recomputeBalances(newTransactionList, invert, newTransactionList.length - 1),
             );
+
+            setNewTransactionVal(newTransactionVal + 1);
           });
         } else {
           console.log('error');
@@ -321,7 +325,7 @@ const TransactionList = ({ accountID, accountType, updateBalanceCallback }) => {
           ))
         }
         <Transaction
-          key="new-transaction"
+          key={`new-transaction-${newTransactionVal}`}
           transaction={emptyTransaction}
           deleteCallback={deleteTransaction}
           updateCallback={updateTransaction}
