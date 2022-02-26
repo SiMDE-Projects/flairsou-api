@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import { Table, Icon, Popup } from 'semantic-ui-react';
 
 import Transaction from '../../atoms/Transaction/Transaction';
-
 import AccountTypes from '../../../../assets/accountTypeMapping';
+import { compareTransactions, findTransactionIndex } from '../../../../utils/transaction_utils';
 
 /**
  * Récupère l'indice de l'opération correspondant au compte passé en paramètre dans la
@@ -37,6 +37,8 @@ const recomputeBalances = (transactionList, invert, i0 = 0) => {
     balance = transactionList[i0 - 1].balance;
   }
 
+  // TODO voir si ça peut pas se remplacer par une boucle normale plutôt qu'un map
+  // pour les questions de performances
   return transactionList.map((transaction, i) => {
     if (i < i0) {
       return transaction;
@@ -205,12 +207,8 @@ const TransactionList = ({ accountID, accountType, updateBalanceCallback }) => {
           response.json().then((updatedTransaction) => {
             // on construit une nouvelle liste de transactions avec la mise à jour
             // de la transaction récupérée
-            let iUpdatedTransaction = 0;
-            const newTransactionList = transactionList.map((tmpTransaction, i) => {
+            const newTransactionList = transactionList.map((tmpTransaction) => {
               if (tmpTransaction.pk === updatedTransaction.pk) {
-                // récupération de l'ID de la transaction dans la liste
-                iUpdatedTransaction = i;
-
                 // renvoi de la nouvelle transaction mise à jour par l'API
                 return ({
                   ...updatedTransaction,
@@ -221,9 +219,13 @@ const TransactionList = ({ accountID, accountType, updateBalanceCallback }) => {
               return (tmpTransaction);
             });
 
-            // TODO : éventuellement repositionner la nouvelle transaction à sa place par rapport à
-            // la date modifiée ?
-            setTransactionList(recomputeBalances(newTransactionList, invert, iUpdatedTransaction));
+            // tri des transactions par date
+            newTransactionList.sort(compareTransactions);
+
+            // recherche de la transaction mise à jour
+            const trIndex = findTransactionIndex(newTransactionList, updatedTransaction);
+
+            setTransactionList(recomputeBalances(newTransactionList, invert, trIndex));
           });
         } else {
           console.log('error');
@@ -260,17 +262,23 @@ const TransactionList = ({ accountID, accountType, updateBalanceCallback }) => {
       })
       .then((response) => {
         if (response.status === 201) { // 201 created
-          response.json().then((updatedTransaction) => {
+          response.json().then((createdTransaction) => {
             // on ajoute la nouvelle transaction à la liste des transactions affichées
             const newTransactionList = [...transactionList, {
-              ...updatedTransaction,
-              activeOpId: getActiveOpID(updatedTransaction, accountID),
+              ...createdTransaction,
+              activeOpId: getActiveOpID(createdTransaction, accountID),
               balance: 0,
             }];
 
+            // tri de la liste des transactions par date
+            newTransactionList.sort(compareTransactions);
+
+            // récupération de l'indice de la nouvelle transaction
+            const trIndex = findTransactionIndex(newTransactionList, createdTransaction);
+
             // on met à jour l'état
             setTransactionList(
-              recomputeBalances(newTransactionList, invert, newTransactionList.length - 1),
+              recomputeBalances(newTransactionList, invert, trIndex),
             );
 
             setNewTransactionVal(newTransactionVal + 1);
