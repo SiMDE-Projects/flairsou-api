@@ -11,7 +11,9 @@ import ConfirmDeleteOperation from './ConfirmDeleteOperation';
 /**
  * Composant effectuant le rendu d'une transaction dans l'affichage d'un compte
  */
-const Transaction = ({ transaction, deleteCallback, updateCallback }) => {
+const Transaction = ({
+  transaction, deleteCallback, updateCallback, createCallback,
+}) => {
   // indique si la transaction doit être étendue ou non (i.e. si il faut
   // afficher toutes les opérations de la transaction)
   const [expand, setExpand] = useState(false);
@@ -94,7 +96,13 @@ const Transaction = ({ transaction, deleteCallback, updateCallback }) => {
       // TODO pour une transaction répartie, mais comment ? ...
     }
 
-    updateCallback(newTransaction);
+    if (transaction.pk === 0) {
+      // création d'une nouvelle transaction
+      createCallback(newTransaction);
+    } else {
+      // mise à jour
+      updateCallback(newTransaction);
+    }
   };
 
   const dateUpdated = (event) => {
@@ -112,18 +120,46 @@ const Transaction = ({ transaction, deleteCallback, updateCallback }) => {
     // une transaction déjà créée et donc ne va pas nécessairement éditer les
     // champs de la transaction, donc on enregistre systématiquement en base
     // la modification.
-    updateCallback({ ...transaction, checked: data.checked });
+    if (transaction.pk !== 0) {
+      updateCallback({ ...transaction, checked: data.checked });
+    }
+  };
+
+  const iconElement = () => {
+    if (transaction.is_reconciliated) {
+      return (
+        <Icon
+          name="lock"
+          color="red"
+          title="Transaction rapprochée"
+        />
+      );
+    }
+
+    if (transaction.pk === 0) {
+      return (
+        <Icon
+          name="arrow alternate circle right"
+          color="blue"
+          title="Nouvelle transaction"
+        />
+      );
+    }
+
+    return (
+      <Icon
+        name="unlock"
+        color="green"
+        title="Transaction non rapprochée"
+      />
+    );
   };
 
   return (
     <>
       <Table.Row>
         <Table.Cell textAlign="center" collapsing>
-          <Icon
-            name={transaction.is_reconciliated ? 'lock' : 'unlock'}
-            color={transaction.is_reconciliated ? 'red' : 'green'}
-            title={`Transaction ${transaction.is_reconciliated ? '' : 'non'} rapprochée`}
-          />
+          {iconElement()}
         </Table.Cell>
         <Table.Cell textAlign="center" collapsing>
           {transaction.is_reconciliated
@@ -220,6 +256,7 @@ Transaction.propTypes = {
   }).isRequired,
   deleteCallback: PropTypes.func.isRequired,
   updateCallback: PropTypes.func.isRequired,
+  createCallback: PropTypes.func.isRequired,
 };
 
 export default Transaction;

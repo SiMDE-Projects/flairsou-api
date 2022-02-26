@@ -69,6 +69,37 @@ const TransactionList = ({ accountID, accountType, updateBalanceCallback }) => {
   const invert = (accountType === AccountTypes.ASSET
       || accountType === AccountTypes.EXPENSE);
 
+  /*
+   * Transaction vide pour le compte actuel
+   */
+  const emptyTransaction = {
+    pk: 0,
+    date: new Date().toISOString().split('T')[0], // yyyy-mm-dd à factoriser
+    is_reconciliated: false,
+    checked: false,
+    invoice: null,
+    balance: 0,
+    activeOpId: 0, // l'opération active est toujours la première
+    operations: [
+      { // opération 1 : opération associée au compte actuel
+        pk: 0,
+        credit: 0,
+        debit: 0,
+        label: '',
+        account: accountID,
+        accountFullName: '', // TODO récupérer l'objet complet du compte plutôt que juste l'ID
+      },
+      {
+        pk: 0,
+        credit: 0,
+        debit: 0,
+        label: '',
+        account: 0,
+        accountFullName: '',
+      },
+    ],
+  };
+
   // liste des transactions stockées dans l'état du composant
   const [transactionList, setTransactionList] = useState([]);
 
@@ -198,6 +229,54 @@ const TransactionList = ({ accountID, accountType, updateBalanceCallback }) => {
       });
   };
 
+  /**
+   * Crée une nouvelle transaction
+   *
+   * Envoie la demande de création de la transaction sur l'API
+   *
+   * @params {object} transaction - Transaction à créer
+   */
+  const createTransaction = (transaction) => {
+    fetch('/api/transactions/',
+      {
+        method: 'POST',
+        // construction de l'objet transaction à envoyer à l'API
+        body: JSON.stringify({
+          date: transaction.date,
+          checked: transaction.checked,
+          invoice: null,
+          operations: transaction.operations.map((operation) => ({
+            credit: operation.credit,
+            debit: operation.debit,
+            label: operation.label,
+            account: operation.account,
+          })),
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+      .then((response) => {
+        if (response.status === 201) { // 201 created
+          response.json().then((updatedTransaction) => {
+            // on ajoute la nouvelle transaction à la liste des transactions affichées
+            const newTransactionList = [...transactionList, {
+              ...updatedTransaction,
+              activeOpId: getActiveOpID(updatedTransaction, accountID),
+              balance: 0,
+            }];
+
+            // on met à jour l'état
+            setTransactionList(
+              recomputeBalances(newTransactionList, invert, newTransactionList.length - 1),
+            );
+          });
+        } else {
+          console.log('error');
+        }
+      });
+  };
+
   return (
     <Table celled striped singleLine compact size="small">
       <Table.Header>
@@ -237,9 +316,17 @@ const TransactionList = ({ accountID, accountType, updateBalanceCallback }) => {
               transaction={transaction}
               deleteCallback={deleteTransaction}
               updateCallback={updateTransaction}
+              createCallback={createTransaction}
             />
           ))
         }
+        <Transaction
+          key="new-transaction"
+          transaction={emptyTransaction}
+          deleteCallback={deleteTransaction}
+          updateCallback={updateTransaction}
+          createCallback={createTransaction}
+        />
       </Table.Body>
     </Table>
   );

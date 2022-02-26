@@ -100,7 +100,7 @@ const Operation = ({
 
   // construction de l'élément correspondant au nom du compte
   let accountNameElement = null;
-  if (accountName) {
+  if (accountName !== null) {
     if (reconciliated) {
       accountNameElement = accountName;
     } else {
