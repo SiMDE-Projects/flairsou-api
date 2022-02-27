@@ -54,6 +54,9 @@ const AccountForm = ({ account }) => {
   // Détermine si le compte est en train d'être édité
   const isEdited = account ? 'pk' in account : false;
 
+  // Option vide pour clear les champs facultatifs
+  const emptyOption = { value: -1, text: <i>Aucun</i> };
+
   // Reducer pour obtenir un tableau de valeurs pour le champ Select de livre
   const getFlatBooks = useCallback((r, currBook) => {
     r.push({ value: currBook.book, text: `${currBook.shortname} - ${currBook.name}` });
@@ -225,24 +228,26 @@ const AccountForm = ({ account }) => {
           accountBook !== null && (
             <>
               <Form.Select
-                options={parentsAccounts}
+                options={[emptyOption, ...parentsAccounts]}
                 loading={parentsAccountsLoading}
                 label="Compte parent"
                 clearable
                 value={accountParent}
                 disabled={isEdited}
-                onChange={(e, { value }) => setAccountParent(value)}
+                onChange={(e, { value }) => setAccountParent(value !== -1 ? value : null)}
               />
               {
                 // Affiché uniquement si des entités sont associables
                 associatedEntities?.length > 0 && (
                   <Form.Select
-                    options={associatedEntities}
+                    options={[emptyOption, ...associatedEntities]}
                     label="Entité associée"
                     clearable
                     value={accountAssociatedEntity}
                     disabled={isEdited}
-                    onChange={(e, { value }) => setAccountAssociatedEntity(value)}
+                    onChange={(e, { value }) => setAccountAssociatedEntity(
+                      value !== -1 ? value : null,
+                    )}
                   />
                 )
               }
