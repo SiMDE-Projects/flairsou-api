@@ -11,6 +11,7 @@ import { AppContext } from '../../../contexts/contexts';
 const ContentWrapper = ({ content }) => {
   const appContext = useContext(AppContext);
 
+  // Système de message pour alerting
   const messageProps = {};
   messageProps.info = appContext.alert?.level === ErrorLevels.INFO;
   messageProps.warning = appContext.alert?.level === ErrorLevels.WARN;

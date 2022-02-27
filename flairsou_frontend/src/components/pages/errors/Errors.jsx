@@ -5,6 +5,13 @@ import PropTypes from 'prop-types';
 import ErrorLevels from '../../../assets/errorLevels';
 import { AppContext } from '../../contexts/contexts';
 
+/**
+ * Système d'alerte - envoie une alerte dans le contexte de l'app et redirige à la racine
+ *
+ * @param {string} message - Message à afficher.
+ * @param {number} level - Niveau de l'erreur.
+ * @returns {JSX.Element} - Redirection vers la racine.
+ */
 const Error = ({ message, level }) => {
   const appContext = useContext(AppContext);
 

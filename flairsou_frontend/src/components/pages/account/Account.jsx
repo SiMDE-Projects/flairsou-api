@@ -46,6 +46,7 @@ const SpecificAccount = ({ action }) => {
       });
   }, [appContext, accountID]);
 
+  // Si le numéro de compte n'est pas un nombre
   if (Number.isNaN(accountID)) {
     return <NotFound />;
   }
@@ -69,6 +70,8 @@ const SpecificAccount = ({ action }) => {
 };
 
 const Account = ({ action }) => {
+  // Si création, affichage du formulaire, sinon il faut
+  // récupérer le compte avant de déclencher l'affichage
   switch (action) {
     case CrudActions.CREATE:
       return <ContentWrapper content={<AccountForm />} />;
