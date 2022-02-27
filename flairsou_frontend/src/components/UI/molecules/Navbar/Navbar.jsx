@@ -2,6 +2,8 @@ import React, { Fragment, useContext } from 'react';
 import './navbar.css';
 
 import { List } from 'semantic-ui-react';
+import { Link } from 'react-router-dom';
+
 import SearchBar from '../../atoms/SearchBar/SearchBar';
 import { AppContext } from '../../../contexts/contexts';
 import NavAccount from '../../atoms/NavAccount/NavAccount';
@@ -28,8 +30,10 @@ const Navbar = () => {
         <List.Content
           onClick={() => { handleClick(asso); }}
         >
-          {prefix}
-          {asso.shortname}
+          <Link to="/book">
+            {prefix}
+            {asso.shortname}
+          </Link>
         </List.Content>
         {
           (appContext.assoActive && appContext.assoActive.asso_id === asso.asso_id)

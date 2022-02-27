@@ -15,6 +15,7 @@ import { AppContext } from './contexts/contexts';
 
 import Home from './pages/home/Home';
 import Account from './pages/account/Account';
+import Book from './pages/book/Book';
 
 const PrivateRoute = ({ component: Component, userIdentified, ...rest }) => (
   <Route
@@ -174,6 +175,7 @@ const App = () => {
           <Switch>
             <Route path="/" exact component={Home} />
             <Route path="/account/:accountID" exact component={Account} />
+            <Route path="/book" exact component={Book} />
           </Switch>
         </BrowserRouter>
       </AppContext.Provider>
