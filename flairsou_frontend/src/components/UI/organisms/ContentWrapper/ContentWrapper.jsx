@@ -1,21 +1,20 @@
-import React, { useState } from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
-import { useLocation } from 'react-router-dom';
 import { Container, Message } from 'semantic-ui-react';
 
 import Header from '../../molecules/Header/Header';
 import Navbar from '../../molecules/Navbar/Navbar';
 import './ContentWrapper.css';
 import ErrorLevels from '../../../../assets/errorLevels';
+import { AppContext } from '../../../contexts/contexts';
 
 const ContentWrapper = ({ content }) => {
-  const location = useLocation();
-  const [messageVisible, setMessageVisible] = useState(true);
+  const appContext = useContext(AppContext);
 
   const messageProps = {};
-  messageProps.info = location.state?.alert?.level === ErrorLevels.INFO;
-  messageProps.warning = location.state?.alert?.level === ErrorLevels.WARN;
-  messageProps.error = location.state?.alert?.level === ErrorLevels.ERROR;
+  messageProps.info = appContext.alert?.level === ErrorLevels.INFO;
+  messageProps.warning = appContext.alert?.level === ErrorLevels.WARN;
+  messageProps.error = appContext.alert?.level === ErrorLevels.ERROR;
   if (messageProps.info) {
     messageProps.header = 'Information';
   } else if (messageProps.warning) {
@@ -30,7 +29,7 @@ const ContentWrapper = ({ content }) => {
       <div className="content-wrapper-h">
         <Navbar />
         <div className="final-content">
-          {messageVisible && location.state?.alert && (
+          {appContext.alert?.message && (
             <Container text>
               <Message
                 compact
@@ -38,8 +37,8 @@ const ContentWrapper = ({ content }) => {
                 warning={messageProps.warning}
                 error={messageProps.error}
                 header={messageProps.header}
-                onDismiss={() => { setMessageVisible(false); }}
-                content={location.state.alert.message}
+                onDismiss={() => { appContext.setAlert({}); }}
+                content={appContext.alert.message}
               />
             </Container>
           )}

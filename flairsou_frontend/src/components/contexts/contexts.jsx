@@ -12,4 +12,6 @@ export const AppContext = createContext({
   accountList: [],
   accountActive: -1,
   setAccountActive: (accountPk) => {}, /* eslint-disable-line no-unused-vars */
+  alert: {},
+  setAlert: (alert) => {}, /* eslint-disable-line no-unused-vars */
 });

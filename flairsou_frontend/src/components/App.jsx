@@ -73,6 +73,9 @@ const App = () => {
   // clé primaire du compte actif
   const [accountActive, setAccountActive] = useState(-1);
 
+  // message d'erreur
+  const [alert, setAlert] = useState({});
+
   // fonction permettant de récupérer la clé primaire de chaque livre associé à chaque
   // association de la liste fournie, puis de mettre à jour l'état de la liste des
   // assos
@@ -172,6 +175,8 @@ const App = () => {
         accountList,
         accountActive,
         setAccountActive: (accountPk) => { setAccountActive(accountPk); },
+        alert,
+        setAlert: (newAlert) => { setAlert(newAlert); },
       }}
       >
         <BrowserRouter>
