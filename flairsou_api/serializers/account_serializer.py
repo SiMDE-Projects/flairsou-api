@@ -224,6 +224,7 @@ class AccountNestedSerializer(FlairsouModelSerializer):
         fields = [
             "pk",
             "name",
+            "fullName",
             "account_type",
             "virtual",
             "balance",
