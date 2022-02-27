@@ -8,6 +8,17 @@ import SearchBar from '../../atoms/SearchBar/SearchBar';
 import { AppContext } from '../../../contexts/contexts';
 import NavAccount from '../../atoms/NavAccount/NavAccount';
 
+// déploie l'arbre des comptes dans la navbar récursivement en adaptant le
+// niveau de profondeur
+const expandAccountTree = (accountList, depth = 0) => (
+  accountList.map((account) => (
+    <Fragment key={`acc-${account.pk}`}>
+      <NavAccount account={account} depth={depth} />
+      {expandAccountTree(account.account_set, depth + 1)}
+    </Fragment>
+  ))
+);
+
 const Navbar = () => {
   const appContext = useContext(AppContext);
 
@@ -27,25 +38,16 @@ const Navbar = () => {
           name={(appContext.assoActive && appContext.assoActive.asso_id === asso.asso_id)
             ? 'caret down' : 'caret right'}
         />
-        <List.Content
-          onClick={() => { handleClick(asso); }}
-        >
-          <Link to="/book">
+        <List.Content>
+          <Link to="/book" onClick={() => { handleClick(asso); }}>
             {prefix}
             {asso.shortname}
           </Link>
+          {
+            appContext.assoActive && appContext.assoActive.asso_id === asso.asso_id
+            && expandAccountTree(appContext.accountList)
+          }
         </List.Content>
-        {
-          (appContext.assoActive && appContext.assoActive.asso_id === asso.asso_id)
-          && (
-            <List.List>
-              {
-                  appContext.accountList.map((account) => (
-                    <NavAccount key={`acc-${account.pk}`} account={account} />))
-              }
-            </List.List>
-          )
-        }
       </List.Item>
       {
         asso.asso_set.map((subasso) => (
