@@ -18,6 +18,9 @@ const Transaction = ({
   // afficher toutes les opérations de la transaction)
   const [expand, setExpand] = useState(false);
 
+  // état indiquant si la transaction est en cours de modification ou non
+  const [modified, setModified] = useState(false);
+
   const [date, setDate] = useState('');
   const [checked, setChecked] = useState(false);
 
@@ -29,6 +32,14 @@ const Transaction = ({
     setDate(transaction.date);
     setChecked(transaction.checked);
   }, [transaction.date, transaction.checked]);
+
+  useEffect(() => {
+    if (date === '') return;
+
+    if (date !== transaction.date) {
+      setModified(true);
+    }
+  }, [transaction.date, date]);
 
   // récupération de l'objet correspondant à l'opération à afficher
   const activeOp = transaction.operations[transaction.activeOpId];
@@ -66,6 +77,8 @@ const Transaction = ({
     );
   }
 
+  const resetModifiedStatus = () => setModified(false);
+
   const operationValidatedCallback = (operation, accountID) => {
     // mise à jour de l'opération dans la transaction
     // spreading pour faire une copie profonde
@@ -101,7 +114,7 @@ const Transaction = ({
       createCallback(newTransaction);
     } else {
       // mise à jour
-      updateCallback(newTransaction);
+      updateCallback(newTransaction, resetModifiedStatus);
     }
   };
 
@@ -126,6 +139,16 @@ const Transaction = ({
   };
 
   const iconElement = () => {
+    if (transaction.pk !== 0 && modified) {
+      return (
+        <Icon
+          name="save"
+          color="orange"
+          title="Modification en cours, cliquer pour enregistrer"
+        />
+      );
+    }
+
     if (transaction.is_reconciliated) {
       return (
         <Icon
@@ -180,6 +203,7 @@ const Transaction = ({
           active={false}
           reconciliated={transaction.is_reconciliated}
           updateCallback={operationValidatedCallback}
+          transactionModified={() => setModified(true)}
         />
         <Table.Cell textAlign="right">{currencyFormat(transaction.balance)}</Table.Cell>
         <Table.Cell textAlign="center">
@@ -209,6 +233,7 @@ const Transaction = ({
               active={operation.pk === activeOp.pk}
               updateCallback={operationValidatedCallback}
               reconciliated={transaction.is_reconciliated}
+              transactionModified={() => setModified(true)}
             />
             <Table.Cell colSpan="4" />
           </Table.Row>

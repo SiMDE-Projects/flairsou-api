@@ -30,6 +30,7 @@ const findAccount = (accountList, hierarchy, level) => {
  */
 const Operation = ({
   operation, accountName, clickToExpand, active, reconciliated, updateCallback,
+  transactionModified,
 }) => {
   // affichage du crédit et du débit seulement si le montant est non nul
   const [credit, setCredit] = useState('');
@@ -58,10 +59,12 @@ const Operation = ({
 
   const updateCredit = (event) => {
     setCredit(checkCurrencyFormat(event.target.value));
+    transactionModified();
   };
 
   const updateDebit = (event) => {
     setDebit(checkCurrencyFormat(event.target.value));
+    transactionModified();
   };
 
   const updateAccount = (event) => {
@@ -74,13 +77,16 @@ const Operation = ({
     // on trouve la clé du compte et on la met à jour
     const accountPk = findAccount(appContext.accountList, hierarchy, 0);
     setAccount(accountPk);
+    transactionModified();
   };
 
   const updateLabel = (event) => {
     setLabel(event.target.value);
+    transactionModified();
   };
 
   const keyPressedCallback = (event) => {
+    setAccountError(null);
     if (event.key === 'Enter') {
       // on vérifie que le compte est valide
       if (account === -1) {
@@ -202,6 +208,7 @@ Operation.propTypes = {
   // ne peuvent pas être édités
   reconciliated: PropTypes.bool.isRequired,
   updateCallback: PropTypes.func.isRequired,
+  transactionModified: PropTypes.func.isRequired,
 };
 
 Operation.defaultProps = {

@@ -203,7 +203,7 @@ const TransactionList = ({ accountID, accountType, updateBalanceCallback }) => {
    *
    * @params {object} transaction - Transaction à mettre à jour
    */
-  const updateTransaction = (transaction) => {
+  const updateTransaction = (transaction, resetTransactionModifiedStatus) => {
     fetch(`/api/transactions/${transaction.pk}/`,
       {
         method: 'PUT',
@@ -227,6 +227,9 @@ const TransactionList = ({ accountID, accountType, updateBalanceCallback }) => {
       })
       .then((response) => {
         if (response.status === 200) {
+          // la réponse est valide, on remet à jour le flag de modification
+          resetTransactionModifiedStatus();
+
           response.json().then((updatedTransaction) => {
             // on construit une nouvelle liste de transactions avec la mise à jour
             // de la transaction récupérée
