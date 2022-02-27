@@ -71,7 +71,7 @@ const AccountForm = ({ account }) => {
     if (currAccount.virtual) {
       r.push({
         value: currAccount.pk,
-        text: currAccount.name,
+        text: currAccount.fullName,
         account_type: currAccount.account_type,
       });
     }
