@@ -116,13 +116,15 @@ const AccountForm = ({ account }) => {
       associated_entity: isEdited ? account.associated_entity : accountAssociatedEntity,
     };
 
-    const URL = isEdited ? `/api/accounts/${account.pk}` : '/api/accounts/';
+    const URL = isEdited ? `/api/accounts/${account.pk}/` : '/api/accounts/';
     const method = isEdited ? 'PUT' : 'POST';
     fetch(URL, {
       method,
       body: JSON.stringify(body),
       headers: {
         'Content-Type': 'application/json',
+        // eslint-disable-next-line no-undef
+        'X-CSRFToken': csrftoken,
       },
     })
       .then((response) => response.json())

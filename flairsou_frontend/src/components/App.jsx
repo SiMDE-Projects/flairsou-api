@@ -17,7 +17,6 @@ import Home from './pages/home/Home';
 import Account from './pages/account/Account';
 import CrudActions from '../assets/crudActions';
 import Logout from './pages/logout/Logout';
-import ErrorLevels from '../assets/errorLevels';
 import { NotFound } from './pages/errors/Errors';
 
 const PrivateRoute = ({ component: Component, userIdentified, ...rest }) => (

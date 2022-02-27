@@ -9,6 +9,10 @@
     </head>
 
     <body>
+        {% csrf_token %}
+        <script>
+          const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        </script>
         <div id="app">
             <!-- React will load here -->
         </div>
