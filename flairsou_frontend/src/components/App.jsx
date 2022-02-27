@@ -148,13 +148,7 @@ const App = () => {
       });
   }, [user]);
 
-  // récupération des comptes de l'association active
-  useEffect(() => {
-    if (assoActive === null) return;
-
-    // réinitialise l'affichage avant de récupérer les nouveaux
-    setAccountList([]);
-
+  const updateAccountList = () => {
     const bookPk = assoActive.book;
 
     fetch(`/api/books/${bookPk}/accounts/`)
@@ -162,7 +156,16 @@ const App = () => {
       .then((response) => {
         setAccountList(response.account_set);
       });
-  }, [assos, assoActive]);
+  };
+
+  // récupération des comptes de l'association active
+  useEffect(() => {
+    if (assoActive === null) return;
+
+    // réinitialise l'affichage avant de récupérer les nouveaux
+    setAccountList([]);
+    updateAccountList();
+  }, [assos, assoActive]); /* eslint-disable-line react-hooks/exhaustive-deps */
 
   return (
     <React.StrictMode>
@@ -171,6 +174,7 @@ const App = () => {
         assos,
         assoActive,
         updateAssoActive: (asso) => { setAssoActive(asso); },
+        refreshAccountList: () => { updateAccountList(); },
         accountList,
         accountActive,
         setAccountActive: (accountPk) => { setAccountActive(accountPk); },

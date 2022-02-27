@@ -131,6 +131,7 @@ const AccountForm = ({ account }) => {
       .then((response) => {
         if (response?.pk) {
           setAccountResponse(response.pk);
+          appContext.refreshAccountList();
         } else {
           appContext.setAlert({
             message: response.non_field_errors,
