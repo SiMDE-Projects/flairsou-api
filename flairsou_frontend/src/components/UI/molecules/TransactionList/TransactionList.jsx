@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Table, Icon, Popup } from 'semantic-ui-react';
+import {
+  Table, Icon, Popup, Loader,
+} from 'semantic-ui-react';
 
 import Transaction from '../../atoms/Transaction/Transaction';
 import AccountTypes from '../../../../assets/accountTypeMapping';
@@ -105,9 +107,18 @@ const TransactionList = ({ accountID, accountType, updateBalanceCallback }) => {
   // liste des transactions stockées dans l'état du composant
   const [transactionList, setTransactionList] = useState([]);
 
+  // clé artificielle pour forcer la remise à zéro de la nouvelle transaction après
+  // validation.
   const [newTransactionVal, setNewTransactionVal] = useState(0);
 
+  // indique si les transactions sont en cours de chargement
+  const [loading, setLoading] = useState(false);
+
   useEffect(() => {
+    // on indique le chargement en cours
+    setLoading(true);
+
+    // récupération de la liste des transactions
     fetch(`/api/accounts/${accountID}/transactions/`)
       .then((response) => response.json())
       .then((response) => {
@@ -134,6 +145,13 @@ const TransactionList = ({ accountID, accountType, updateBalanceCallback }) => {
 
     // la valeur finale de solde correspond au solde du compte à mettre à jour
     updateBalanceCallback(lastBalance);
+
+    // si la liste était en cours de chargemet, suite à la mise à jour de la liste des
+    // transactions non vide, le chargement est terminé
+    if (loading) setLoading(false);
+
+    // on ne remet pas à jour si l'état de chargement change (suppression du warning)
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
   }, [transactionList, updateBalanceCallback]);
 
   /**
@@ -322,15 +340,23 @@ const TransactionList = ({ accountID, accountType, updateBalanceCallback }) => {
       </Table.Header>
       <Table.Body>
         {
-          transactionList.map((transaction) => (
-            <Transaction
-              key={transaction.operations[transaction.activeOpId].pk}
-              transaction={transaction}
-              deleteCallback={deleteTransaction}
-              updateCallback={updateTransaction}
-              createCallback={createTransaction}
-            />
-          ))
+          loading
+            ? (
+              <Table.Row>
+                <Table.Cell colSpan="10">
+                  <Loader active inline="centered" content="Chargement des transactions..." />
+                </Table.Cell>
+              </Table.Row>
+            )
+            : transactionList.map((transaction) => (
+              <Transaction
+                key={transaction.operations[transaction.activeOpId].pk}
+                transaction={transaction}
+                deleteCallback={deleteTransaction}
+                updateCallback={updateTransaction}
+                createCallback={createTransaction}
+              />
+            ))
         }
         <Transaction
           key={`new-transaction-${newTransactionVal}`}
