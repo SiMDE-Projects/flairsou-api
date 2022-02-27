@@ -6,4 +6,12 @@ const AccountTypes = {
   EQUITY: 4,
 };
 
+export const AccountTypesString = [
+  'Actif',
+  'Passif',
+  'Revenus',
+  'Dépenses',
+  'Capitaux Propres',
+];
+
 export default AccountTypes;

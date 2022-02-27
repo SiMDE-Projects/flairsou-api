@@ -5,6 +5,8 @@ import { Table } from 'semantic-ui-react';
 import NavAccount from '../../atoms/NavAccount/NavAccount';
 import currencyFormat from '../../../../utils/currencyFormat';
 
+import { AccountTypesString } from '../../../../assets/accountTypeMapping';
+
 // déploie l'arbre des comptes dans la navbar récursivement en adaptant le
 // niveau de profondeur
 const expandAccountTree = (accountList, depth = 0) => (
@@ -12,7 +14,7 @@ const expandAccountTree = (accountList, depth = 0) => (
     <Fragment key={`acc-${account.pk}`}>
       <Table.Row>
         <Table.Cell content={<NavAccount account={account} depth={depth} />} />
-        <Table.Cell content="type" />
+        <Table.Cell content={AccountTypesString[account.account_type]} />
         <Table.Cell collapsing textAlign="right" content={`${currencyFormat(account.balance)} €`} />
       </Table.Row>
       {expandAccountTree(account.account_set, depth + 1)}

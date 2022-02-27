@@ -1,6 +1,6 @@
 import React, { useEffect, useContext } from 'react';
 import {
-  Container, Header, Segment, Button,
+  Container, Header, Button,
 } from 'semantic-ui-react';
 
 import { AppContext } from '../../../contexts/contexts';

@@ -5,11 +5,11 @@ const AssoTypes = {
   ASS1901: 3,
 };
 
-const AssoTypeNames = {
-  0: 'Commission',
-  1: 'Club',
-  2: 'Projet',
-  3: 'Association 1901',
-};
+const AssoTypeNames = [
+  'Commission',
+  'Club',
+  'Projet',
+  'Association 1901',
+];
 
 export { AssoTypes, AssoTypeNames };
