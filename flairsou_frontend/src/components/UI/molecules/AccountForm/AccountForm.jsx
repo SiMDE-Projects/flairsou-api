@@ -48,8 +48,11 @@ const AccountForm = ({ account }) => {
   // Entités associées possibles
   const [associatedEntities, setAssociatedEntities] = useState([]);
 
-  // Id du compte créé (après soumission du formulaire)
-  const [accountCreated, setAccountCreated] = useState(null);
+  // Id du compte créé ou modifié (après soumission du formulaire)
+  const [accountResponse, setAccountResponse] = useState(null);
+
+  // Détermine si le compte est en train d'être édité
+  const isEdited = account ? 'pk' in account : false;
 
   // Reducer pour obtenir un tableau de valeurs pour le champ Select de livre
   const getFlatBooks = useCallback((r, currBook) => {
@@ -103,23 +106,17 @@ const AccountForm = ({ account }) => {
 
     const body = {
       name: accountName,
-      account_type: accountType,
-      virtual: accountIsVirtual,
-      book: accountBook.value,
-      parent: accountParent,
+      account_type: isEdited ? account.account_type : accountType,
+      virtual: isEdited ? account.virtual : accountIsVirtual,
+      book: isEdited ? account.book : accountBook.value,
+      parent: isEdited ? account.parent : accountParent,
+      associated_entity: isEdited ? account.associated_entity : accountAssociatedEntity,
     };
 
-    if (accountAssociatedEntity) {
-      body.associated_entity = accountAssociatedEntity;
-    }
-
-    if (account?.pk) {
-      // TODO Action pour l'édition
-      return;
-    }
-
-    fetch('/api/accounts/', {
-      method: 'POST',
+    const URL = isEdited ? `/api/accounts/${account.pk}` : '/api/accounts/';
+    const method = isEdited ? 'PUT' : 'POST';
+    fetch(URL, {
+      method,
       body: JSON.stringify(body),
       headers: {
         'Content-Type': 'application/json',
@@ -128,13 +125,20 @@ const AccountForm = ({ account }) => {
       .then((response) => response.json())
       .then((response) => {
         if (response?.pk) {
-          setAccountCreated(response.pk);
+          setAccountResponse(response.pk);
         } else {
           appContext.setAlert({
             message: response.non_field_errors,
             level: ErrorLevels.WARN,
           });
         }
+        setIsSubmitted(false);
+      })
+      .catch((error) => {
+        appContext.setAlert({
+          message: error.message,
+          level: ErrorLevels.ERROR,
+        });
         setIsSubmitted(false);
       });
   };
@@ -179,10 +183,10 @@ const AccountForm = ({ account }) => {
     <Container text>
       {
         // Lorsque le compte est créé, redirige vers l'affichage de son détail
-        accountCreated
-        && <Redirect to={`/accounts/${accountCreated}`} />
+        accountResponse
+        && <Redirect to={`/accounts/${accountResponse}`} />
       }
-      <Header as="h2">{ account?.name ? 'Éditer un compte' : 'Créer un compte'}</Header>
+      <Header as="h2">{ isEdited ? 'Éditer un compte' : 'Créer un compte'}</Header>
       <Divider />
       <Form onSubmit={submitForm} loading={isSubmitted}>
         <Form.Input
@@ -197,11 +201,14 @@ const AccountForm = ({ account }) => {
           label="Type du compte"
           required
           value={accountType}
+          disabled={isEdited}
           onChange={(e, { value }) => setAccountType(value)}
         />
         <Form.Checkbox
           label="Compte virtuel"
           checked={accountIsVirtual}
+          disabled={isEdited}
+          readOnly={isEdited}
           onChange={() => setAccountIsVirtual(!accountIsVirtual)}
         />
         <Form.Select
@@ -209,6 +216,7 @@ const AccountForm = ({ account }) => {
           loading={userBooks.length === 0}
           label="Livre associé"
           required
+          disabled={isEdited}
           value={accountBook?.value}
           onChange={(e, { value }) => setAccountBook(filterBook(userBooks, value))}
         />
@@ -222,6 +230,7 @@ const AccountForm = ({ account }) => {
                 label="Compte parent"
                 clearable
                 value={accountParent}
+                disabled={isEdited}
                 onChange={(e, { value }) => setAccountParent(value)}
               />
               {
@@ -232,6 +241,7 @@ const AccountForm = ({ account }) => {
                     label="Entité associée"
                     clearable
                     value={accountAssociatedEntity}
+                    disabled={isEdited}
                     onChange={(e, { value }) => setAccountAssociatedEntity(value)}
                   />
                 )
@@ -240,7 +250,7 @@ const AccountForm = ({ account }) => {
           )
         }
         <Form.Button
-          content={account?.name ? 'Modifier' : 'Créer'}
+          content={isEdited ? 'Modifier' : 'Créer'}
           primary
           loading={isSubmitted}
         />
