@@ -122,6 +122,11 @@ const TransactionList = ({ accountID, accountType, updateBalanceCallback }) => {
     fetch(`/api/accounts/${accountID}/transactions/`)
       .then((response) => response.json())
       .then((response) => {
+        if (response.transaction_set.length === 0) {
+          setLoading(false);
+          return;
+        }
+
         // récupéation des IDs des opérations actives par transaction
         const newTransactionList = response.transaction_set.map((transaction) => (
           {
