@@ -18,6 +18,7 @@ import Account from './pages/account/Account';
 import CrudActions from '../assets/crudActions';
 import Logout from './pages/logout/Logout';
 import { NotFound } from './pages/errors/Errors';
+import Credits from './pages/credits/Credits';
 
 const PrivateRoute = ({ component: Component, userIdentified, ...rest }) => (
   <Route
@@ -198,6 +199,9 @@ const App = () => {
             </Route>
             <Route path="/accounts/:accountID" exact>
               <Account action={CrudActions.READ} />
+            </Route>
+            <Route path="/credits" exact>
+              <Credits />
             </Route>
             <Route>
               <NotFound />
