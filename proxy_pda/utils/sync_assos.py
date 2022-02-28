@@ -123,6 +123,12 @@ def create_books():
             # nouveau livre si l'asso a des comptes séparés
             if asso.asso_type != AssoType.CLUB:
                 create_accounts(copy.deepcopy(base_account_struct), book)
+            else:
+                print(
+                    " --> {} est un club, structure de comptes non créée".format(
+                        asso.shortname
+                    )
+                )
 
 
 def create_accounts(account_list, book, parent=None):

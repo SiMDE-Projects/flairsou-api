@@ -1,9 +1,16 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Container, Grid, Header } from 'semantic-ui-react';
-import TransactionList from '../../molecules/TransactionList/TransactionList';
+import {
+  Button,
+  Container,
+  Grid,
+  Header,
+} from 'semantic-ui-react';
+import { Link } from 'react-router-dom';
 
 import { currencyFormat } from '../../../../utils/currencyFormat';
+import TransactionList from '../../molecules/TransactionList/TransactionList';
+import accountShape from '../../../../shapes/accountShape/accountShape';
 
 import Reconciliation from '../../atoms/Reconciliation/Reconciliation';
 
@@ -29,6 +36,9 @@ const AccountContent = ({ account }) => {
               &nbsp;
               €
             </p>
+            <Link to={{ pathname: `/accounts/edit/${account.pk}` }}>
+              <Button floated="right" secondary content="Éditer le compte" />
+            </Link>
             <div style={{ textAlign: 'right' }}>
               <Reconciliation
                 accountID={account.pk}
@@ -58,17 +68,7 @@ const AccountContent = ({ account }) => {
 };
 
 AccountContent.propTypes = {
-  account: PropTypes.shape({
-    pk: PropTypes.number.isRequired,
-    name: PropTypes.string.isRequired,
-    fullName: PropTypes.string.isRequired,
-    account_type: PropTypes.number.isRequired,
-    virtual: PropTypes.bool.isRequired,
-    parent: PropTypes.number,
-    book: PropTypes.number.isRequired,
-    associated_entity: PropTypes.string,
-    balance: PropTypes.number.isRequired,
-  }).isRequired,
+  account: PropTypes.shape(accountShape).isRequired,
 };
 
 export default AccountContent;

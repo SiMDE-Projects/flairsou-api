@@ -24,6 +24,7 @@ const Navbar = () => {
         <List.Icon
           name={(appContext.assoActive && appContext.assoActive.asso_id === asso.asso_id)
             ? 'caret down' : 'caret right'}
+          onClick={() => { handleClick(asso); }}
         />
         <List.Content
           onClick={() => { handleClick(asso); }}
