@@ -1,6 +1,6 @@
 base_account_struct = [
     {
-        "name": "Actif",
+        "name": "Actifs",
         "account_type": 0,
         "virtual": True,
         "account_set": [
@@ -38,7 +38,7 @@ base_account_struct = [
         ],
     },
     {
-        "name": "Passif",
+        "name": "Passifs",
         "account_type": 1,
         "virtual": True,
         "account_set": [
@@ -71,7 +71,7 @@ base_account_struct = [
             {
                 "name": "Communication",
                 "account_type": 3,
-                "virtual": True,
+                "virtual": False,
                 "account_set": [],
             },
         ],
