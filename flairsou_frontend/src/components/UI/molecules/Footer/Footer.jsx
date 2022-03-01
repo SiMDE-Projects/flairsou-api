@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import {
   Container, Grid, Header, Icon, List, Segment,
 } from 'semantic-ui-react';
@@ -45,4 +45,4 @@ const Footer = () => (
   </Segment>
 );
 
-export default Footer;
+export default memo(Footer);
