@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { Container } from 'semantic-ui-react';
 
 const HomeContent = () => (
@@ -7,4 +7,4 @@ const HomeContent = () => (
   </Container>
 );
 
-export default HomeContent;
+export default memo(HomeContent);

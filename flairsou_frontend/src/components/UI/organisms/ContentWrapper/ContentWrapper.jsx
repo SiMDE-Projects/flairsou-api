@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { memo, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Container, Message } from 'semantic-ui-react';
 
@@ -54,4 +54,4 @@ ContentWrapper.propTypes = {
   content: PropTypes.node.isRequired,
 };
 
-export default ContentWrapper;
+export default memo(ContentWrapper);

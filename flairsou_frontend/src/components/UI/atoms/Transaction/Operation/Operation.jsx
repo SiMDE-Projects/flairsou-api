@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import PropTypes from 'prop-types';
 import { Table } from 'semantic-ui-react';
 
@@ -59,4 +59,4 @@ Operation.propTypes = {
   active: PropTypes.bool.isRequired,
 };
 
-export default Operation;
+export default memo(Operation);

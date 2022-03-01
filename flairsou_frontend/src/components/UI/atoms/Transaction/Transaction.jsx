@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { memo, useState } from 'react';
 import PropTypes from 'prop-types';
 import {
   Table, Icon, Checkbox,
@@ -143,4 +143,4 @@ Transaction.propTypes = {
   deleteCallback: PropTypes.func.isRequired,
 };
 
-export default Transaction;
+export default memo(Transaction);

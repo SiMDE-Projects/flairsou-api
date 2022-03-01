@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { memo, useState } from 'react';
 import PropTypes from 'prop-types';
 import {
   Button,
@@ -65,4 +65,4 @@ AccountContent.propTypes = {
   account: PropTypes.shape(accountShape).isRequired,
 };
 
-export default AccountContent;
+export default memo(AccountContent);
