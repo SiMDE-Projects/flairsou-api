@@ -13,7 +13,7 @@ const Footer = () => (
               <Link to="/credits">Crédits</Link>
             </List.Item>
             <List.Item>
-              <a href="mailto:changeme@assos.utc.fr">Contact</a>
+              <a href="mailto:flairsou@assos.utc.fr">Contact</a>
             </List.Item>
             <List.Item>
               <a href="https://assos.utc.fr/">Reporter un bug</a>
