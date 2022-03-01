@@ -1,6 +1,7 @@
 import React, { Fragment } from 'react';
 
-import { Table } from 'semantic-ui-react';
+import { Link } from 'react-router-dom';
+import { Table, Icon } from 'semantic-ui-react';
 
 import NavAccount from '../../atoms/NavAccount/NavAccount';
 import currencyFormat from '../../../../utils/currencyFormat';
@@ -16,6 +17,11 @@ const expandAccountTree = (accountList, depth = 0) => (
         <Table.Cell content={<NavAccount account={account} depth={depth} />} />
         <Table.Cell content={AccountTypesString[account.account_type]} />
         <Table.Cell collapsing textAlign="right" content={`${currencyFormat(account.balance)} €`} />
+        <Table.Cell collapsing>
+          <Link to={`/accounts/edit/${account.pk}`}>
+            <Icon name="edit" title="Modifier le compte" />
+          </Link>
+        </Table.Cell>
       </Table.Row>
       {expandAccountTree(account.account_set, depth + 1)}
     </Fragment>
@@ -28,7 +34,8 @@ const AccountList = ({ accounts }) => (
       <Table.Row>
         <Table.HeaderCell content="Nom du compte" />
         <Table.HeaderCell content="Type" />
-        <Table.HeaderCell content="Solde" />
+        <Table.HeaderCell textAlign="right" content="Solde" />
+        <Table.HeaderCell content="" />
       </Table.Row>
     </Table.Header>
     <Table.Body>
