@@ -16,7 +16,7 @@ const Footer = () => (
               <a href="mailto:flairsou@assos.utc.fr">Contact</a>
             </List.Item>
             <List.Item>
-              <a href="https://assos.utc.fr/">Reporter un bug</a>
+              <a href="https://github.com/SiMDE-Projects/flairsou-api/issues">Reporter un bug</a>
             </List.Item>
             <List.Item>
               <a href="https://github.com/SiMDE-Projects/flairsou-api">Sources</a>
