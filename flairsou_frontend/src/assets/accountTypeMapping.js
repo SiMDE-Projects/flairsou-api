@@ -14,4 +14,9 @@ export const AccountTypesString = [
   'Capitaux Propres',
 ];
 
+export const AccountTypesSelect = AccountTypesString.map((v, i) => ({
+  text: v,
+  value: i,
+}));
+
 export default AccountTypes;

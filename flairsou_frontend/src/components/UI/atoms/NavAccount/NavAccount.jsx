@@ -18,7 +18,7 @@ const NavAccount = ({ account, depth = 0 }) => {
           account.virtual
             ? account.name
             : (
-              <Link to={`/account/${account.pk}`}>
+              <Link to={`/accounts/${account.pk}`}>
                 {appContext.accountActive === account.pk
                   ? (<b>{account.name}</b>)
                   : account.name}

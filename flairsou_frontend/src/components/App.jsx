@@ -16,6 +16,9 @@ import { AppContext } from './contexts/contexts';
 import Home from './pages/home/Home';
 import Account from './pages/account/Account';
 import Book from './pages/book/Book';
+import CrudActions from '../assets/crudActions';
+import Logout from './pages/logout/Logout';
+import { NotFound } from './pages/errors/Errors';
 
 const PrivateRoute = ({ component: Component, userIdentified, ...rest }) => (
   <Route
@@ -69,6 +72,9 @@ const App = () => {
 
   // clé primaire du compte actif
   const [accountActive, setAccountActive] = useState(-1);
+
+  // message d'erreur
+  const [alert, setAlert] = useState({});
 
   // fonction permettant de récupérer la clé primaire de chaque livre associé à chaque
   // association de la liste fournie, puis de mettre à jour l'état de la liste des
@@ -143,13 +149,7 @@ const App = () => {
       });
   }, [user]);
 
-  // récupération des comptes de l'association active
-  useEffect(() => {
-    if (assoActive === null) return;
-
-    // réinitialise l'affichage avant de récupérer les nouveaux
-    setAccountList([]);
-
+  const updateAccountList = () => {
     const bookPk = assoActive.book;
 
     fetch(`/api/books/${bookPk}/accounts/`)
@@ -157,7 +157,16 @@ const App = () => {
       .then((response) => {
         setAccountList(response.account_set);
       });
-  }, [assos, assoActive]);
+  };
+
+  // récupération des comptes de l'association active
+  useEffect(() => {
+    if (assoActive === null) return;
+
+    // réinitialise l'affichage avant de récupérer les nouveaux
+    setAccountList([]);
+    updateAccountList();
+  }, [assos, assoActive]); /* eslint-disable-line react-hooks/exhaustive-deps */
 
   return (
     <React.StrictMode>
@@ -166,16 +175,37 @@ const App = () => {
         assos,
         assoActive,
         updateAssoActive: (asso) => { setAssoActive(asso); },
+        refreshAccountList: () => { updateAccountList(); },
         accountList,
         accountActive,
         setAccountActive: (accountPk) => { setAccountActive(accountPk); },
+        alert,
+        setAlert: (newAlert) => { setAlert(newAlert); },
       }}
       >
         <BrowserRouter>
           <Switch>
-            <Route path="/" exact component={Home} />
-            <Route path="/account/:accountID" exact component={Account} />
-            <Route path="/book" exact component={Book} />
+            <Route path="/book" exact>
+              <Book />
+            </Route>
+            <Route path="/" exact>
+              <Home />
+            </Route>
+            <Route path="/logout" exact>
+              <Logout />
+            </Route>
+            <Route path="/accounts/create" exact>
+              <Account action={CrudActions.CREATE} />
+            </Route>
+            <Route path="/accounts/edit/:accountID" exact>
+              <Account action={CrudActions.UPDATE} />
+            </Route>
+            <Route path="/accounts/:accountID" exact>
+              <Account action={CrudActions.READ} />
+            </Route>
+            <Route>
+              <NotFound />
+            </Route>
           </Switch>
         </BrowserRouter>
       </AppContext.Provider>
