@@ -79,8 +79,6 @@ jobs:
       - changed-files
     if: ${{ needs.changed-files.outputs.backend-changed == 'true' }}
     runs-on: ubuntu-latest
-    env:
-      BASE_URL: "/"
     steps:
       - uses: actions/checkout@v2
       - name: Initialize Python 3.7
