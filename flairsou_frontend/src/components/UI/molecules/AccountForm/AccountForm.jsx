@@ -1,4 +1,5 @@
 import React, {
+  memo,
   useCallback,
   useContext,
   useEffect,
@@ -275,4 +276,4 @@ AccountForm.defaultProps = {
   account: null,
 };
 
-export default AccountForm;
+export default memo(AccountForm);

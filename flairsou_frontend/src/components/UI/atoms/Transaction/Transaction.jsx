@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { memo, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import {
   Table, Icon, Checkbox, Input,
@@ -284,4 +284,4 @@ Transaction.propTypes = {
   createCallback: PropTypes.func.isRequired,
 };
 
-export default Transaction;
+export default memo(Transaction);

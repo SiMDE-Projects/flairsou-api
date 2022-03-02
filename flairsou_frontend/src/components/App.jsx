@@ -5,7 +5,7 @@
  PrivateRoute et les passer un par un.
 */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import {
   BrowserRouter, Redirect, Route, Switch,
 } from 'react-router-dom';
@@ -18,6 +18,7 @@ import Account from './pages/account/Account';
 import CrudActions from '../assets/crudActions';
 import Logout from './pages/logout/Logout';
 import { NotFound } from './pages/errors/Errors';
+import Credits from './pages/credits/Credits';
 
 // liste des comptes non virtuels pour sélectionner dans les opérations
 const buildOptions = (accountSet) => (
@@ -221,6 +222,9 @@ const App = () => {
             <Route path="/accounts/:accountID" exact>
               <Account action={CrudActions.READ} />
             </Route>
+            <Route path="/credits" exact>
+              <Credits />
+            </Route>
             <Route>
               <NotFound />
             </Route>
@@ -231,4 +235,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default memo(App);

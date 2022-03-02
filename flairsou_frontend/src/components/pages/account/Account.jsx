@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, memo } from 'react';
 import { useParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
@@ -85,4 +85,4 @@ Account.propTypes = {
 };
 SpecificAccount.propTypes = Account.propTypes;
 
-export default Account;
+export default memo(Account);
