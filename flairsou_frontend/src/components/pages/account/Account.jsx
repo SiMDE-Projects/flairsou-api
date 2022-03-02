@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, memo } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
@@ -32,7 +32,7 @@ const SpecificAccount = ({ action }) => {
     appContext.setAccountActive(accountID);
 
     // récupère l'objet compte associé
-    fetch(process.env.BASE_URL.concat(`api/accounts/${accountID}/`))
+    fetch(`${process.env.BASE_URL}api/accounts/${accountID}/`)
       .then((response) => {
         if (response.status === 200) {
           /* si la réponse est valide, l'accès est autorisé, on stocke la
@@ -85,4 +85,4 @@ Account.propTypes = {
 };
 SpecificAccount.propTypes = Account.propTypes;
 
-export default memo(Account);
+export default Account;
