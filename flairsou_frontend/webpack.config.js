@@ -1,4 +1,3 @@
-const webpack = require('webpack');
 const path = require('path');
 const Dotenv = require('dotenv-webpack');
 
@@ -13,8 +12,9 @@ module.exports = {
   mode: 'development',
   plugins: [
     new Dotenv({
+      path: '../flairsou/.env',
+      defaults: '../flairsou/.env.defaults',
       safe: true,
-      defaults: true,
     }),
   ],
   module: {
