@@ -20,7 +20,7 @@ oauth-pda-app = {editable = true, ref = "v0.1.0", git = "https://github.com/SiMD
 
 
 [requires]
-python_version = "3.8"
+python_version = "3.9"
 
 [scripts]
 test = "./test.sh"
