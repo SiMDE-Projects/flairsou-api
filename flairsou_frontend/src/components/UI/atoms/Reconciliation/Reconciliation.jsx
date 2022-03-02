@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import PropTypes from 'prop-types';
 import {
   Modal, Button, Input,
@@ -177,4 +177,4 @@ Reconciliation.propTypes = {
   accountFullName: PropTypes.string.isRequired,
 };
 
-export default Reconciliation;
+export default memo(Reconciliation);

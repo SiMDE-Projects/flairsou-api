@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import PropTypes from 'prop-types';
 import {
   Table, Icon, Popup, Loader,
@@ -384,4 +384,4 @@ TransactionList.propTypes = {
   updateBalanceCallback: PropTypes.func.isRequired,
 };
 
-export default TransactionList;
+export default memo(TransactionList);

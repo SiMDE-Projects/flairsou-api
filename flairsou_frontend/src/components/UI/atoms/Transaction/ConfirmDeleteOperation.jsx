@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { memo, useState } from 'react';
 import PropTypes from 'prop-types';
 
 import {
@@ -48,4 +48,4 @@ ConfirmDeleteOperation.propTypes = {
   onConfirm: PropTypes.func.isRequired,
 };
 
-export default ConfirmDeleteOperation;
+export default memo(ConfirmDeleteOperation);

@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { memo, useContext } from 'react';
 import logo from '../../../../assets/logo.svg';
 import './header.css';
 
@@ -25,4 +25,4 @@ const Header = () => {
   );
 };
 
-export default Header;
+export default memo(Header);
