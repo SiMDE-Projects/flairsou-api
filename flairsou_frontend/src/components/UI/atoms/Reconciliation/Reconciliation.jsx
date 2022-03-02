@@ -17,7 +17,7 @@ const Reconciliation = ({ accountID, accountFullName }) => {
   const [reconciliationObject, setReconciliationObject] = useState([]);
 
   useEffect(() => {
-    fetch(`${process.env.BASE_URL}api/accounts/${accountID}/reconciliation/`)
+    fetch(process.env.BASE_URL.concat(`api/accounts/${accountID}/reconciliation/`))
       .then((response) => {
         if (response.status === 200) {
           /* si la réponse est valide, l'accès est autorisé, on stocke la
@@ -75,7 +75,7 @@ const Reconciliation = ({ accountID, accountFullName }) => {
     }
 
     // récupération du solde à la date demandée
-    fetch(`${process.env.BASE_URL}api/accounts/${accountID}/balance/?date=${reconciliationDate}`)
+    fetch(process.env.BASE_URL.concat(`api/accounts/${accountID}/balance/?date=${reconciliationDate}`))
       .then((response) => {
         if (response.status === 200) {
           /* si la réponse est valide */
@@ -104,7 +104,7 @@ const Reconciliation = ({ accountID, accountFullName }) => {
                 'Content-Type': 'application/json',
               },
             };
-            fetch(`${process.env.BASE_URL}api/accounts/${accountID}/reconciliation/`, options)
+            fetch(process.env.BASE_URL.concat(`api/accounts/${accountID}/reconciliation/`), options)
               .then((res) => {
                 res.json();
                 window.location.reload();

@@ -117,7 +117,7 @@ const AccountForm = ({ account }) => {
       associated_entity: isEdited ? account.associated_entity : accountAssociatedEntity,
     };
 
-    const URL = isEdited ? `${process.env.BASE_URL}api/accounts/${account.pk}/` : '${process.env.BASE_URL}api/accounts/';
+    const URL = isEdited ? process.env.BASE_URL.concat(`api/accounts/${account.pk}/`) : '${process.env.BASE_URL}api/accounts/';
     const method = isEdited ? 'PUT' : 'POST';
     fetch(URL, {
       method,
@@ -166,7 +166,7 @@ const AccountForm = ({ account }) => {
   useEffect(() => {
     if (accountBook !== null) {
       setParentsAccountsLoading(true);
-      fetch(`${process.env.BASE_URL}api/books/${accountBook.value}/accounts/`)
+      fetch(process.env.BASE_URL.concat(`api/books/${accountBook.value}/accounts/`))
         .then((response) => response.json())
         .then((response) => {
           setParentsAccounts(response.account_set
