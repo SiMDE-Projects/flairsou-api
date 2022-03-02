@@ -24,6 +24,3 @@ htmlcov
 # Compiled outputs
 flairsou_frontend/static/flairsou_frontend/
 static/
-
-# TEMP TODO REMOVE AFTER DEV
-**/migrations/*
