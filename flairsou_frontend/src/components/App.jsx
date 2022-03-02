@@ -18,6 +18,16 @@ import Account from './pages/account/Account';
 import CrudActions from '../assets/crudActions';
 import Logout from './pages/logout/Logout';
 import { NotFound } from './pages/errors/Errors';
+import Credits from './pages/credits/Credits';
+
+// liste des comptes non virtuels pour sélectionner dans les opérations
+const buildOptions = (accountSet) => (
+  accountSet.map((account) => (
+    account.virtual
+      ? buildOptions(account.account_set)
+      : <option key={`opt-${account.pk}`} value={account.fullName}>{account.fullName}</option>
+  ))
+);
 
 const PrivateRoute = ({ component: Component, userIdentified, ...rest }) => (
   <Route
@@ -68,6 +78,9 @@ const App = () => {
 
   // liste des comptes liés à l'association active dans l'application
   const [accountList, setAccountList] = useState([]);
+
+  // datalist pour pré-remplir le champ de compte dans les transactions
+  const [accountDatalist, setAccountDatalist] = useState(null);
 
   // clé primaire du compte actif
   const [accountActive, setAccountActive] = useState(-1);
@@ -167,6 +180,15 @@ const App = () => {
     updateAccountList();
   }, [assos, assoActive]); /* eslint-disable-line react-hooks/exhaustive-deps */
 
+  // création de la datalist de comptes
+  useEffect(() => {
+    setAccountDatalist(
+      <datalist id="accounts">
+        {buildOptions(accountList)}
+      </datalist>,
+    );
+  }, [accountList]);
+
   return (
     <React.StrictMode>
       <AppContext.Provider value={{
@@ -182,6 +204,7 @@ const App = () => {
         setAlert: (newAlert) => { setAlert(newAlert); },
       }}
       >
+        {accountDatalist}
         <BrowserRouter>
           <Switch>
             <Route path="/" exact>
@@ -198,6 +221,9 @@ const App = () => {
             </Route>
             <Route path="/accounts/:accountID" exact>
               <Account action={CrudActions.READ} />
+            </Route>
+            <Route path="/credits" exact>
+              <Credits />
             </Route>
             <Route>
               <NotFound />

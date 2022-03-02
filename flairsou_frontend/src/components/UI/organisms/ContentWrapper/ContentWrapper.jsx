@@ -4,6 +4,7 @@ import { Container, Message } from 'semantic-ui-react';
 
 import Header from '../../molecules/Header/Header';
 import Navbar from '../../molecules/Navbar/Navbar';
+import Footer from '../../molecules/Footer/Footer';
 import './ContentWrapper.css';
 import ErrorLevels from '../../../../assets/errorLevels';
 import { AppContext } from '../../../contexts/contexts';
@@ -46,6 +47,7 @@ const ContentWrapper = ({ content }) => {
           {content}
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

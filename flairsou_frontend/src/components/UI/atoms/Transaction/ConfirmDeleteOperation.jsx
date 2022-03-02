@@ -32,7 +32,7 @@ const ConfirmDeleteOperation = ({ onConfirm }) => {
         <Icon name="trash alternate" />
         Supprimer la transaction
       </Header>
-      <Modal.Content>
+      <Modal.Content style={{ textAlign: 'center' }}>
         Voulez-vous vraiment supprimer cette transaction ? Cette action est définitive.
       </Modal.Content>
       <Modal.Actions>
