@@ -14,7 +14,7 @@ module.exports = {
     new Dotenv({
       path: '../flairsou/.env',
       defaults: '../flairsou/.env.defaults',
-      safe: true,
+      safe: '../flairsou/.env.defaults',
     }),
   ],
   module: {
