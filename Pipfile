@@ -5,7 +5,7 @@ verify_ssl = true
 
 [dev-packages]
 pyflakes = "*"
-yapf = "*"
+black = "*"
 coverage = "*"
 ipython = "*"
 
