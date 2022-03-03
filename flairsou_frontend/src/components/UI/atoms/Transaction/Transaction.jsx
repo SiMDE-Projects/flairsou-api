@@ -6,7 +6,7 @@ import {
 
 import Operation from './Operation/Operation';
 import currencyFormat from '../../../../utils/currencyFormat';
-import ConfirmDeleteOperation from './ConfirmDeleteOperation';
+import ConfirmDeleteObject from '../ConfirmDeleteObject/ConfirmDeleteObject';
 
 /**
  * Composant effectuant le rendu d'une transaction dans l'affichage d'un compte
@@ -80,7 +80,8 @@ const Transaction = ({ transaction, deleteCallback }) => {
         <Table.Cell textAlign="center">o</Table.Cell>
         <Table.Cell textAlign="center">
           {!transaction.is_reconciliated && (
-            <ConfirmDeleteOperation
+            <ConfirmDeleteObject
+              objectName="transaction"
               onConfirm={() => deleteCallback(transaction.pk)}
             />
           )}
