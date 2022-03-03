@@ -81,6 +81,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Initialize Python 3.7
+        uses: actions/setup-python@v1
+        with:
+            python-version: 3.9
       - name: Copy config_template file
         run: cp flairsou/config_template.py flairsou/config.py
       - name: Install pipenv

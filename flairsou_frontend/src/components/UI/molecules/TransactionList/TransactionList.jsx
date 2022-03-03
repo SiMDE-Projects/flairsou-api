@@ -119,7 +119,7 @@ const TransactionList = ({ accountID, accountType, updateBalanceCallback }) => {
     setLoading(true);
 
     // récupération de la liste des transactions
-    fetch(`/api/accounts/${accountID}/transactions/`)
+    fetch(`${process.env.BASE_URL}api/accounts/${accountID}/transactions/`)
       .then((response) => response.json())
       .then((response) => {
         if (response.transaction_set.length === 0) {
@@ -168,7 +168,7 @@ const TransactionList = ({ accountID, accountType, updateBalanceCallback }) => {
    * @param {number} transactionPk - clé primaire de la transaction à supprimer
    */
   const deleteTransaction = (transactionPk) => {
-    fetch(`/api/transactions/${transactionPk}/`, { method: 'DELETE' })
+    fetch(`${process.env.BASE_URL}api/transactions/${transactionPk}/`, { method: 'DELETE' })
       .then((response) => {
         if (response.status === 204) {
           // on veut supprimer la transaction de la liste courante
@@ -204,7 +204,7 @@ const TransactionList = ({ accountID, accountType, updateBalanceCallback }) => {
    * @params {object} transaction - Transaction à mettre à jour
    */
   const updateTransaction = (transaction, resetTransactionModifiedStatus) => {
-    fetch(`/api/transactions/${transaction.pk}/`,
+    fetch(`${process.env.BASE_URL}api/transactions/${transaction.pk}/`,
       {
         method: 'PUT',
         // construction de l'objet transaction à envoyer à l'API
@@ -267,7 +267,7 @@ const TransactionList = ({ accountID, accountType, updateBalanceCallback }) => {
    * @params {object} transaction - Transaction à créer
    */
   const createTransaction = (transaction) => {
-    fetch('/api/transactions/',
+    fetch(`${process.env.BASE_URL}api/transactions/`,
       {
         method: 'POST',
         // construction de l'objet transaction à envoyer à l'API

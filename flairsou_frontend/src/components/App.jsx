@@ -62,9 +62,9 @@ PrivateRoute.defaultProps = {
 };
 
 // routes de l'API
-const authlinkUrl = '/oauth/authlink';
-const userInfosUrl = '/proxy_pda/get_user_infos';
-const assosUrl = '/proxy_pda/get_list_assos';
+const authlinkUrl = process.env.BASE_URL.concat('oauth/authlink');
+const userInfosUrl = process.env.BASE_URL.concat('proxy_pda/get_user_infos');
+const assosUrl = process.env.BASE_URL.concat('proxy_pda/get_list_assos');
 
 const App = () => {
   // informations sur l'utilisateur
@@ -95,7 +95,7 @@ const App = () => {
     // fonction de récupération des livres associés aux entités
     const fetchAssoBook = async (asso) => {
       // appel de l'API pour récupérer le livre associé à l'asso
-      const response = await fetch(`/api/books/byEntity/${asso.asso_id}/`);
+      const response = await fetch(process.env.BASE_URL.concat(`api/books/byEntity/${asso.asso_id}/`));
       let bookId = '-1';
       if (response.status === 200) {
         const json = await response.json();
@@ -164,7 +164,7 @@ const App = () => {
   const updateAccountList = () => {
     const bookPk = assoActive.book;
 
-    fetch(`/api/books/${bookPk}/accounts/`)
+    fetch(process.env.BASE_URL.concat(`api/books/${bookPk}/accounts/`))
       .then((response) => response.json())
       .then((response) => {
         setAccountList(response.account_set);
@@ -205,7 +205,7 @@ const App = () => {
       }}
       >
         {accountDatalist}
-        <BrowserRouter>
+        <BrowserRouter basename={process.env.BASE_URL.replace('/', '')}>
           <Switch>
             <Route path="/" exact>
               <Home />
