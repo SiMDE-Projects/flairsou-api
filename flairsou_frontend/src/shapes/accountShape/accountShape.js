@@ -7,7 +7,7 @@ const accountShape = {
   account_type: PropTypes.number.isRequired,
   virtual: PropTypes.bool.isRequired,
   parent: PropTypes.number,
-  book: PropTypes.number.isRequired,
+  book: PropTypes.number,
   associated_entity: PropTypes.string,
   balance: PropTypes.number.isRequired,
 };
