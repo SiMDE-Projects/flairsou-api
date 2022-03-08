@@ -270,4 +270,18 @@ class AccountTransactionListSerializer(FlairsouModelSerializer):
         transactions = Transaction.objects.filter(pk__in=transaction_pks).order_by(
             "date"
         )
+
+        # récupération, si ils existent, des paramètres permettant de donner une
+        # fenêtre de temps pour récupérer les transactions
+        if "request" in self.context:
+            params = self.context["request"].query_params
+            if "from" in params and "to" in params:
+                try:
+                    transactions = transactions.filter(
+                        date__range=[params["from"], params["to"]]
+                    )
+                except:
+                    # en cas de mauvais paramètres ou de date invalide
+                    raise self.ValidationError({"error": "Erreur dans la requête"})
+
         return TransactionSerializer(transactions, many=True).data
