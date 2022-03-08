@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useContext } from 'react';
 import PropTypes from 'prop-types';
 
 import { Link } from 'react-router-dom';
@@ -10,17 +10,11 @@ import currencyFormat from '../../../../utils/currencyFormat';
 import { AccountTypesString } from '../../../../assets/accountTypeMapping';
 import ConfirmDeleteObject from '../../atoms/ConfirmDeleteObject/ConfirmDeleteObject';
 import accountShape from '../../../../shapes/accountShape/accountShape';
-
-const deleteAccount = (accountPk) => {
-  fetch(`/api/accounts/${accountPk}/`, { method: 'DELETE' })
-    .then((response) => {
-      console.log(response);
-    });
-};
+import { AppContext } from '../../../contexts/contexts';
 
 // déploie l'arbre des comptes dans la navbar récursivement en adaptant le
 // niveau de profondeur
-const expandAccountTree = (accountList, depth = 0) => (
+const expandAccountTree = (accountList, deleteAccount, depth = 0) => (
   accountList.map((account) => (
     <Fragment key={`acc-${account.pk}`}>
       <Table.Row>
@@ -41,27 +35,49 @@ const expandAccountTree = (accountList, depth = 0) => (
           )}
         </Table.Cell>
       </Table.Row>
-      {expandAccountTree(account.account_set, depth + 1)}
+      {expandAccountTree(account.account_set, deleteAccount, depth + 1)}
     </Fragment>
   ))
 );
 
-const AccountList = ({ accounts }) => (
-  <Table basic compact>
-    <Table.Header>
-      <Table.Row>
-        <Table.HeaderCell content="Nom du compte" />
-        <Table.HeaderCell content="Type" />
-        <Table.HeaderCell textAlign="right" content="Solde" />
-        <Table.HeaderCell content="" />
-        <Table.HeaderCell content="" />
-      </Table.Row>
-    </Table.Header>
-    <Table.Body>
-      {expandAccountTree(accounts)}
-    </Table.Body>
-  </Table>
-);
+const AccountList = ({ accounts }) => {
+  const appContext = useContext(AppContext);
+
+  /**
+   * Fonction de suppression d'un compte de la liste
+   *
+   * Cette fonction appelle l'API de suppression d'un compte et met à jour la liste locale.
+   *
+   * @param {number} accountPk - clé primaire du compte à supprimer
+   */
+  const deleteAccount = (accountPk) => {
+    fetch(`/api/accounts/${accountPk}/`, { method: 'DELETE' })
+      .then((response) => {
+        if (response.status === 204) {
+          appContext.refreshAccountList();
+        } else {
+          console.error(`Erreur de suppression du compte ${accountPk}`);
+        }
+      });
+  };
+
+  return (
+    <Table basic compact>
+      <Table.Header>
+        <Table.Row>
+          <Table.HeaderCell content="Nom du compte" />
+          <Table.HeaderCell content="Type" />
+          <Table.HeaderCell textAlign="right" content="Solde" />
+          <Table.HeaderCell content="" />
+          <Table.HeaderCell content="" />
+        </Table.Row>
+      </Table.Header>
+      <Table.Body>
+        {expandAccountTree(accounts, deleteAccount)}
+      </Table.Body>
+    </Table>
+  );
+};
 
 AccountList.propTypes = {
   accounts: PropTypes.arrayOf(PropTypes.shape(accountShape)).isRequired,
