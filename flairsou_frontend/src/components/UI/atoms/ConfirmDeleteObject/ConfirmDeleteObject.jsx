@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { memo, useState } from 'react';
 import PropTypes from 'prop-types';
 
 import {
@@ -39,7 +39,7 @@ const ConfirmDeleteOperation = ({ objectName, onConfirm }) => {
         <Icon name="trash alternate" />
         {`Supprimer ${gender ? 'la' : 'le'} ${objectName}`}
       </Header>
-      <Modal.Content>
+      <Modal.Content style={{ textAlign: 'center' }}>
         Voulez-vous vraiment supprimer
         {' '}
         {gender ? 'cette' : 'ce'}
@@ -68,4 +68,4 @@ ConfirmDeleteOperation.propTypes = {
   onConfirm: PropTypes.func.isRequired,
 };
 
-export default ConfirmDeleteOperation;
+export default memo(ConfirmDeleteOperation);

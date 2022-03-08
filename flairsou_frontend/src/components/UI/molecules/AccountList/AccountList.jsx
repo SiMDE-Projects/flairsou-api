@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import { Table, Icon } from 'semantic-ui-react';
 
 import NavAccount from '../../atoms/NavAccount/NavAccount';
-import currencyFormat from '../../../../utils/currencyFormat';
+import { currencyFormat } from '../../../../utils/currencyFormat';
 
 import { AccountTypesString } from '../../../../assets/accountTypeMapping';
 import ConfirmDeleteObject from '../../atoms/ConfirmDeleteObject/ConfirmDeleteObject';

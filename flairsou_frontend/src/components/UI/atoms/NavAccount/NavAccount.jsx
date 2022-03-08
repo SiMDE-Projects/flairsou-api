@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { memo, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Icon } from 'semantic-ui-react';
@@ -53,4 +53,4 @@ NavAccount.defaultProps = {
   depth: 0,
 };
 
-export default NavAccount;
+export default memo(NavAccount);

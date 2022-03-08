@@ -32,7 +32,7 @@ const SpecificAccount = ({ action }) => {
     appContext.setAccountActive(accountID);
 
     // récupère l'objet compte associé
-    fetch(`/api/accounts/${accountID}/`)
+    fetch(`${process.env.BASE_URL}api/accounts/${accountID}/`)
       .then((response) => {
         if (response.status === 200) {
           /* si la réponse est valide, l'accès est autorisé, on stocke la

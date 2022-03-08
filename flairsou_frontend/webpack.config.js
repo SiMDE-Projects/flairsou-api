@@ -1,6 +1,22 @@
+const path = require('path');
+const Dotenv = require('dotenv-webpack');
+
 module.exports = {
   entry: './src/index.js',
+  devtool: 'source-map',
+  output: {
+    path: path.join(__dirname, 'static/flairsou_frontend'),
+    filename: 'main.js',
+    publicPath: '/static/flairsou_frontend/',
+  },
   mode: 'development',
+  plugins: [
+    new Dotenv({
+      path: '../flairsou/.env',
+      defaults: '../flairsou/.env.defaults',
+      safe: '../flairsou/.env.defaults',
+    }),
+  ],
   module: {
     rules: [
       {
@@ -19,7 +35,7 @@ module.exports = {
             [
               '@babel/plugin-proposal-class-properties',
               {
-                loose: true,
+                // loose: true,
               },
             ],
           ],

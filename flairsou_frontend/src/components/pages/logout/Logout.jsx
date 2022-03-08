@@ -6,7 +6,7 @@ const Logout = () => {
 
   useEffect(() => {
     if (content === null) {
-      fetch('/oauth/logout').then(() => setContent(<Redirect to="/" />));
+      fetch('${process.env.BASE_URL}oauth/logout').then(() => setContent(<Redirect to="/" />));
     }
   }, [content]);
 

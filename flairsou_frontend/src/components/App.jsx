@@ -5,7 +5,7 @@
  PrivateRoute et les passer un par un.
 */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import {
   BrowserRouter, Redirect, Route, Switch,
 } from 'react-router-dom';
@@ -19,6 +19,16 @@ import Book from './pages/book/Book';
 import CrudActions from '../assets/crudActions';
 import Logout from './pages/logout/Logout';
 import { NotFound } from './pages/errors/Errors';
+import Credits from './pages/credits/Credits';
+
+// liste des comptes non virtuels pour sélectionner dans les opérations
+const buildOptions = (accountSet) => (
+  accountSet.map((account) => (
+    account.virtual
+      ? buildOptions(account.account_set)
+      : <option key={`opt-${account.pk}`} value={account.fullName}>{account.fullName}</option>
+  ))
+);
 
 const PrivateRoute = ({ component: Component, userIdentified, ...rest }) => (
   <Route
@@ -53,9 +63,9 @@ PrivateRoute.defaultProps = {
 };
 
 // routes de l'API
-const authlinkUrl = '/oauth/authlink';
-const userInfosUrl = '/proxy_pda/get_user_infos';
-const assosUrl = '/proxy_pda/get_list_assos';
+const authlinkUrl = process.env.BASE_URL.concat('oauth/authlink');
+const userInfosUrl = process.env.BASE_URL.concat('proxy_pda/get_user_infos');
+const assosUrl = process.env.BASE_URL.concat('proxy_pda/get_list_assos');
 
 const App = () => {
   // informations sur l'utilisateur
@@ -70,6 +80,9 @@ const App = () => {
   // liste des comptes liés à l'association active dans l'application
   const [accountList, setAccountList] = useState([]);
 
+  // datalist pour pré-remplir le champ de compte dans les transactions
+  const [accountDatalist, setAccountDatalist] = useState(null);
+
   // clé primaire du compte actif
   const [accountActive, setAccountActive] = useState(-1);
 
@@ -83,7 +96,7 @@ const App = () => {
     // fonction de récupération des livres associés aux entités
     const fetchAssoBook = async (asso) => {
       // appel de l'API pour récupérer le livre associé à l'asso
-      const response = await fetch(`/api/books/byEntity/${asso.asso_id}/`);
+      const response = await fetch(process.env.BASE_URL.concat(`api/books/byEntity/${asso.asso_id}/`));
       let bookId = '-1';
       if (response.status === 200) {
         const json = await response.json();
@@ -152,7 +165,7 @@ const App = () => {
   const updateAccountList = () => {
     const bookPk = assoActive.book;
 
-    fetch(`/api/books/${bookPk}/accounts/`)
+    fetch(process.env.BASE_URL.concat(`api/books/${bookPk}/accounts/`))
       .then((response) => response.json())
       .then((response) => {
         setAccountList(response.account_set);
@@ -167,6 +180,15 @@ const App = () => {
     setAccountList([]);
     updateAccountList();
   }, [assos, assoActive]); /* eslint-disable-line react-hooks/exhaustive-deps */
+
+  // création de la datalist de comptes
+  useEffect(() => {
+    setAccountDatalist(
+      <datalist id="accounts">
+        {buildOptions(accountList)}
+      </datalist>,
+    );
+  }, [accountList]);
 
   return (
     <React.StrictMode>
@@ -183,7 +205,8 @@ const App = () => {
         setAlert: (newAlert) => { setAlert(newAlert); },
       }}
       >
-        <BrowserRouter>
+        {accountDatalist}
+        <BrowserRouter basename={process.env.BASE_URL.replace('/', '')}>
           <Switch>
             <Route path="/book" exact>
               <Book />
@@ -203,6 +226,9 @@ const App = () => {
             <Route path="/accounts/:accountID" exact>
               <Account action={CrudActions.READ} />
             </Route>
+            <Route path="/credits" exact>
+              <Credits />
+            </Route>
             <Route>
               <NotFound />
             </Route>
@@ -213,4 +239,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default memo(App);

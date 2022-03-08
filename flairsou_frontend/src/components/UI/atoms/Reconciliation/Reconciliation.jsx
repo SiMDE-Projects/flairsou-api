@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import PropTypes from 'prop-types';
 import {
   Modal, Button, Input,
@@ -17,7 +17,7 @@ const Reconciliation = ({ accountID, accountFullName }) => {
   const [reconciliationObject, setReconciliationObject] = useState([]);
 
   useEffect(() => {
-    fetch(`/api/accounts/${accountID}/reconciliation/`)
+    fetch(`${process.env.BASE_URL}api/accounts/${accountID}/reconciliation/`)
       .then((response) => {
         if (response.status === 200) {
           /* si la réponse est valide, l'accès est autorisé, on stocke la
@@ -75,7 +75,7 @@ const Reconciliation = ({ accountID, accountFullName }) => {
     }
 
     // récupération du solde à la date demandée
-    fetch(`/api/accounts/${accountID}/balance/?date=${reconciliationDate}`)
+    fetch(`${process.env.BASE_URL}api/accounts/${accountID}/balance/?date=${reconciliationDate}`)
       .then((response) => {
         if (response.status === 200) {
           /* si la réponse est valide */
@@ -104,7 +104,7 @@ const Reconciliation = ({ accountID, accountFullName }) => {
                 'Content-Type': 'application/json',
               },
             };
-            fetch(`/api/accounts/${accountID}/reconciliation/`, options)
+            fetch(`${process.env.BASE_URL}api/accounts/${accountID}/reconciliation/`, options)
               .then((res) => {
                 res.json();
                 window.location.reload();
@@ -177,4 +177,4 @@ Reconciliation.propTypes = {
   accountFullName: PropTypes.string.isRequired,
 };
 
-export default Reconciliation;
+export default memo(Reconciliation);

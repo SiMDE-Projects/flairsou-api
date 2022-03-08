@@ -1,4 +1,5 @@
 import React, {
+  memo,
   useCallback,
   useContext,
   useEffect,
@@ -116,7 +117,7 @@ const AccountForm = ({ account }) => {
       associated_entity: isEdited ? account.associated_entity : accountAssociatedEntity,
     };
 
-    const URL = isEdited ? `/api/accounts/${account.pk}/` : '/api/accounts/';
+    const URL = isEdited ? `${process.env.BASE_URL}api/accounts/${account.pk}/` : '${process.env.BASE_URL}api/accounts/';
     const method = isEdited ? 'PUT' : 'POST';
     fetch(URL, {
       method,
@@ -165,7 +166,7 @@ const AccountForm = ({ account }) => {
   useEffect(() => {
     if (accountBook !== null) {
       setParentsAccountsLoading(true);
-      fetch(`/api/books/${accountBook.value}/accounts/`)
+      fetch(`${process.env.BASE_URL}api/books/${accountBook.value}/accounts/`)
         .then((response) => response.json())
         .then((response) => {
           setParentsAccounts(response.account_set
@@ -275,4 +276,4 @@ AccountForm.defaultProps = {
   account: null,
 };
 
-export default AccountForm;
+export default memo(AccountForm);

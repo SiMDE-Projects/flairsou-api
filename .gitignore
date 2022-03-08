@@ -5,6 +5,7 @@
 # Environment
 venv/
 flairsou/config.py
+**/.env
 
 # IDE Specific
 .vscode/
@@ -22,6 +23,4 @@ htmlcov
 
 # Compiled outputs
 flairsou_frontend/static/flairsou_frontend/
-
-# TEMP TODO REMOVE AFTER DEV
-**/migrations/*
+static/
