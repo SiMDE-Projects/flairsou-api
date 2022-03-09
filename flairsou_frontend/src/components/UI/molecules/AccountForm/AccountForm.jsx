@@ -117,7 +117,7 @@ const AccountForm = ({ account }) => {
       associated_entity: isEdited ? account.associated_entity : accountAssociatedEntity,
     };
 
-    const URL = isEdited ? `${process.env.BASE_URL}api/accounts/${account.pk}/` : '${process.env.BASE_URL}api/accounts/';
+    const URL = isEdited ? `${process.env.BASE_URL}api/accounts/${account.pk}/` : `${process.env.BASE_URL}api/accounts/`;
     const method = isEdited ? 'PUT' : 'POST';
     fetch(URL, {
       method,
