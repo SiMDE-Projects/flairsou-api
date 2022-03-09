@@ -208,9 +208,6 @@ const App = () => {
         {accountDatalist}
         <BrowserRouter basename={process.env.BASE_URL.replace('/', '')}>
           <Switch>
-            <Route path="/book" exact>
-              <Book />
-            </Route>
             <Route path="/" exact>
               <Home />
             </Route>
@@ -225,6 +222,9 @@ const App = () => {
             </Route>
             <Route path="/accounts/:accountID" exact>
               <Account action={CrudActions.READ} />
+            </Route>
+            <Route path="/book" exact>
+              <Book />
             </Route>
             <Route path="/credits" exact>
               <Credits />
