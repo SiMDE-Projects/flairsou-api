@@ -31,6 +31,7 @@ const expandAccountTree = (accountList, deleteAccount, depth = 0) => (
           {account.account_set.length === 0 && (
             <ConfirmDeleteObject
               objectName="compte"
+              objectDetail={account.fullName}
               onConfirm={() => deleteAccount(account.pk)}
             />
           )}

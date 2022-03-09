@@ -218,6 +218,7 @@ const Transaction = ({
           {!transaction.is_reconciliated && (
             <ConfirmDeleteObject
               objectName="transaction"
+              objectDetail={activeOp.label}
               onConfirm={() => deleteCallback(transaction.pk)}
             />
           )}

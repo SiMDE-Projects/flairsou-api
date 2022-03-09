@@ -8,7 +8,7 @@ import {
 /**
  * Dialogue de confirmation de la suppression d'un objet en général
  */
-const ConfirmDeleteOperation = ({ objectName, onConfirm }) => {
+const ConfirmDeleteOperation = ({ objectName, objectDetail, onConfirm }) => {
   const [open, setOpen] = useState(false);
 
   // genre de l'objet à supprimer, masculin par défaut (genre non marqué)
@@ -30,14 +30,14 @@ const ConfirmDeleteOperation = ({ objectName, onConfirm }) => {
           name="trash alternate"
           color="red"
           link
-          title={`Supprimer ${gender ? 'la' : 'le'} ${objectName}`}
+          title={`Supprimer ${gender ? 'la' : 'le'} ${objectName} ${objectDetail ? `<${objectDetail}>` : ''}`}
           onClick={() => setOpen(true)}
         />
       )}
     >
       <Header icon>
         <Icon name="trash alternate" />
-        {`Supprimer ${gender ? 'la' : 'le'} ${objectName}`}
+        {`Supprimer ${gender ? 'la' : 'le'} ${objectName} ${objectDetail ? `<${objectDetail}>` : ''}`}
       </Header>
       <Modal.Content style={{ textAlign: 'center' }}>
         Voulez-vous vraiment supprimer
@@ -53,7 +53,7 @@ const ConfirmDeleteOperation = ({ objectName, onConfirm }) => {
         <Button
           color="red"
           onClick={() => { setOpen(false); onConfirm(); }}
-          content={`Supprimer ${gender ? 'la' : 'le'} ${objectName}`}
+          content={`Supprimer ${gender ? 'la' : 'le'} ${objectName} ${objectDetail ? `<${objectDetail}>` : ''}`}
           icon="trash alternate"
         />
       </Modal.Actions>
@@ -64,6 +64,8 @@ const ConfirmDeleteOperation = ({ objectName, onConfirm }) => {
 ConfirmDeleteOperation.propTypes = {
   // nom de l'objet à supprimer
   objectName: PropTypes.string.isRequired,
+  // détails sur l'objet
+  objectDetail: PropTypes.string.isRequired,
   // callback de suppression d'une transaction
   onConfirm: PropTypes.func.isRequired,
 };
