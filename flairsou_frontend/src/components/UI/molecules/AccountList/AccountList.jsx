@@ -11,6 +11,7 @@ import { AccountTypesString } from '../../../../assets/accountTypeMapping';
 import ConfirmDeleteObject from '../../atoms/ConfirmDeleteObject/ConfirmDeleteObject';
 import accountShape from '../../../../shapes/accountShape/accountShape';
 import { AppContext } from '../../../contexts/contexts';
+import ErrorLevels from '../../../../assets/errorLevels';
 
 // déploie l'arbre des comptes dans la navbar récursivement en adaptant le
 // niveau de profondeur
@@ -56,7 +57,10 @@ const AccountList = ({ accounts }) => {
         if (response.status === 204) {
           appContext.refreshAccountList();
         } else {
-          console.error(`Erreur de suppression du compte ${accountPk}`);
+          appContext.setAlert({
+            message: `Erreur de suppression du compte ${accountPk}`,
+            level: ErrorLevels.ERROR,
+          });
         }
       });
   };
