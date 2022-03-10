@@ -58,9 +58,11 @@ const AccountList = ({ accounts }) => {
         if (response.status === 204) {
           appContext.refreshAccountList();
         } else {
-          appContext.setAlert({
-            message: `Erreur de suppression du compte ${accountPk}`,
-            level: ErrorLevels.ERROR,
+          response.json().then((resp) => {
+            appContext.setAlert({
+              message: `Erreur de suppression du compte ${accountPk} : ${resp.error}`,
+              level: ErrorLevels.ERROR,
+            });
           });
         }
       });
