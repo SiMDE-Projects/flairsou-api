@@ -1,0 +1,24 @@
+[class*="nav-account-level-"] {
+  padding-top: 3px;
+  padding-bottom: 3px;
+}
+
+.nav-account-level-0 {
+  padding-left: 0px;
+}
+
+.nav-account-level-1 {
+  padding-left: 20px;
+}
+
+.nav-account-level-2 {
+  padding-left: 40px;
+}
+
+.nav-account-level-3 {
+  padding-left: 60px;
+}
+
+.nav-account-level-4 {
+  padding-left: 80px;
+}

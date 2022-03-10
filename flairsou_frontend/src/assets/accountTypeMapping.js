@@ -5,13 +5,15 @@ const AccountTypes = {
   EXPENSE: 3,
   EQUITY: 4,
 };
-const AccountTypesString = [
+
+export const AccountTypesString = [
   'Actif',
   'Passif',
   'Revenus',
   'Dépenses',
   'Capitaux Propres',
 ];
+
 export const AccountTypesSelect = AccountTypesString.map((v, i) => ({
   text: v,
   value: i,

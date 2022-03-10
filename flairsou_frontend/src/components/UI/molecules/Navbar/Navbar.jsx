@@ -2,9 +2,22 @@ import React, { Fragment, memo, useContext } from 'react';
 import './navbar.css';
 
 import { List } from 'semantic-ui-react';
+import { Link } from 'react-router-dom';
+
 import SearchBar from '../../atoms/SearchBar/SearchBar';
 import { AppContext } from '../../../contexts/contexts';
 import NavAccount from '../../atoms/NavAccount/NavAccount';
+
+// déploie l'arbre des comptes dans la navbar récursivement en adaptant le
+// niveau de profondeur
+const expandAccountTree = (accountList, depth = 0) => (
+  accountList.map((account) => (
+    <Fragment key={`acc-${account.pk}`}>
+      <NavAccount account={account} depth={depth} />
+      {expandAccountTree(account.account_set, depth + 1)}
+    </Fragment>
+  ))
+);
 
 const Navbar = () => {
   const appContext = useContext(AppContext);
@@ -26,23 +39,16 @@ const Navbar = () => {
             ? 'caret down' : 'caret right'}
           onClick={() => { handleClick(asso); }}
         />
-        <List.Content
-          onClick={() => { handleClick(asso); }}
-        >
-          {prefix}
-          {asso.shortname}
+        <List.Content>
+          <Link to="/book" onClick={() => { handleClick(asso); }}>
+            {prefix}
+            {asso.shortname}
+          </Link>
+          {
+            appContext.assoActive && appContext.assoActive.asso_id === asso.asso_id
+            && expandAccountTree(appContext.accountList)
+          }
         </List.Content>
-        {
-          (appContext.assoActive && appContext.assoActive.asso_id === asso.asso_id)
-          && (
-            <List.List>
-              {
-                  appContext.accountList.map((account) => (
-                    <NavAccount key={`acc-${account.pk}`} account={account} />))
-              }
-            </List.List>
-          )
-        }
       </List.Item>
       {
         asso.asso_set.map((subasso) => (

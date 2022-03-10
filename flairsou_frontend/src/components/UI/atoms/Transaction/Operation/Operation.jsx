@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useContext, memo } from 'react';
+import React, {
+  useState, useEffect, useContext, memo,
+} from 'react';
 import PropTypes from 'prop-types';
 import { Table, Input } from 'semantic-ui-react';
 

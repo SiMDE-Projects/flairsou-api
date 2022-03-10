@@ -15,6 +15,7 @@ import { AppContext } from './contexts/contexts';
 
 import Home from './pages/home/Home';
 import Account from './pages/account/Account';
+import Book from './pages/book/Book';
 import CrudActions from '../assets/crudActions';
 import Logout from './pages/logout/Logout';
 import { NotFound } from './pages/errors/Errors';
@@ -221,6 +222,9 @@ const App = () => {
             </Route>
             <Route path="/accounts/:accountID" exact>
               <Account action={CrudActions.READ} />
+            </Route>
+            <Route path="/book" exact>
+              <Book />
             </Route>
             <Route path="/credits" exact>
               <Credits />

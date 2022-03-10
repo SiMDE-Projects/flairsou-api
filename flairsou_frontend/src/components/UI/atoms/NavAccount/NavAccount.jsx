@@ -1,21 +1,20 @@
 import React, { memo, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { List } from 'semantic-ui-react';
+import { Icon } from 'semantic-ui-react';
 
 import { AppContext } from '../../../contexts/contexts';
 
-// affiche le nom du compte dans la navbar ainsi que la liste de ses sous-comptes,
-// et met en place un lien pour arriver sur la page correspondant à la liste des
-// opérations du compte
-const NavAccount = ({ account }) => {
+import './NavAccount.css';
+
+// affiche le nom du compte et un lien vers la page associée
+const NavAccount = ({ account, depth = 0 }) => {
   const appContext = useContext(AppContext);
 
   return (
-    <List.Item>
-      <List.Icon name="university" />
-      <List.Content>
-        {
+    <div className={`nav-account-level-${depth}`}>
+      <Icon name="university" />
+      {
           account.virtual
             ? account.name
             : (
@@ -26,19 +25,7 @@ const NavAccount = ({ account }) => {
               </Link>
             )
         }
-      </List.Content>
-      {
-      account.account_set.length > 0
-      && (
-        <List.List>
-          {
-            account.account_set.map((subaccount) => (
-              <NavAccount key={`acc-${subaccount.pk}`} account={subaccount} />))
-          }
-        </List.List>
-      )
-      }
-    </List.Item>
+    </div>
   );
 };
 
@@ -59,6 +46,11 @@ NavAccount.propTypes = {
       balance: PropTypes.number.isRequired,
     })).isRequired,
   }).isRequired,
+  depth: PropTypes.number,
+};
+
+NavAccount.defaultProps = {
+  depth: 0,
 };
 
 export default memo(NavAccount);
