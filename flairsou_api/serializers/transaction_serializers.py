@@ -239,11 +239,19 @@ class TransactionSerializer(FlairsouModelSerializer):
             updated_new = list(False for x in new_ops)
 
             for inew, new_op in enumerate(new_ops):
+                # on récupère la clé primaire fournie initialement dans la liste
+                # pour associer les instances existantes avec celles fournies lors
+                # de la mise à jour
+                if "pk" not in self.initial_data["operations"][inew]:
+                    # cette opération n'a pas de clé, ce n'est donc pas une mise à jour
+                    # mais une création
+                    continue
+
+                new_op_pk = self.initial_data["operations"][inew]["pk"]
                 for iprev, prev_op in enumerate(previous_ops):
-                    if new_op["account"] == prev_op.account:
-                        # l'opération new_op correspond à une opération
-                        # précédente
-                        Operation.objects.filter(id=prev_op.id).update(**new_op)
+                    if new_op_pk == prev_op.pk:
+                        # l'opération new_op correspond à une opération précédente
+                        Operation.objects.filter(id=prev_op.pk).update(**new_op)
 
                         # l'opération est mise à jour
                         updated_previous[iprev] = True
