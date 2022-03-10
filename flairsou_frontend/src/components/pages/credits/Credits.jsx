@@ -43,7 +43,7 @@ const CreditsContent = () => {
       </p>
       <List divided relaxed verticalAlign="middle">
         { contribList.map((contrib) => (
-          <List.Item key={contrib.username}>
+          <List.Item key={contrib.username} as="a" href={contrib.url} target="_blank">
             <Image avatar src={contrib.avatar} />
             <List.Content>
               <List.Header>
