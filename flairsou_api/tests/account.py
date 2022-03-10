@@ -5,6 +5,7 @@ from django.urls import reverse
 import datetime
 import uuid
 from flairsou_api.models import Account, Book, Transaction, Operation
+from flairsou_api.views import AccountDetail
 
 
 class AccountBalanceTestCase(APITestCase):
@@ -328,3 +329,53 @@ class AccountAPITestCase(APITestCase):
         url = reverse("flairsou_api:account-create")
         response = self.client.get(url, format="json")
         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_delete_account(self):
+        # la suppression d'un compte sans opérations fonctionne
+        url = reverse("flairsou_api:account-detail", kwargs={"pk": self.expenses.pk})
+        response = self.client.delete(url, format="json")
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+        # création d'une transaction
+        tr = Transaction.objects.create(date=datetime.date.today(), checked=False)
+        Operation.objects.create(
+            debit=10000,
+            credit=0,
+            label="Recette 1",
+            account=self.assets,
+            transaction=tr,
+        )
+        Operation.objects.create(
+            debit=0,
+            credit=10000,
+            label="Recette 1",
+            account=self.liabilities,
+            transaction=tr,
+        )
+
+        # la suppression d'un compte avec une opération est refusée
+        url = reverse("flairsou_api:account-detail", kwargs={"pk": self.assets.pk})
+        response = self.client.delete(url, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            response.json()["error"], AccountDetail.errors["account_with_ops"]
+        )
+
+        # suppression de la transaction
+        tr.delete()
+
+        # création d'un sous-compte
+        Account.objects.create(
+            name="Courant",
+            account_type=Account.AccountType.ASSET,
+            parent=self.assets,
+            virtual=False,
+            book=self.book,
+        )
+
+        # la suppression d'un compte avec des sous-comptes est refusée
+        response = self.client.delete(url, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            response.json()["error"], AccountDetail.errors["account_with_subaccounts"]
+        )

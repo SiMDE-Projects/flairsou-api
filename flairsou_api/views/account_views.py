@@ -44,6 +44,11 @@ class AccountDetail(
     un compte existant
     """
 
+    errors = {
+        "account_with_ops": "Un compte avec des opérations ne peut pas être supprimé",
+        "account_with_subaccounts": "Un compte avec des sous-comptes ne peut pas être supprimé",
+    }
+
     queryset = fm.Account.objects.all()
     serializer_class = fs.AccountSerializer
     permission_classes = [UserAllowed]
@@ -73,14 +78,20 @@ class AccountDetail(
         # surcharge de la fonction de suppression pour éviter la suppression
         # d'un compte qui possède des opérations.
         account = self.get_object()
+        error = None
         if account.operation_set.count() > 0:
+            error = self.errors["account_with_ops"]
+
+        if account.account_set.count() > 0:
+            error = self.errors["account_with_subaccounts"]
+
+        if error is not None:
             return Response(
-                data={
-                    "error": "Un compte avec des opérations ne peut pas être supprimé"
-                },
+                data={"error": error},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        return super(self, AccountDetail).destroy(self, request, *args, **kwargs)
+
+        return super(AccountDetail, self).destroy(self, request, *args, **kwargs)
 
 
 class AccountBalance(mixins.RetrieveModelMixin, generics.GenericAPIView):
