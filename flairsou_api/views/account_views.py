@@ -1,5 +1,7 @@
 from rest_framework import mixins
 from rest_framework import generics
+from rest_framework.response import Response
+from rest_framework import status
 
 import flairsou_api.models as fm
 import flairsou_api.serializers as fs
@@ -66,6 +68,19 @@ class AccountDetail(
         - id : clé primaire du compte à supprimer
         """
         return self.destroy(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        # surcharge de la fonction de suppression pour éviter la suppression
+        # d'un compte qui possède des opérations.
+        account = self.get_object()
+        if account.operation_set.count() > 0:
+            return Response(
+                data={
+                    "error": "Un compte avec des opérations ne peut pas être supprimé"
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        return super(self, AccountDetail).destroy(self, request, *args, **kwargs)
 
 
 class AccountBalance(mixins.RetrieveModelMixin, generics.GenericAPIView):
