@@ -5,6 +5,7 @@ from flairsou_api.models import Account, Book, Transaction
 from rest_framework import serializers
 from rest_framework.exceptions import PermissionDenied
 from drf_spectacular.utils import extend_schema_field
+from django.core.exceptions import ValidationError
 
 from datetime import datetime
 
@@ -275,13 +276,13 @@ class AccountTransactionListSerializer(FlairsouModelSerializer):
         # fenêtre de temps pour récupérer les transactions
         if "request" in self.context:
             params = self.context["request"].query_params
-            if "from" in params and "to" in params:
-                try:
-                    transactions = transactions.filter(
-                        date__range=[params["from"], params["to"]]
-                    )
-                except:
-                    # en cas de mauvais paramètres ou de date invalide
-                    raise self.ValidationError({"error": "Erreur dans la requête"})
+            try:
+                if "from" in params:
+                    transactions = transactions.filter(date__gte=params["from"])
+                if "to" in params:
+                    transactions = transactions.filter(date__lte=params["to"])
+            except ValidationError:
+                # en cas de mauvais paramètres ou de date invalide
+                raise self.ValidationError({"error": "Erreur dans la requête"})
 
         return TransactionSerializer(transactions, many=True).data
