@@ -32,7 +32,7 @@ class Book(TimeStampedModel):
     use_equity = models.BooleanField("Use Equity Accounts", default=False)
 
     def __str__(self):
-        return "{}-{}".format(self.entity, self.name)
+        return self.name
 
     class Meta:
         constraints = []
