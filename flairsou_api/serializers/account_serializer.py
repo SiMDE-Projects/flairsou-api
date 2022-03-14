@@ -254,10 +254,11 @@ class AccountTransactionListSerializer(FlairsouModelSerializer):
     """
 
     transaction_set = serializers.SerializerMethodField()
+    more_transactions = serializers.SerializerMethodField()
 
     class Meta:
         model = Account
-        fields = ["pk", "transaction_set"]
+        fields = ["pk", "transaction_set", "more_transactions"]
 
     @extend_schema_field(TransactionSerializer(many=True))
     def get_transaction_set(self, instance: Account):
@@ -286,3 +287,27 @@ class AccountTransactionListSerializer(FlairsouModelSerializer):
                 raise self.ValidationError({"error": "Erreur dans la requête"})
 
         return TransactionSerializer(transactions, many=True).data
+
+    def get_more_transactions(self, instance: Account):
+        """
+        Indique si d'autres transactions peuvent encore être chargées ou non
+        """
+        if "request" in self.context:
+            params = self.context["request"].query_params
+            try:
+                if "from" in params:
+                    # si on a donné une date de début de récupération, on regarde
+                    # s'il y a encore des transactions avant cette date
+                    transaction_pks = instance.operation_set.values_list(
+                        "transaction__pk", flat=True
+                    )
+                    transactions = Transaction.objects.filter(
+                        pk__in=transaction_pks
+                    ).filter(date__lte=params["from"])
+                    return transactions.count() > 0
+            except ValidationError:
+                # si la requête est mauvaise, on part du principe qu'il n'y a pas plus
+                # de transactions à renvoyer
+                pass
+
+        return False  # par défaut il n'y a pas de transactions à charger
