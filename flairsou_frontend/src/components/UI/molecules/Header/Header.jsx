@@ -1,4 +1,5 @@
 import React, { memo, useContext } from 'react';
+import { Link } from 'react-router-dom';
 import logo from '../../../../assets/logo.svg';
 import './header.css';
 
@@ -9,10 +10,12 @@ const Header = () => {
 
   return (
     <div className="flairsou-header">
-      <div className="flairsou-logo">
-        <img src={logo} alt="logo de flairsou" className="flairsou-image" />
-        <h1 className="flairsou-title">Flairsou</h1>
-      </div>
+      <Link to={process.env.BASE_URL}>
+        <div className="flairsou-logo">
+          <img src={logo} alt="logo de flairsou" className="flairsou-image" />
+          <h1 className="flairsou-title">Flairsou</h1>
+        </div>
+      </Link>
 
       <p>
         {
