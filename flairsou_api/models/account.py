@@ -120,7 +120,7 @@ class Account(TimeStampedModel):
         if self.virtual:
             balance = 0
             for acc in self.account_set.all():
-                balance += acc.compute_balance(ops)
+                balance += acc.balance
         else:
             # comptabilise les crédits et les débits associés au compte
             # (en centimes)
