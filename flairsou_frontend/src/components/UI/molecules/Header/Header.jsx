@@ -10,7 +10,8 @@ const Header = () => {
 
   return (
     <div className="flairsou-header">
-      <Link to={process.env.BASE_URL}>
+      {/* le Link sera rendu comme /<basename>/ défini dans le routeur dans App */}
+      <Link to="/">
         <div className="flairsou-logo">
           <img src={logo} alt="logo de flairsou" className="flairsou-image" />
           <h1 className="flairsou-title">Flairsou</h1>
