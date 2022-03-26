@@ -53,7 +53,7 @@ const AccountList = ({ accounts }) => {
    * @param {number} accountPk - clé primaire du compte à supprimer
    */
   const deleteAccount = (accountPk) => {
-    fetch(`/api/accounts/${accountPk}/`, { method: 'DELETE' })
+    fetch(process.env.BASE_URL.concat(`api/accounts/${accountPk}/`), { method: 'DELETE' })
       .then((response) => {
         if (response.status === 204) {
           appContext.refreshAccountList();
