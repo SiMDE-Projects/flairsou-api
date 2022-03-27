@@ -68,7 +68,7 @@ const Reconciliation = ({ accountID, accountFullName }) => {
     }
 
     // on vérifie que la date demandée est cohérente
-    if ((reconciliationDate > today) || (reconciliationDate <= getLastTime)) {
+    if ((reconciliationDate > today) || (reconciliationDate <= getLastTime())) {
       setError('Impossible d\'effectuer un rapprochement avant le dernier rapprochement ou après la date du jour');
       setErrorDate(true);
       return false;

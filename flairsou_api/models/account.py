@@ -100,9 +100,7 @@ class Account(TimeStampedModel):
         """
         Calcule le solde du compte
         """
-        # on prend toutes les opérations
-        ops = self.operation_set.all()
-        return self.compute_balance(ops)
+        return self.balance_at_date(None)
 
     def balance_at_date(self, date: datetime.date) -> int:
         """
@@ -110,18 +108,17 @@ class Account(TimeStampedModel):
         Ce solde est déterminé en calculant la somme de toutes les opérations
         de l'ouverture du compte à la date fixée
         """
-        ops = self.operation_set.filter(transaction__date__lte=date)
-        return self.compute_balance(ops)
-
-    def compute_balance(self, ops) -> int:
-        """
-        Calcule le solde de la liste d'opérations passée en paramètres
-        """
         if self.virtual:
             balance = 0
             for acc in self.account_set.all():
-                balance += acc.compute_balance(ops)
+                balance += acc.balance_at_date(date)
         else:
+            if date is None:
+                # s'il n'y a pas de date, on prend toutes les transactions
+                ops = self.operation_set.all()
+            else:
+                ops = self.operation_set.filter(transaction__date__lte=date)
+
             # comptabilise les crédits et les débits associés au compte
             # (en centimes)
             credits: int = 0
