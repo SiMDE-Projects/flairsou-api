@@ -15,31 +15,31 @@ class AccountBalanceTestCase(APITestCase):
         session["assos"] = [str(uuid.UUID(int=1))]
         session.save()
 
-        book = Book.objects.create(name="Comptes", entity=uuid.UUID(int=1))
+        self.book = Book.objects.create(name="Comptes", entity=uuid.UUID(int=1))
         self.assets = Account.objects.create(
             name="Actifs",
             account_type=Account.AccountType.ASSET,
             virtual=False,
             parent=None,
-            book=book,
+            book=self.book,
         )
         self.expenses = Account.objects.create(
             name="Dépenses",
             account_type=Account.AccountType.EXPENSE,
             virtual=False,
             parent=None,
-            book=book,
+            book=self.book,
         )
         self.income = Account.objects.create(
             name="Recettes",
             account_type=Account.AccountType.INCOME,
             virtual=False,
             parent=None,
-            book=book,
+            book=self.book,
         )
 
     def test_calcul_solde(self):
-        tr = Transaction.objects.create(date=datetime.date.today(), checked=False)
+        tr = Transaction.objects.create(date=datetime.date(2020, 3, 20), checked=False)
         Operation.objects.create(
             debit=10000,
             credit=0,
@@ -54,7 +54,8 @@ class AccountBalanceTestCase(APITestCase):
             account=self.income,
             transaction=tr,
         )
-        tr2 = Transaction.objects.create(date=datetime.date.today(), checked=False)
+
+        tr2 = Transaction.objects.create(date=datetime.date(2020, 4, 5), checked=False)
         Operation.objects.create(
             debit=0,
             credit=5000,
@@ -72,6 +73,8 @@ class AccountBalanceTestCase(APITestCase):
 
         # vérification de la fonction de calcul du solde
         self.assertEqual(self.assets.balance, 5000)
+        self.assertEqual(self.assets.balance_at_date(datetime.date(2020, 3, 25)), 10000)
+        self.assertEqual(self.assets.balance_at_date(datetime.date(2020, 4, 25)), 5000)
         self.assertEqual(self.income.balance, 10000)
         self.assertEqual(self.expenses.balance, 5000)
 
@@ -81,6 +84,76 @@ class AccountBalanceTestCase(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["balance"], 5000)
+
+    def test_calcul_solde_virtual_account(self):
+        """
+        Vérification du bon calcul du solde pour les comptes virtuels
+        """
+        meta_expenses = Account.objects.create(
+            name="Meta Dépenses",
+            account_type=Account.AccountType.EXPENSE,
+            virtual=True,
+            parent=None,
+            book=self.book,
+        )
+        sub_expenses_1 = Account.objects.create(
+            name="Dépenses 1",
+            account_type=Account.AccountType.EXPENSE,
+            virtual=False,
+            parent=meta_expenses,
+            book=self.book,
+        )
+        sub_expenses_2 = Account.objects.create(
+            name="Dépenses 2",
+            account_type=Account.AccountType.EXPENSE,
+            virtual=False,
+            parent=meta_expenses,
+            book=self.book,
+        )
+
+        # création de transactions à des dates différentes
+        tr = Transaction.objects.create(date=datetime.date(2020, 3, 20), checked=False)
+        Operation.objects.create(
+            debit=0,
+            credit=10000,
+            label="Dépense 1",
+            account=self.assets,
+            transaction=tr,
+        )
+        Operation.objects.create(
+            debit=10000,
+            credit=0,
+            label="Dépense 1",
+            account=sub_expenses_1,
+            transaction=tr,
+        )
+
+        tr2 = Transaction.objects.create(date=datetime.date(2020, 4, 5), checked=False)
+        Operation.objects.create(
+            debit=0,
+            credit=5000,
+            label="Dépense 2",
+            account=self.assets,
+            transaction=tr2,
+        )
+        Operation.objects.create(
+            debit=5000,
+            credit=0,
+            label="Dépense 2",
+            account=sub_expenses_2,
+            transaction=tr2,
+        )
+
+        # solde total
+        self.assertEqual(meta_expenses.balance, 15000)
+        # solde partiel
+        self.assertEqual(
+            meta_expenses.balance_at_date(datetime.date(2020, 3, 25)), 10000
+        )
+        # solde total avec une date
+        self.assertEqual(
+            meta_expenses.balance_at_date(datetime.date(2020, 4, 25)), 15000
+        )
 
 
 class AccountAPITestCase(APITestCase):
