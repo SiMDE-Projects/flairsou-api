@@ -1,11 +1,12 @@
 from django.db import models
-from django.conf import settings
 from datetime import datetime
 
 from .timestamped import TimeStampedModel
 from .reconciliation import Reconciliation
 
 import uuid
+
+from flairsou_api.utils import UserAllowed
 
 
 class Account(TimeStampedModel):
@@ -165,18 +166,15 @@ class Account(TimeStampedModel):
         Vérifie si l'utilisateur passé dans la requête est autorisé à accéder
         à l'objet
         """
-        if settings.DEBUG:
-            # si l'app est en debug, on ne vérifie pas les autorisations
+
+        if UserAllowed.check_entity_allowed(str(self.book.entity), request):
+            # l'utilisateur a le droit d'accès direct au compte
             return True
 
-        if "assos" not in request.session.keys():
-            # utilisateur non connecté
-            return False
-
-        if (
-            str(self.book.entity) not in request.session["assos"]
-            and str(self.associated_entity) not in request.session["assos"]
+        if self.associated_entity is not None and UserAllowed.check_entity_allowed(
+            str(self.associated_entity), request
         ):
-            return False
+            # l'utilisateur est d'une entité associée au compte, il a donc accès
+            return True
 
-        return True
+        return False

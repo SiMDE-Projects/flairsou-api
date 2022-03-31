@@ -1,5 +1,4 @@
 from django.db import models
-from django.conf import settings
 import datetime
 
 from .timestamped import TimeStampedModel
@@ -77,10 +76,6 @@ class Operation(TimeStampedModel):
         Vérifie si l'utilisateur passé dans la requête est autorisé à accéder
         à l'objet
         """
-        if settings.DEBUG:
-            # si l'app est en debug, on ne vérifie pas les autorisations
-            return True
-
         # l'utilisateur peut accéder à l'opération s'il peut accéder au compte
         # associé à l'opération
         return self.account.check_user_allowed(request)
