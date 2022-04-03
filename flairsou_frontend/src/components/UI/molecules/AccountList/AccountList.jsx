@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import { Table, Icon } from 'semantic-ui-react';
 
 import NavAccount from '../../atoms/NavAccount/NavAccount';
-import { currencyFormat } from '../../../../utils/currencyFormat';
+import { centsToStr } from '../../../../utils/currencyFormat';
 
 import { AccountTypesString } from '../../../../assets/accountTypeMapping';
 import ConfirmDeleteObject from '../../atoms/ConfirmDeleteObject/ConfirmDeleteObject';
@@ -21,7 +21,7 @@ const expandAccountTree = (accountList, deleteAccount, depth = 0) => (
       <Table.Row>
         <Table.Cell content={<NavAccount account={account} depth={depth} />} />
         <Table.Cell content={AccountTypesString[account.account_type]} />
-        <Table.Cell collapsing textAlign="right" content={`${currencyFormat(account.balance)} €`} />
+        <Table.Cell collapsing textAlign="right" content={`${centsToStr(account.balance)} €`} />
         <Table.Cell collapsing>
           <Link to={`/accounts/edit/${account.pk}`}>
             <Icon name="edit" title="Modifier le compte" />
