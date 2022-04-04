@@ -24,8 +24,13 @@ class OperationAdmin(admin.ModelAdmin):
 admin.site.register(models.Operation, OperationAdmin)
 
 
+class OperationInline(admin.TabularInline):
+    model = models.Operation
+
+
 class TransactionAdmin(admin.ModelAdmin):
     search_fields = ["date"]
+    inlines = [OperationInline]
 
 
 admin.site.register(models.Transaction, TransactionAdmin)
