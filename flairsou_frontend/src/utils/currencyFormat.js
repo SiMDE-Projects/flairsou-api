@@ -61,7 +61,7 @@ const strToCents = (strValue) => {
 
   // currencyFormat place systématiquement deux chiffres après la virgule, on peut donc
   // enlever la virgule pour obtenir directement les centimes
-  const newValue = currencyFormat(strValue) // met en forme convenable avec 2 chiffres
+  const newValue = currencyFormat(strValue) // met en forme
     .replace(/\u202f/g, '') // supprime les espaces insécables
     .replace(/,/g, ''); // supprime la virgule
 
