@@ -9,7 +9,7 @@ repos:
       - id: check-yaml
       - id: check-added-large-files
   - repo: https://github.com/psf/black
-    rev: 22.1.0
+    rev: 22.3.0
     hooks:
       - id: black
         files: .
@@ -20,7 +20,7 @@ repos:
         args: ['--ignore=E501,W503']
         files: ^flairsou(_api|_frontend)?
   - repo: https://github.com/pre-commit/mirrors-eslint
-    rev: v8.9.0
+    rev: v8.12.0
     hooks:
       - id: eslint
         files: flairsou_frontend\.[jt]sx?$  # *.js, *.jsx, *.ts and *.tsx
