@@ -41,6 +41,7 @@ jobs:
       tag_changelog: ${{ steps.tag_version.outputs.changelog }}
     steps:
       - uses: actions/checkout@v2
+      - uses: fregante/setup-git-user@v1
       - name: Auto Tag Bump
         uses: moble/github-tag-action@2.0.0
         env:
