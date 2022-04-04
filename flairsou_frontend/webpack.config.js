@@ -4,7 +4,12 @@ const childProcess = require('child_process');
 const Dotenv = require('dotenv-webpack');
 
 // récupère la version à partir du tag git
-const version = childProcess.execSync('git describe --tags').toString();
+let version = '';
+try {
+  version = childProcess.execSync('git describe --tags').toString();
+} catch (e) {
+  version = childProcess.execSync("git log -1 --format='%H'").toString();
+}
 
 module.exports = {
   entry: './src/index.js',
