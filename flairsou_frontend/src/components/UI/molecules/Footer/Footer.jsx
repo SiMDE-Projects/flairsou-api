@@ -39,6 +39,9 @@ const Footer = () => (
             &nbsp;
             par le SiMDE.
           </p>
+          <p>
+            {`Flairsou version ${__VERSION__}`}
+          </p>
         </Grid.Column>
       </Grid>
     </Container>
