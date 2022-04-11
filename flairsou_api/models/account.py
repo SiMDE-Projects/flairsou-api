@@ -71,14 +71,6 @@ class Account(TimeStampedModel):
     class Meta:
         constraints = []
 
-        # (name, parent) : pas deux comptes du même nom sous le même parent
-        constraints.append(
-            models.UniqueConstraint(
-                fields=["name", "parent", "book"],
-                name="%(app_label)s_%(class)s_unique_name_in_parent_and_book",
-            )
-        )
-
         constraints.append(
             models.CheckConstraint(
                 check=~models.Q(name=""), name="%(app_label)s_%(class)s_name_not_null"
