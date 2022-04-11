@@ -55,7 +55,7 @@ class AccountSerializer(FlairsouModelSerializer):
                     "Un compte doit avoir le même type que son père"
                 )
 
-    def check_name_unique_in_parent(self, parent: Account, name: str):
+    def check_name_unique_in_parent(self, parent: Account, book: Book, name: str):
         """
         Vérifie que le nom proposé pour le compte n'existe pas déjà sous le
         compte parent. Ce test n'est effectué que sur une requête de création
@@ -65,20 +65,20 @@ class AccountSerializer(FlairsouModelSerializer):
             if parent is not None:
                 if parent.account_set.filter(name=name).count() > 0:
                     raise self.ValidationError(
-                        "Un compte avec ce nom existe déjà dans le compte " "parent"
+                        {
+                            "name": "Un compte avec ce nom existe déjà dans le compte {}".format(
+                                parent
+                            )
+                        }
                     )
-
-    def check_name_unique_in_book(self, book: Book, name: str):
-        """
-        Vérifie que le nom proposé pour le compte n'existe pas déjà sous
-        le livre associé. Ce test n'est effectué que sur une requête de
-        création de compte.
-        """
-        if self.is_create_request():
-            if book is not None:
-                if book.account_set.filter(name=name).count() > 0:
+            else:
+                if book.account_set.filter(name=name, parent=None).count() > 0:
                     raise self.ValidationError(
-                        "Un compte avec ce nom existe déjà dans le livre " "parent"
+                        {
+                            "name": "Un compte avec ce nom existe déjà dans le livre {}".format(
+                                book
+                            )
+                        }
                     )
 
     def check_associated_entity(self, parent: Account, associated_entity: uuid.UUID):
@@ -128,9 +128,7 @@ class AccountSerializer(FlairsouModelSerializer):
 
         self.check_same_type_parent(parent, account_type)
 
-        self.check_name_unique_in_parent(parent, name)
-
-        self.check_name_unique_in_book(book, name)
+        self.check_name_unique_in_parent(parent, book, name)
 
         self.check_associated_entity(parent, associated_entity)
 
