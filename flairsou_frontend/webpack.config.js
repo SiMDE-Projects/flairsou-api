@@ -1,5 +1,15 @@
 const path = require('path');
+const webpack = require('webpack');
+const childProcess = require('child_process');
 const Dotenv = require('dotenv-webpack');
+
+// récupère la version à partir du tag git
+let version = '';
+try {
+  version = childProcess.execSync('git describe --tags').toString();
+} catch (e) {
+  version = childProcess.execSync("git log -1 --format='%H'").toString();
+}
 
 module.exports = {
   entry: './src/index.js',
@@ -15,6 +25,9 @@ module.exports = {
       path: '../flairsou/.env',
       defaults: '../flairsou/.env.defaults',
       safe: '../flairsou/.env.defaults',
+    }),
+    new webpack.DefinePlugin({
+      __VERSION__: JSON.stringify(version),
     }),
   ],
   module: {

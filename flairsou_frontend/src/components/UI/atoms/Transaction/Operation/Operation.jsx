@@ -4,7 +4,9 @@ import React, {
 import PropTypes from 'prop-types';
 import { Table, Input } from 'semantic-ui-react';
 
-import { currencyFormat, checkCurrencyFormat, strToCents } from '../../../../../utils/currencyFormat';
+import {
+  centsToStr, filterCurrencyInput, strToCents,
+} from '../../../../../utils/currencyFormat';
 import { AppContext } from '../../../../contexts/contexts';
 
 import './Operation.css';
@@ -45,8 +47,8 @@ const Operation = ({
 
   useEffect(() => {
     // met en place les crédits et débits
-    setCredit(operation.credit > 0 ? currencyFormat(operation.credit) : '');
-    setDebit(operation.debit > 0 ? currencyFormat(operation.debit) : '');
+    setCredit(operation.credit > 0 ? centsToStr(operation.credit) : '');
+    setDebit(operation.debit > 0 ? centsToStr(operation.debit) : '');
     setLabel(operation.label);
   }, [operation.credit, operation.debit, operation.label]);
 
@@ -60,12 +62,12 @@ const Operation = ({
   }, [accountName, appContext.accountList, operation.account]);
 
   const updateCredit = (event) => {
-    setCredit(checkCurrencyFormat(event.target.value));
+    setCredit(filterCurrencyInput(event.target.value));
     transactionModified();
   };
 
   const updateDebit = (event) => {
-    setDebit(checkCurrencyFormat(event.target.value));
+    setDebit(filterCurrencyInput(event.target.value));
     transactionModified();
   };
 
@@ -99,8 +101,8 @@ const Operation = ({
 
       updateCallback({
         ...operation,
-        debit: strToCents(debit),
-        credit: strToCents(credit),
+        debit: strToCents(filterCurrencyInput(debit)),
+        credit: strToCents(filterCurrencyInput(credit)),
         label,
       }, account);
     }

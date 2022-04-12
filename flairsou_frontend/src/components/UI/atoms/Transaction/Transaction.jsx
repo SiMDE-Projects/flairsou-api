@@ -5,7 +5,7 @@ import {
 } from 'semantic-ui-react';
 
 import Operation from './Operation/Operation';
-import { currencyFormat } from '../../../../utils/currencyFormat';
+import { centsToStr } from '../../../../utils/currencyFormat';
 import ConfirmDeleteObject from '../ConfirmDeleteObject/ConfirmDeleteObject';
 
 /**
@@ -205,7 +205,7 @@ const Transaction = ({
           updateCallback={operationValidatedCallback}
           transactionModified={() => setModified(true)}
         />
-        <Table.Cell textAlign="right">{currencyFormat(transaction.balance)}</Table.Cell>
+        <Table.Cell textAlign="right">{centsToStr(transaction.balance)}</Table.Cell>
         <Table.Cell textAlign="center">
           <Checkbox
             checked={checked}

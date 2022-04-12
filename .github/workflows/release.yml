@@ -5,18 +5,21 @@ on:
     workflows: [ "Flairsou-CI" ]
     branches: [ "main" ]
     types: [ completed ]
+  workflow_dispatch:
 
 jobs:
   on-success:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    needs:
+      - release
+      - tag
     steps:
       - name: Discord notification
         uses: Ilshidur/action-discord@master
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         with:
-          args: 'The project {{ EVENT_PAYLOAD.repository.full_name }} has been released.'
+          args: 'The project {{ EVENT_PAYLOAD.repository.full_name }} has been released to ${{needs.tag.outputs.tag_name}}.'
 
   on-failure:
     runs-on: ubuntu-latest
@@ -30,15 +33,22 @@ jobs:
           args: 'The project {{ EVENT_PAYLOAD.repository.full_name }} has been failed to release.'
 
   tag:
-    needs:
-      - on-success
+    if: ${{ github.event.workflow_run.conclusion == 'success' }} || ${{ github.event.workflow_run.workflow_dispatched }}
     name: Create Tag
     runs-on: ubuntu-latest
     outputs:
       tag_name: ${{ steps.tag_version.outputs.new_tag }}
       tag_changelog: ${{ steps.tag_version.outputs.changelog }}
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v2
+      - uses: fregante/setup-git-user@v1
+      - name: Auto Tag Bump
+        uses: moble/github-tag-action@2.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WITH_V: true
+          DEFAULT_BUMP: patch
+          VERBOSE: true
       - name: Bump version and push tag
         id: tag_version
         uses: mathieudutour/github-tag-action@v6.0

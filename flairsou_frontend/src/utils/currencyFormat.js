@@ -1,23 +1,12 @@
 /**
- * Ajoute les séparateurs de milliers dans la chaîne de caractères représentant
- * le montant
+ * Met en forme le montant flottant donné en euros pour l'affichage
  *
- * @params {string} strValue - chaîne de caractères représentant le montant à mettre en forme
- * @returns {string} chaîne de caractère modifiée
- */
-const addThousandsSeparator = (strValue) => (
-  strValue.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1 ')
-);
-
-/**
- * Met en forme les montants donnés en centimes pour les transformer
- * en euros et ajouter une espace comme séparateur de milliers
- *
- * @params {int} cents - montant à afficher en centimes
+ * @params {number} euros - montant à afficher en euros (flottant)
  * @returns {string} chaîne de caractère représentant le montant
  */
-const currencyFormat = (cents) => (
-  addThousandsSeparator((cents / 100).toFixed(2))
+const currencyFormat = (euros) => (
+  Intl.NumberFormat('fr-FR', { maximumFractionDigits: 2, minimumFractionDigits: 2 })
+    .format(euros)
 );
 
 /**
@@ -28,7 +17,9 @@ const currencyFormat = (cents) => (
  * @params {string} value - chaîne de caractère sensée représenter un montant
  * @returns {string} chaîne corrigée
  */
-const checkCurrencyFormat = (value) => {
+const filterCurrencyInput = (value) => {
+  if (value === '') return '';
+
   // retire tous les caractères qui ne sont pas des chiffres ou un point ou une virgule
   let newValue = value.replace(/[^\d.,]/g, '');
 
@@ -43,17 +34,41 @@ const checkCurrencyFormat = (value) => {
     newValue = newValue.replace(/^(\d*\.\d?\d?).*$/g, '$1');
   }
 
+  // renvoie la mise en forme de la valeur saisie
   return newValue;
 };
 
+/**
+ * Transforme une valeur entière en centimes en une chaîne de caractères représentant
+ * le montant en euro correctement formaté
+ *
+ * @params {int} cents - montant à traiter en centimes
+ * @returns {string} chaîne de caractère formatée représentant le montant
+ */
+const centsToStr = (cents) => (
+  currencyFormat(cents / 100)
+);
+
+/**
+ * Transforme la chaîne saisie par l'utilisateur en centimes pour envoyer
+ * dans l'appel API
+ *
+ * @params {str} strValue - chaine saisie par l'utilisateur (passée par filterCurrencyInput)
+ * @params {int} valeur en centimes correspondant à la saisie utilisateur
+ */
 const strToCents = (strValue) => {
   if (strValue === '') return 0;
 
-  // supprime les espaces utilisés comme séparateurs de milliers
-  const newValue = strValue.replace(/ /g, '');
+  // currencyFormat place systématiquement deux chiffres après la virgule, on peut donc
+  // enlever la virgule pour obtenir directement les centimes
+  const newValue = currencyFormat(strValue) // met en forme
+    .replace(/\u202f/g, '') // supprime les espaces insécables
+    .replace(/,/g, ''); // supprime la virgule
 
-  // force le renvoi d'un entier
-  return Math.floor(parseFloat(newValue) * 100);
+  // renvoie un entier parsé en base 10
+  return parseInt(newValue, 10);
 };
 
-export { currencyFormat, checkCurrencyFormat, strToCents };
+export {
+  currencyFormat, filterCurrencyInput, strToCents, centsToStr,
+};

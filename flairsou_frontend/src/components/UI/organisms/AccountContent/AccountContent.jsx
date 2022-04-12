@@ -8,7 +8,7 @@ import {
 } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 
-import { currencyFormat } from '../../../../utils/currencyFormat';
+import { centsToStr } from '../../../../utils/currencyFormat';
 import TransactionList from '../../molecules/TransactionList/TransactionList';
 import accountShape from '../../../../shapes/accountShape/accountShape';
 
@@ -32,7 +32,7 @@ const AccountContent = ({ account }) => {
             <p style={{ textAlign: 'right' }}>
               Solde :
               &nbsp;
-              {currencyFormat(balance)}
+              {centsToStr(balance)}
               &nbsp;
               €
             </p>

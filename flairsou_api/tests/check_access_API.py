@@ -1,10 +1,14 @@
 from rest_framework.test import APITestCase
 from rest_framework import status
 from django.urls import reverse
+from django.utils import timezone
 
 import uuid
 from flairsou_api.models import Account, Book, Transaction
 from flairsou_api.serializers import TransactionSerializer
+
+from proxy_pda.models import Asso, AssoType
+import datetime
 
 
 class CheckAPIAccessLimited(APITestCase):
@@ -25,6 +29,27 @@ class CheckAPIAccessLimited(APITestCase):
     def setUp(self):
         # récupération du livre chargé par la fixture
         self.book = Book.objects.all()[0]
+        Asso.objects.create(
+            asso_id=uuid.UUID(int=1),
+            asso_type=AssoType.ASS1901,
+            shortname="AssoTest",
+            name="AssoTest",
+            parent=None,
+            parent_view_granted=False,
+            in_cemetery=False,
+            last_updated=timezone.make_aware(datetime.datetime.now()),
+        )
+
+        Asso.objects.create(
+            asso_id=self.book.entity,
+            asso_type=AssoType.ASS1901,
+            shortname="AssoTest",
+            name="AssoTest",
+            parent=None,
+            parent_view_granted=False,
+            in_cemetery=False,
+            last_updated=timezone.make_aware(datetime.datetime.now()),
+        )
 
     def execute_request(self, method, url, data):
         if method == "get":
