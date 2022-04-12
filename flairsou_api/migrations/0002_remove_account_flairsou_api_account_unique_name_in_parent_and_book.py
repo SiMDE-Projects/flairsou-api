@@ -6,12 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('flairsou_api', '0001_initial'),
+        ("flairsou_api", "0001_initial"),
     ]
 
     operations = [
         migrations.RemoveConstraint(
-            model_name='account',
-            name='flairsou_api_account_unique_name_in_parent_and_book',
+            model_name="account",
+            name="flairsou_api_account_unique_name_in_parent_and_book",
         ),
     ]
