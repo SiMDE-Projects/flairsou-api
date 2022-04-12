@@ -52,6 +52,11 @@ const AccountForm = ({ account }) => {
   // Id du compte créé ou modifié (après soumission du formulaire)
   const [accountResponse, setAccountResponse] = useState(null);
 
+  // Erreurs de champ renvoyées par l'API
+  const [fieldErrors, setFieldErrors] = useState({
+    name: false, account_type: false, associated_entity: false, book: false,
+  });
+
   // Détermine si le compte est en train d'être édité
   const isEdited = account ? 'pk' in account : false;
 
@@ -114,7 +119,7 @@ const AccountForm = ({ account }) => {
       virtual: isEdited ? account.virtual : accountIsVirtual,
       book: isEdited ? account.book : accountBook.value,
       parent: isEdited ? account.parent : accountParent,
-      associated_entity: isEdited ? account.associated_entity : accountAssociatedEntity,
+      associated_entity: accountAssociatedEntity,
     };
 
     const URL = isEdited ? `${process.env.BASE_URL}api/accounts/${account.pk}/` : `${process.env.BASE_URL}api/accounts/`;
@@ -134,6 +139,13 @@ const AccountForm = ({ account }) => {
           setAccountResponse(response.pk);
           appContext.refreshAccountList();
         } else {
+          setFieldErrors({
+            name: response.name || false,
+            account_type: response.account_type || false,
+            associated_entity: response.associated_entity || false,
+            book: response.book || false,
+          });
+
           appContext.setAlert({
             message: response.non_field_errors,
             level: ErrorLevels.WARN,
@@ -202,6 +214,7 @@ const AccountForm = ({ account }) => {
           required
           value={accountName}
           onChange={(e) => setAccountName(e.target.value)}
+          error={fieldErrors.name}
         />
         <Form.Select
           options={AccountTypesSelect}
@@ -210,6 +223,7 @@ const AccountForm = ({ account }) => {
           value={accountType}
           disabled={isEdited}
           onChange={(e, { value }) => setAccountType(value)}
+          error={fieldErrors.account_type}
         />
         <Form.Checkbox
           label="Compte virtuel"
@@ -226,6 +240,7 @@ const AccountForm = ({ account }) => {
           disabled={isEdited}
           value={accountBook?.value}
           onChange={(e, { value }) => setAccountBook(filterBook(userBooks, value))}
+          error={fieldErrors.book}
         />
         {
           // Affiché uniquement si un livre est sélectionné
@@ -248,10 +263,10 @@ const AccountForm = ({ account }) => {
                     label="Entité associée"
                     clearable
                     value={accountAssociatedEntity}
-                    disabled={isEdited}
                     onChange={(e, { value }) => setAccountAssociatedEntity(
                       value !== -1 ? value : null,
                     )}
+                    error={fieldErrors.associated_entity}
                   />
                 )
               }
