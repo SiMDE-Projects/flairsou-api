@@ -39,7 +39,7 @@ class AccountSerializer(FlairsouModelSerializer):
         if parent is not None:
             if book != parent.book:
                 raise self.ValidationError(
-                    "Un compte doit être rattaché au même livre que son père"
+                    {"book": "Un compte doit être rattaché au même livre que son père"}
                 )
 
     def check_same_type_parent(
@@ -52,7 +52,7 @@ class AccountSerializer(FlairsouModelSerializer):
         if parent is not None:
             if account_type != parent.account_type:
                 raise self.ValidationError(
-                    "Un compte doit avoir le même type que son père"
+                    {"account_type": "Un compte doit avoir le même type que son père"}
                 )
 
     def check_name_unique_in_parent(self, parent: Account, book: Book, name: str):
@@ -170,14 +170,14 @@ class AccountSerializer(FlairsouModelSerializer):
                 # si le compte devient virtuel, il ne doit pas avoir
                 # d'opérations associées
                 raise self.ValidationError(
-                    "Un compte avec des transactions " "ne peut pas devenir virtuel"
+                    "Un compte avec des transactions ne peut pas devenir virtuel"
                 )
 
             if virtual is False and self.instance.account_set.count() > 0:
                 # si le compte devient réel, il ne doit pas avoir
                 # de sous-comptes
                 raise self.ValidationError(
-                    "Un compte avec des sous-comptes " "ne peut pas devenir non-virtuel"
+                    "Un compte avec des sous-comptes ne peut pas devenir non-virtuel"
                 )
 
         return virtual
