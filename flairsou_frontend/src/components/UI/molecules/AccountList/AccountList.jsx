@@ -21,16 +21,7 @@ const expandAccountTree = (accountList, deleteAccount, depth = 0) => (
       <Table.Row>
         <Table.Cell content={<NavAccount account={account} depth={depth} />} />
         <Table.Cell content={AccountTypesString[account.account_type]} />
-        <Table.Cell
-          collapsing
-          textAlign="right"
-          content={(
-            <div className={`balance-account-level-${depth}`}>
-              {centsToStr(account.balance)}
-              {' €'}
-            </div>
-          )}
-        />
+        <Table.Cell collapsing textAlign="right" content={`${centsToStr(account.balance)} €`} />
         <Table.Cell collapsing>
           <Link to={`/accounts/edit/${account.pk}`}>
             <Icon name="edit" title="Modifier le compte" />
