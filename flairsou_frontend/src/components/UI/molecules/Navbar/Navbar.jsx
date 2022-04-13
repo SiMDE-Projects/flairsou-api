@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom';
 import SearchBar from '../../atoms/SearchBar/SearchBar';
 import { AppContext } from '../../../contexts/contexts';
 import NavAccount from '../../atoms/NavAccount/NavAccount';
+import { AssoTypes } from '../../../../assets/assoTypeMapping';
 
 // déploie l'arbre des comptes dans la navbar récursivement en adaptant le
 // niveau de profondeur
@@ -52,7 +53,9 @@ const Navbar = () => {
       </List.Item>
       {
         asso.asso_set.map((subasso) => (
-          assoElement(subasso, `${asso.shortname}/`)
+          subasso.asso_type === AssoTypes.CLUB
+            ? <></>
+            : assoElement(subasso, `${asso.shortname}/`)
         ))
       }
     </Fragment>
