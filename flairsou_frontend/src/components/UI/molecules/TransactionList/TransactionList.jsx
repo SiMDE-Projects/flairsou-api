@@ -72,7 +72,9 @@ const recomputeBalances = (transactionList, invert, i0 = 0, balanceIni = 0) => {
   });
 };
 
-const TransactionList = ({ accountID, accountType, updateBalanceCallback }) => {
+const TransactionList = ({
+  accountID, accountType, readOnlyAccount, updateBalanceCallback,
+}) => {
   /*
    * accountID : ID du compte dans la base de données Flairsou
    * accountType : type du compte (voir assets/accountTypeMapping.js)
@@ -135,28 +137,6 @@ const TransactionList = ({ accountID, accountType, updateBalanceCallback }) => {
   const olderDateRef = useNoRenderRef(olderDate);
 
   const [moreTransactions, setMoreTransactions] = useState(false);
-
-  const moveBackDate = (date) => {
-    let { month } = date;
-    let { year } = date;
-
-    // on charge un certain nombre de mois
-    month -= NB_MONTHS;
-    if (month < 1) {
-      // on remonte à l'année précédente
-      month += 12;
-      year -= 1;
-    }
-
-    return { month, year };
-  };
-
-  moveBackDate.propTypes = {
-    date: PropTypes.shape({
-      month: PropTypes.number.isRequired,
-      year: PropTypes.number.isRequired,
-    }).isRequired,
-  };
 
   /**
    * Mise en forme de la date
@@ -480,19 +460,24 @@ const TransactionList = ({ accountID, accountType, updateBalanceCallback }) => {
              <Transaction
                key={transaction.operations[transaction.activeOpId].pk}
                transaction={transaction}
+               readOnlyAccount={readOnlyAccount}
                deleteCallback={deleteTransaction}
                updateCallback={updateTransaction}
                createCallback={createTransaction}
              />
            ))
         }
-        <Transaction
-          key={`new-transaction-${newTransactionVal}`}
-          transaction={emptyTransaction}
-          deleteCallback={deleteTransaction}
-          updateCallback={updateTransaction}
-          createCallback={createTransaction}
-        />
+        { /* affichage de la nouvelle transaction seulement si ce n'est pas en lecture seule */
+          !readOnlyAccount && (
+          <Transaction
+            key={`new-transaction-${newTransactionVal}`}
+            transaction={emptyTransaction}
+            deleteCallback={deleteTransaction}
+            updateCallback={updateTransaction}
+            createCallback={createTransaction}
+          />
+          )
+        }
       </Table.Body>
     </Table>
   );
@@ -501,6 +486,7 @@ const TransactionList = ({ accountID, accountType, updateBalanceCallback }) => {
 TransactionList.propTypes = {
   accountID: PropTypes.number.isRequired,
   accountType: PropTypes.number.isRequired,
+  readOnlyAccount: PropTypes.bool.isRequired,
   updateBalanceCallback: PropTypes.func.isRequired,
 };
 

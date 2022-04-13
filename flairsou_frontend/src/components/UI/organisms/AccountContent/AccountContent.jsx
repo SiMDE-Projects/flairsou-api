@@ -14,7 +14,7 @@ import accountShape from '../../../../shapes/accountShape/accountShape';
 
 import Reconciliation from '../../atoms/Reconciliation/Reconciliation';
 
-const AccountContent = ({ account }) => {
+const AccountContent = ({ account, readOnlyAccount }) => {
   // solde affiché du compte
   const [balance, setBalance] = useState(0);
 
@@ -57,6 +57,7 @@ const AccountContent = ({ account }) => {
                 <TransactionList
                   accountID={account.pk}
                   accountType={account.account_type}
+                  readOnlyAccount={readOnlyAccount}
                   updateBalanceCallback={updateBalance}
                 />
               )
@@ -69,6 +70,7 @@ const AccountContent = ({ account }) => {
 
 AccountContent.propTypes = {
   account: PropTypes.shape(accountShape).isRequired,
+  readOnlyAccount: PropTypes.bool.isRequired,
 };
 
 export default memo(AccountContent);
