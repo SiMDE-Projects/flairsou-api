@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Redirect } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 import ContentWrapper from '../../UI/organisms/ContentWrapper/ContentWrapper';
@@ -58,6 +58,10 @@ const SpecificAccount = ({ action }) => {
 
   if (accountObject.pk === -1) {
     return <Forbidden />;
+  }
+
+  if (appContext.assoActive === null) {
+    return <Redirect to={{ pathname: '/' }} />;
   }
 
   switch (action) {
