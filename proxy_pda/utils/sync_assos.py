@@ -53,27 +53,30 @@ def sync_assos():
         # on crée l'asso concernée selon le modèle local
         new_asso = Asso.create_asso(detailed_asso_pda)
 
+        update = False
+
         if existing_asso is None:
             # pas d'association existante correspondante, il faut créer la
             # nouvelle asso en base locale
             bulk_create.append(new_asso)
-
-            if asso_pda["parent"]:
-                # si l'association a un parent, on la met à jour après la
-                # création avec l'ID de son parent (il faut que toutes les
-                # assos soient créées pour que le parent puisse être ajouté)
-                new_asso = copy.deepcopy(new_asso)  # copie profonde de l'asso
-                new_asso.parent = Asso(asso_id=detailed_asso_pda["parent"]["id"])
-                bulk_update.append(new_asso)
         else:
-            # on a trouvé une association correspondante en local
+            # on a trouvé une association correspondante en local, on la met à jour
+            # avec le retour le plus récent du portail
             # si l'asso est supprimée, on la conserve dans la base locale sinon
             # on perd l'historique de la comptabilité (à voir plus tard si on
             # peut rattacher ailleurs...)
-            # on fait donc une mise à jour de l'association si nécessaire
-            last_updated = date_to_timezone(detailed_asso_pda["updated_at"])
-            if last_updated > existing_asso.last_updated:
-                bulk_update.append(new_asso)
+            update = True
+
+        if asso_pda["parent"]:
+            # si l'association a un parent, on la met à jour après la
+            # création avec l'ID de son parent (il faut que toutes les
+            # assos soient créées pour que le parent puisse être ajouté)
+            new_asso = copy.deepcopy(new_asso)  # copie profonde de l'asso
+            new_asso.parent = Asso(asso_id=detailed_asso_pda["parent"]["id"])
+            update = True
+
+        if update:
+            bulk_update.append(new_asso)
 
     print("Application des modifications en base...")
 
