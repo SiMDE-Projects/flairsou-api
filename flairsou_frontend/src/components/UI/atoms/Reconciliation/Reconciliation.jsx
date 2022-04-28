@@ -4,6 +4,7 @@ import {
   Modal, Button, Input,
 } from 'semantic-ui-react';
 import './reconciliation.css';
+import { strToCents } from '../../../../utils/currencyFormat';
 /**
  * Composant permettant d'effectuer un rapprochement
  */
@@ -38,14 +39,14 @@ const Reconciliation = ({ accountID, accountFullName }) => {
   );
 
   const [reconciliationDate, setDate] = useState(today);
-  const [reconciliationBalance, setBalance] = useState('');
+  const [reconciliationBalance, setBalance] = useState(0);
 
   const [error, setError] = useState('');
   const [errorDate, setErrorDate] = useState(false);
   const [errorBalance, setErrorBalance] = useState(false);
 
   function changeBalance(value) {
-    setBalance(value * 100);
+    setBalance(strToCents(value));
     setError('');
     setErrorBalance(false);
     setErrorDate(false);
@@ -106,9 +107,12 @@ const Reconciliation = ({ accountID, accountFullName }) => {
             };
             fetch(`${process.env.BASE_URL}api/accounts/${accountID}/reconciliation/`, options)
               .then((res) => {
-                res.json();
-                window.location.reload();
-                setOpen(false);
+                if (res.status === 201) {
+                  window.location.reload();
+                  setOpen(false);
+                } else {
+                  setError(`Erreur dans la validation du rapprochement : ${res.statusText}`);
+                }
               });
             return true;
           });
