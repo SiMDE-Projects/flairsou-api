@@ -13,3 +13,6 @@ class TimeStampedModel(SoftDeleteObject, models.Model):
 
     class Meta:
         abstract = True
+
+    def hard_delete(self, *args, **kwargs):
+        super(SoftDeleteObject, self).delete(*args, **kwargs)
