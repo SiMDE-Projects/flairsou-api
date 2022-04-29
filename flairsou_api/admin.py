@@ -3,6 +3,11 @@ from django.contrib import admin
 from . import models
 
 
+class HardDeleteAdmin(admin.ModelAdmin):
+    def delete_model(self, request, obj):
+        obj.hard_delete()
+
+
 class BookAdmin(admin.ModelAdmin):
     search_fields = ["name"]
 
@@ -10,7 +15,7 @@ class BookAdmin(admin.ModelAdmin):
 admin.site.register(models.Book, BookAdmin)
 
 
-class AccountAdmin(admin.ModelAdmin):
+class AccountAdmin(HardDeleteAdmin):
     search_fields = ["name"]
     raw_id_fields = ["parent"]
 
@@ -36,7 +41,7 @@ class OperationInline(admin.TabularInline):
     raw_id_fields = ("account",)
 
 
-class TransactionAdmin(admin.ModelAdmin):
+class TransactionAdmin(HardDeleteAdmin):
     search_fields = ["date"]
     inlines = [OperationInline]
 
@@ -48,4 +53,4 @@ class TransactionAdmin(admin.ModelAdmin):
 
 admin.site.register(models.Transaction, TransactionAdmin)
 
-admin.site.register(models.Reconciliation)
+admin.site.register(models.Reconciliation, HardDeleteAdmin)
