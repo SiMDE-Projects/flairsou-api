@@ -264,9 +264,7 @@ class AccountTransactionListSerializer(FlairsouModelSerializer):
         Récupère la liste des transactions associées au compte triées
         par la date associée
         """
-        transaction_pks = instance.operation_set.values_list(
-            "transaction__pk", flat=True
-        )
+        transaction_pks = instance.get_all_transactions_pks()
         transactions = Transaction.objects.filter(pk__in=transaction_pks).order_by(
             "date"
         )
@@ -296,12 +294,10 @@ class AccountTransactionListSerializer(FlairsouModelSerializer):
                 if "from" in params:
                     # si on a donné une date de début de récupération, on regarde
                     # s'il y a encore des transactions avant cette date
-                    transaction_pks = instance.operation_set.values_list(
-                        "transaction__pk", flat=True
-                    )
+                    transaction_pks = instance.get_all_transactions_pks()
                     transactions = Transaction.objects.filter(
                         pk__in=transaction_pks
-                    ).filter(date__lte=params["from"])
+                    ).filter(date__lt=params["from"])
                     return transactions.count() > 0
             except ValidationError:
                 # si la requête est mauvaise, on part du principe qu'il n'y a pas plus
