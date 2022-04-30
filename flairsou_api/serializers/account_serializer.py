@@ -7,7 +7,7 @@ from rest_framework.exceptions import PermissionDenied
 from drf_spectacular.utils import extend_schema_field
 from django.core.exceptions import ValidationError
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import uuid
 
@@ -251,12 +251,30 @@ class AccountTransactionListSerializer(FlairsouModelSerializer):
     à un compte
     """
 
+    initial_balance = serializers.SerializerMethodField()
     transaction_set = serializers.SerializerMethodField()
     more_transactions = serializers.SerializerMethodField()
 
     class Meta:
         model = Account
-        fields = ["pk", "transaction_set", "more_transactions"]
+        fields = ["pk", "initial_balance", "transaction_set", "more_transactions"]
+
+    def get_initial_balance(self, instance: Account):
+        initial_balance = 0
+        if "request" in self.context:
+            params = self.context["request"].query_params
+            if "from" in params:
+                try:
+                    # on récupère le solde à la veille du jour demandé
+                    initial_balance = instance.balance_at_date(
+                        datetime.strptime(params["from"], "%Y-%m-%d")
+                        - timedelta(days=1)
+                    )
+                except ValidationError:
+                    # en cas de mauvais paramètres ou de date invalide
+                    raise self.ValidationError({"error": "Erreur dans la requête"})
+
+        return initial_balance
 
     @extend_schema_field(TransactionSerializer(many=True))
     def get_transaction_set(self, instance: Account):
