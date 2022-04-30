@@ -15,6 +15,7 @@ import { AppContext } from './contexts/contexts';
 
 import Home from './pages/home/Home';
 import Account from './pages/account/Account';
+import TransactionEdit from './pages/transaction/TransactionEdit';
 import Book from './pages/book/Book';
 import CrudActions from '../assets/crudActions';
 import Logout from './pages/logout/Logout';
@@ -227,6 +228,9 @@ const App = () => {
             </Route>
             <Route path="/book" exact>
               <Book />
+            </Route>
+            <Route path="/transaction/:transactionID" exact>
+              <TransactionEdit />
             </Route>
             <Route path="/credits" exact>
               <Credits />
