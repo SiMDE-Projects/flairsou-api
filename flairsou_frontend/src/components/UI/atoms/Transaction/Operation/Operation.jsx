@@ -219,9 +219,4 @@ Operation.defaultProps = {
   clickToExpand: null,
 };
 
-Operation.defaultProps = {
-  accountName: null,
-  clickToExpand: null,
-};
-
 export default memo(Operation);
