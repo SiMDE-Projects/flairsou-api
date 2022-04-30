@@ -466,6 +466,7 @@ const TransactionList = ({
           !readOnlyAccount && (
           <Transaction
             key={`new-transaction-${newTransactionVal}`}
+            readOnlyAccount={false}
             transaction={emptyTransaction}
             deleteCallback={deleteTransaction}
             updateCallback={updateTransaction}
