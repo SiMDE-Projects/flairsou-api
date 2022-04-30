@@ -9,6 +9,7 @@ import CrudActions from '../../../assets/crudActions';
 import AccountForm from '../../UI/molecules/AccountForm/AccountForm';
 import { Unknown, Forbidden, NotFound } from '../errors/Errors';
 import { AssoTypes } from '../../../assets/assoTypeMapping';
+import { findAccount } from '../../../utils/accountTreeFunctions';
 
 const SpecificAccount = ({ action }) => {
   // contexte de l'application
@@ -32,19 +33,9 @@ const SpecificAccount = ({ action }) => {
     // met à jour le contexte
     appContext.setAccountActive(accountID);
 
-    // récupère l'objet compte associé
-    fetch(`${process.env.BASE_URL}api/accounts/${accountID}/`)
-      .then((response) => {
-        if (response.status === 200) {
-          /* si la réponse est valide, l'accès est autorisé, on stocke la
-           * réponse de l'API */
-          response.json().then((resp) => {
-            setAccountObject(resp);
-          });
-        } else {
-          setAccountObject({ pk: -1 });
-        }
-      });
+    // récupère le compte depuis l'arbre des comptes du contexte
+    const obj = findAccount(appContext.accountList, accountID);
+    setAccountObject(obj);
   }, [appContext, accountID]);
 
   // Si le numéro de compte n'est pas un nombre
