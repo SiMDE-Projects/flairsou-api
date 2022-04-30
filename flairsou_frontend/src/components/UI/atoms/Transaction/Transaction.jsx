@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import {
   Table, Icon, Checkbox, Input,
 } from 'semantic-ui-react';
+import { Link } from 'react-router-dom';
 
 import Operation from './Operation/Operation';
 import { centsToStr } from '../../../../utils/currencyFormat';
@@ -215,7 +216,16 @@ const Transaction = ({
             onChange={(event, data) => checkedUpdated(data)}
           />
         </Table.Cell>
-        <Table.Cell textAlign="center" collapsing>o</Table.Cell>
+        <Table.Cell textAlign="center" collapsing>
+          <Link to={`/transaction/${transaction.pk}`}>
+            <Icon
+              name="edit"
+              link
+              color="blue"
+              title="Modifier les détails de la transaction"
+            />
+          </Link>
+        </Table.Cell>
         <Table.Cell textAlign="center" collapsing>
           {!readOnlyTransaction && (
             <ConfirmDeleteObject

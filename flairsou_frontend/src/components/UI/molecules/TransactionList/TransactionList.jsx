@@ -422,12 +422,7 @@ const TransactionList = ({
               title="Transaction pointée ou non"
             />
           </Table.HeaderCell>
-          <Table.HeaderCell>
-            <Icon
-              name="attach"
-              title="Justificatif de transaction"
-            />
-          </Table.HeaderCell>
+          <Table.HeaderCell />
           <Table.HeaderCell />
         </Table.Row>
       </Table.Header>
