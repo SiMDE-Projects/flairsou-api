@@ -39,9 +39,12 @@ OAUTH_SETTINGS = {
     "authorization_url": "https://assos.utc.fr/oauth/authorize",
     "token_url": "https://assos.utc.fr/oauth/token",
     "redirect_uri": "http://xxxxxxxxx",
+    "api_base_url": "https://assos.utc.fr/api/v1",
     "scopes": [
         "user-get-info",
         "user-get-roles",
         "user-get-assos",
     ],
+    "login_redirect": "/",
+    "logout_redirect": "/",
 }

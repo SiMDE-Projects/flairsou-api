@@ -30,7 +30,7 @@ class ReconciliationSerializer(FlairsouModelSerializer):
         """
         last_reconc = account.last_reconciliation
         if last_reconc is not None:
-            if date < last_reconc.date:
+            if date <= last_reconc.date:
                 raise self.ValidationError(
                     {"date": ReconciliationSerializer.error_messages["date"]}
                 )
