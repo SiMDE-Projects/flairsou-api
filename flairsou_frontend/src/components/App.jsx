@@ -20,6 +20,7 @@ import CrudActions from '../assets/crudActions';
 import Logout from './pages/logout/Logout';
 import { NotFound } from './pages/errors/Errors';
 import Credits from './pages/credits/Credits';
+import { AssoTypes } from '../assets/assoTypeMapping';
 
 // liste des comptes non virtuels pour sélectionner dans les opérations
 const buildOptions = (accountSet) => (
@@ -168,7 +169,8 @@ const App = () => {
     fetch(process.env.BASE_URL.concat(`api/books/${bookPk}/accounts/`))
       .then((response) => response.json())
       .then((response) => {
-        setAccountList(response.account_set);
+        setAccountList(assoActive.asso_type !== AssoTypes.CLUB
+          ? response.account_set : response.associated_account_set);
       });
   };
 

@@ -12,7 +12,7 @@ import ConfirmDeleteObject from '../ConfirmDeleteObject/ConfirmDeleteObject';
  * Composant effectuant le rendu d'une transaction dans l'affichage d'un compte
  */
 const Transaction = ({
-  transaction, deleteCallback, updateCallback, createCallback,
+  transaction, readOnlyAccount, deleteCallback, updateCallback, createCallback,
 }) => {
   // indique si la transaction doit être étendue ou non (i.e. si il faut
   // afficher toutes les opérations de la transaction)
@@ -178,6 +178,8 @@ const Transaction = ({
     );
   };
 
+  const readOnlyTransaction = transaction.is_reconciliated || readOnlyAccount;
+
   return (
     <>
       <Table.Row>
@@ -185,7 +187,7 @@ const Transaction = ({
           {iconElement()}
         </Table.Cell>
         <Table.Cell textAlign="center" collapsing>
-          {transaction.is_reconciliated
+          {readOnlyTransaction
             ? new Date(date).toLocaleDateString()
             : (
               <Input
@@ -201,7 +203,7 @@ const Transaction = ({
           accountName={otherAccountName}
           clickToExpand={clickToExpand}
           active={false}
-          reconciliated={transaction.is_reconciliated}
+          readOnly={readOnlyTransaction}
           updateCallback={operationValidatedCallback}
           transactionModified={() => setModified(true)}
         />
@@ -209,13 +211,13 @@ const Transaction = ({
         <Table.Cell textAlign="center">
           <Checkbox
             checked={checked}
-            disabled={transaction.is_reconciliated}
+            disabled={readOnlyTransaction}
             onChange={(event, data) => checkedUpdated(data)}
           />
         </Table.Cell>
         <Table.Cell textAlign="center" collapsing>o</Table.Cell>
         <Table.Cell textAlign="center" collapsing>
-          {!transaction.is_reconciliated && (
+          {!readOnlyTransaction && (
             <ConfirmDeleteObject
               objectName="transaction"
               objectDetail={activeOp.label}
@@ -234,7 +236,7 @@ const Transaction = ({
               accountName={operation.accountFullName}
               active={operation.pk === activeOp.pk}
               updateCallback={operationValidatedCallback}
-              reconciliated={transaction.is_reconciliated}
+              readOnly={readOnlyTransaction}
               transactionModified={() => setModified(true)}
             />
             <Table.Cell colSpan="4" />
@@ -281,6 +283,7 @@ Transaction.propTypes = {
       accountFullName: PropTypes.string.isRequired,
     })).isRequired,
   }).isRequired,
+  readOnlyAccount: PropTypes.bool.isRequired,
   deleteCallback: PropTypes.func.isRequired,
   updateCallback: PropTypes.func.isRequired,
   createCallback: PropTypes.func.isRequired,

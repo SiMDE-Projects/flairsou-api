@@ -33,7 +33,7 @@ const findAccount = (accountList, hierarchy, level) => {
  * Composant effectuant le rendu d'une opération particulière
  */
 const Operation = ({
-  operation, accountName, clickToExpand, active, reconciliated, updateCallback,
+  operation, accountName, clickToExpand, active, readOnly, updateCallback,
   transactionModified,
 }) => {
   // affichage du crédit et du débit seulement si le montant est non nul
@@ -111,7 +111,7 @@ const Operation = ({
   // construction de l'élément correspondant au nom du compte
   let accountNameElement = null;
   if (accountName !== null) {
-    if (reconciliated) {
+    if (readOnly) {
       accountNameElement = accountName;
     } else {
       accountNameElement = (
@@ -138,7 +138,7 @@ const Operation = ({
   return (
     <>
       <Table.Cell active={active}>
-        { reconciliated ? operation.label
+        { readOnly ? operation.label
           : (
             <Input
               transparent
@@ -153,7 +153,7 @@ const Operation = ({
         {accountNameElement}
       </Table.Cell>
       <Table.Cell active={active} textAlign="right">
-        {reconciliated ? credit
+        {readOnly ? credit
           : (
             <Input
               transparent
@@ -166,7 +166,7 @@ const Operation = ({
           )}
       </Table.Cell>
       <Table.Cell active={active} textAlign="right">
-        {reconciliated ? debit
+        {readOnly ? debit
           : (
             <Input
               transparent
@@ -208,9 +208,8 @@ Operation.propTypes = {
   // indique si la ligne correspond à l'opération courante dans la liste des opérations
   // d'une transaction répartie
   active: PropTypes.bool.isRequired,
-  // indique si l'opération fait partie d'une transaction rapprochée, auquel cas les champs
-  // ne peuvent pas être édités
-  reconciliated: PropTypes.bool.isRequired,
+  // indique si l'opération fait partie d'une transaction qui peut être modifiée ou non
+  readOnly: PropTypes.bool.isRequired,
   updateCallback: PropTypes.func.isRequired,
   transactionModified: PropTypes.func.isRequired,
 };

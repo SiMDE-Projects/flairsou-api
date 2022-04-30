@@ -1,5 +1,5 @@
 import React, { useEffect, useContext } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 import {
   Container, Header, Button, Grid,
 } from 'semantic-ui-react';
@@ -39,7 +39,7 @@ const BookContent = () => {
           <AccountList accounts={appContext.accountList} />
         </Container>
       )
-      : <p>Pas d&apos;asso active</p>
+      : <Redirect to={{ pathname: '/' }} />
   );
 };
 

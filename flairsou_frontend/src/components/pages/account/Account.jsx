@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Redirect } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 import ContentWrapper from '../../UI/organisms/ContentWrapper/ContentWrapper';
@@ -8,6 +8,7 @@ import { AppContext } from '../../contexts/contexts';
 import CrudActions from '../../../assets/crudActions';
 import AccountForm from '../../UI/molecules/AccountForm/AccountForm';
 import { Unknown, Forbidden, NotFound } from '../errors/Errors';
+import { AssoTypes } from '../../../assets/assoTypeMapping';
 
 const SpecificAccount = ({ action }) => {
   // contexte de l'application
@@ -59,9 +60,21 @@ const SpecificAccount = ({ action }) => {
     return <Forbidden />;
   }
 
+  if (appContext.assoActive === null) {
+    return <Redirect to={{ pathname: '/' }} />;
+  }
+
   switch (action) {
     case CrudActions.READ:
-      return <ContentWrapper content={<AccountContent account={accountObject} />} />;
+      return (
+        <ContentWrapper content={(
+          <AccountContent
+            account={accountObject}
+            readOnlyAccount={appContext.assoActive.asso_type === AssoTypes.CLUB}
+          />
+        )}
+        />
+      );
     case CrudActions.UPDATE:
       return <ContentWrapper content={<AccountForm account={accountObject} />} />;
     default:

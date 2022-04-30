@@ -1,12 +1,20 @@
-import React, { useState, useEffect, memo } from 'react';
+import React, {
+  useState, useEffect, useRef, useCallback, memo,
+} from 'react';
 import PropTypes from 'prop-types';
 import {
-  Table, Icon, Popup, Loader,
+  Table, Icon, Popup, Loader, Button,
 } from 'semantic-ui-react';
 
 import Transaction from '../../atoms/Transaction/Transaction';
 import AccountTypes from '../../../../assets/accountTypeMapping';
 import { compareTransactions, findTransactionIndex } from '../../../../utils/transaction_utils';
+
+function useNoRenderRef(currentValue) {
+  const ref = useRef(currentValue);
+  ref.current = currentValue;
+  return ref;
+}
 
 /**
  * Récupère l'indice de l'opération correspondant au compte passé en paramètre dans la
@@ -30,13 +38,17 @@ const getActiveOpID = (transaction, accountID) => {
  * @params {?} transactionList - liste de transactions
  * @params {bool} invert - indique si le compte inverse ou non les calculs de solde
  * @params {number} i0 - indique à partir de où les soldes partiels doivent être calculés
+ * @params {number} balanceIni - indique le solde initial avant la première transaction (utilisé
+ *                    seulement si i0 == 0)
  */
-const recomputeBalances = (transactionList, invert, i0 = 0) => {
+const recomputeBalances = (transactionList, invert, i0 = 0, balanceIni = 0) => {
   // solde partiel
   let balance = 0;
   if (i0 > 0) {
     // si un i0 est donné, on part du solde partiel précédent
     balance = transactionList[i0 - 1].balance;
+  } else {
+    balance = balanceIni;
   }
 
   // TODO voir si ça peut pas se remplacer par une boucle normale plutôt qu'un map
@@ -60,7 +72,9 @@ const recomputeBalances = (transactionList, invert, i0 = 0) => {
   });
 };
 
-const TransactionList = ({ accountID, accountType, updateBalanceCallback }) => {
+const TransactionList = ({
+  accountID, accountType, readOnlyAccount, updateBalanceCallback,
+}) => {
   /*
    * accountID : ID du compte dans la base de données Flairsou
    * accountType : type du compte (voir assets/accountTypeMapping.js)
@@ -104,8 +118,12 @@ const TransactionList = ({ accountID, accountType, updateBalanceCallback }) => {
     ],
   };
 
+  // nombre de mois à charger par défaut
+  const NB_MONTHS = 3;
+
   // liste des transactions stockées dans l'état du composant
   const [transactionList, setTransactionList] = useState([]);
+  const transactionListRef = useNoRenderRef(transactionList);
 
   // clé artificielle pour forcer la remise à zéro de la nouvelle transaction après
   // validation.
@@ -114,31 +132,98 @@ const TransactionList = ({ accountID, accountType, updateBalanceCallback }) => {
   // indique si les transactions sont en cours de chargement
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    // on indique le chargement en cours
+  // Date de départ pour la récupération des transactions
+  const [olderDate, setOlderDate] = useState(null);
+  const olderDateRef = useNoRenderRef(olderDate);
+
+  const [moreTransactions, setMoreTransactions] = useState(false);
+
+  /**
+   * Mise en forme de la date
+   */
+  const formatDate = (date) => {
+    const day = `${date.getDate() < 10 ? '0' : ''}${date.getDate()}`;
+    const month = `${date.getMonth() + 1 < 10 ? '0' : ''}${date.getMonth() + 1}`;
+    const year = `${date.getFullYear()}`;
+    return `${year}-${month}-${day}`;
+  };
+
+  /**
+   * Charge les transactions entre deux dates et les ajoute à celles déjà chargées
+   *
+   * @params { object } fromDate - date de début
+   * @params { object } toDate - date de fin
+   */
+  const loadMoreTransactions = useCallback(() => {
+    let fromDate;
+    let toDate = null;
+    if (olderDateRef.current === null) {
+      // si la date précédente n'a pas déjà été chargée, on charge toutes les transactions
+      // depuis le nombre de mois avant la date courante
+      fromDate = new Date(Date.now());
+    } else {
+      // on a déjà récupéré les transactions jusqu'à olderDate, on prend les autres
+      // transactions qui vont jusque la veille
+      toDate = olderDateRef.current;
+      toDate.setDate(toDate.getDate() - 1);
+      fromDate = new Date(toDate);
+    }
+
+    // on recule la date de début NB_MONTH en amont
+    fromDate.setDate(1);
+    fromDate.setMonth(fromDate.getMonth() - NB_MONTHS);
+
+    let URL = `${process.env.BASE_URL}api/accounts/${accountID}/transactions/`;
+    URL += `?from=${formatDate(fromDate)}`;
+    URL += toDate ? `&to=${formatDate(toDate)}` : '';
+
     setLoading(true);
 
     // récupération de la liste des transactions
-    fetch(`${process.env.BASE_URL}api/accounts/${accountID}/transactions/`)
+    fetch(URL)
       .then((response) => response.json())
       .then((response) => {
+        // mise à jour de l'indicateur de transactions supplémentaires
+        setMoreTransactions(response.more_transactions);
+
+        // remplacement de la date la plus ancienne
+        setOlderDate(fromDate);
+
+        // s'il n'y a pas de transactions dans le retour, on s'arrête ici
         if (response.transaction_set.length === 0) {
           setLoading(false);
           return;
         }
 
-        // récupéation des IDs des opérations actives par transaction
+        // récupération des transactions supplémentaires chargées et ajout en amont du tableau
         const newTransactionList = response.transaction_set.map((transaction) => (
           {
             ...transaction,
             balance: 0,
+            // récupéation des IDs des opérations actives par transaction
             activeOpId: getActiveOpID(transaction, accountID),
-          }));
+          }))
+          .concat(transactionListRef.current);
 
-        // calcul des soldes partiels depuis le début
-        setTransactionList(recomputeBalances(newTransactionList, invert));
+        // calcul du solde à la veille de la transaction
+        const prevDate = new Date(fromDate);
+        prevDate.setDate(prevDate.getDate() - 1);
+        const URL2 = `${process.env.BASE_URL}api/accounts/${accountID}/balance/?date=${formatDate(prevDate)}`;
+
+        fetch(URL2).then((resp) => resp.json())
+          .then((resp) => {
+            const balanceIni = resp.balance;
+
+            // calcul des soldes partiels depuis le début
+            setTransactionList(recomputeBalances(newTransactionList, invert, 0, balanceIni));
+          });
       });
-  }, [accountID, invert]);
+  }, [accountID, invert, olderDateRef, transactionListRef]);
+
+  useEffect(() => {
+    // on charge les transactions
+    loadMoreTransactions();
+  }, [loadMoreTransactions]);
 
   /**
    * Mise à jour du solde global du compte
@@ -348,31 +433,51 @@ const TransactionList = ({ accountID, accountType, updateBalanceCallback }) => {
       </Table.Header>
       <Table.Body>
         {
-          loading
-            ? (
-              <Table.Row>
-                <Table.Cell colSpan="10">
-                  <Loader active inline="centered" content="Chargement des transactions..." />
-                </Table.Cell>
-              </Table.Row>
-            )
-            : transactionList.map((transaction) => (
-              <Transaction
-                key={transaction.operations[transaction.activeOpId].pk}
-                transaction={transaction}
-                deleteCallback={deleteTransaction}
-                updateCallback={updateTransaction}
-                createCallback={createTransaction}
-              />
-            ))
+          loading && (
+          <Table.Row>
+            <Table.Cell colSpan="10">
+              <Loader active inline="centered" content="Chargement des transactions..." />
+            </Table.Cell>
+          </Table.Row>
+          )
         }
-        <Transaction
-          key={`new-transaction-${newTransactionVal}`}
-          transaction={emptyTransaction}
-          deleteCallback={deleteTransaction}
-          updateCallback={updateTransaction}
-          createCallback={createTransaction}
-        />
+        {
+          !loading && moreTransactions
+            && (
+            <Table.Row>
+              <Table.Cell colSpan="10">
+                <Button
+                  content={`Charger des transactions avant le ${olderDate.toLocaleDateString()}...`}
+                  fluid
+                  onClick={() => loadMoreTransactions()}
+                />
+              </Table.Cell>
+            </Table.Row>
+            )
+        }
+        {
+           transactionList.map((transaction) => (
+             <Transaction
+               key={transaction.operations[transaction.activeOpId].pk}
+               transaction={transaction}
+               readOnlyAccount={readOnlyAccount}
+               deleteCallback={deleteTransaction}
+               updateCallback={updateTransaction}
+               createCallback={createTransaction}
+             />
+           ))
+        }
+        { /* affichage de la nouvelle transaction seulement si ce n'est pas en lecture seule */
+          !readOnlyAccount && (
+          <Transaction
+            key={`new-transaction-${newTransactionVal}`}
+            transaction={emptyTransaction}
+            deleteCallback={deleteTransaction}
+            updateCallback={updateTransaction}
+            createCallback={createTransaction}
+          />
+          )
+        }
       </Table.Body>
     </Table>
   );
@@ -381,6 +486,7 @@ const TransactionList = ({ accountID, accountType, updateBalanceCallback }) => {
 TransactionList.propTypes = {
   accountID: PropTypes.number.isRequired,
   accountType: PropTypes.number.isRequired,
+  readOnlyAccount: PropTypes.bool.isRequired,
   updateBalanceCallback: PropTypes.func.isRequired,
 };
 
