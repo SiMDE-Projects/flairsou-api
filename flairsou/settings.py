@@ -11,10 +11,24 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 import os
 from pathlib import Path
+import sys
 
 # import custom config file
 from . import config
 import environ
+
+
+class bcolors:
+    HEADER = "\033[95m"
+    OKBLUE = "\033[94m"
+    OKCYAN = "\033[96m"
+    OKGREEN = "\033[92m"
+    WARNING = "\033[93m"
+    FAIL = "\033[91m"
+    ENDC = "\033[0m"
+    BOLD = "\033[1m"
+    UNDERLINE = "\033[4m"
+
 
 env = environ.Env(
     BASE_URL=(str, "/"),
@@ -32,6 +46,28 @@ SECRET_KEY = config.SECRET_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config.DEBUG
+
+if DEBUG:
+    print(
+        bcolors.WARNING
+        + bcolors.BOLD
+        + "ATTENTION : le paramètre DEBUG est à True, ne pas laisser ce paramètre "
+        + "en production !!",
+        file=sys.stderr,
+    )
+
+# flag pour ouvrir l'API pour les tests (doit être à False en prod)
+DEBUG_NO_PERMISSION_CHECKS = config.DEBUG_NO_PERMISSION_CHECKS
+
+if DEBUG_NO_PERMISSION_CHECKS:
+    print(
+        bcolors.WARNING
+        + bcolors.BOLD
+        + "ATTENTION : le paramètre DEBUG_NO_PERMISSION_CHEKS est à True, les vérifications "
+        + "d'autorisations dans l'API ne sont pas effectuées !!"
+        + bcolors.ENDC,
+        file=sys.stderr,
+    )
 
 ALLOWED_HOSTS = config.ALLOWED_HOSTS
 

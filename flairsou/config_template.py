@@ -18,6 +18,10 @@ SECRET_KEY = "<SECRET_KEY>"
 # activation du debug ou non
 DEBUG = True
 
+# flag pour activer ou non les vérifications de droits sur l'API.
+# doit être à False sur la production !
+DEBUG_NO_PERMISSION_CHECKS = False
+
 # timezone
 TIME_ZONE = "UTC"
 
