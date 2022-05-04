@@ -7,7 +7,6 @@ import copy
 from proxy_pda.models import Asso, AssoType
 from flairsou_api.models import Book, Account
 
-from .date_to_timezone import date_to_timezone
 from .base_account_struct import base_account_struct
 
 
