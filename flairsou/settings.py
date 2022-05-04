@@ -55,14 +55,14 @@ if DEBUG:
     )
 
 # flag pour ouvrir l'API pour les tests (doit être à False en prod)
-OPEN_API = config.OPEN_API
+DEBUG_NO_PERMISSION_CHECKS = config.DEBUG_NO_PERMISSION_CHECKS
 
-if OPEN_API:
+if DEBUG_NO_PERMISSION_CHECKS:
     print(
         bcolors.WARNING
         + bcolors.BOLD
-        + "ATTENTION : le paramètre OPEN_API est à True, les vérifications de droits "
-        + "dans l'API ne sont pas effectuées !!"
+        + "ATTENTION : le paramètre DEBUG_NO_PERMISSION_CHEKS est à True, les vérifications "
+        + "d'autorisations dans l'API ne sont pas effectuées !!"
         + bcolors.ENDC
     )
 

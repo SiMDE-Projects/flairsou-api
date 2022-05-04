@@ -18,7 +18,7 @@ class UserAllowed(BasePermission):
         Fonction qui indique si la requête est autorisée à
         accéder à l'objet passé en paramètre
         """
-        if settings.OPEN_API:
+        if settings.DEBUG_NO_PERMISSION_CHECKS:
             # pour les tests, on ne vérifie pas les autorisations
             return True
 
@@ -36,7 +36,7 @@ class UserAllowed(BasePermission):
         Fonction qui vérifie si la requête est autorisée à
         accéder à l'entité passée en paramètre.
         """
-        if settings.OPEN_API:
+        if settings.DEBUG_NO_PERMISSION_CHECKS:
             # pour les tests, on ne vérifie pas les autorisations
             return True
 

@@ -20,7 +20,7 @@ DEBUG = True
 
 # flag pour activer ou non les vérifications de droits sur l'API.
 # doit être à False sur la production !
-OPEN_API = False
+DEBUG_NO_PERMISSION_CHECKS = False
 
 # timezone
 TIME_ZONE = "UTC"
