@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 import os
 from pathlib import Path
+import sys
 
 # import custom config file
 from . import config
@@ -51,7 +52,8 @@ if DEBUG:
         bcolors.WARNING
         + bcolors.BOLD
         + "ATTENTION : le paramètre DEBUG est à True, ne pas laisser ce paramètre "
-        + "en production !!"
+        + "en production !!",
+        file=sys.stderr,
     )
 
 # flag pour ouvrir l'API pour les tests (doit être à False en prod)
@@ -63,7 +65,8 @@ if DEBUG_NO_PERMISSION_CHECKS:
         + bcolors.BOLD
         + "ATTENTION : le paramètre DEBUG_NO_PERMISSION_CHEKS est à True, les vérifications "
         + "d'autorisations dans l'API ne sont pas effectuées !!"
-        + bcolors.ENDC
+        + bcolors.ENDC,
+        file=sys.stderr,
     )
 
 ALLOWED_HOSTS = config.ALLOWED_HOSTS
