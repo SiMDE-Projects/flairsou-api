@@ -35,6 +35,9 @@ DATABASES = {
 
 ALLOWED_HOSTS = []
 
+# origines autorisées pour les requêtes CSRF
+CSRF_TRUSTED_ORIGINS = ["https://assos.utc.fr"]
+
 UPLOAD_PATH = "uploads/"
 
 OAUTH_SETTINGS = {
