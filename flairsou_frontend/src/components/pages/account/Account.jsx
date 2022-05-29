@@ -34,8 +34,7 @@ const SpecificAccount = ({ action }) => {
     appContext.setAccountActive(accountID);
 
     // récupère le compte depuis l'arbre des comptes du contexte
-    const obj = findAccount(appContext.accountList, accountID);
-    setAccountObject(obj);
+    setAccountObject(findAccount(appContext.accountList, accountID));
   }, [appContext, accountID]);
 
   // Si le numéro de compte n'est pas un nombre
