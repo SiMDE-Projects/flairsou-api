@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import {
   Table, Icon, Popup, Loader, Button,
 } from 'semantic-ui-react';
+import { format } from 'date-fns';
 
 import Transaction from '../../atoms/Transaction/Transaction';
 import AccountTypes from '../../../../assets/accountTypeMapping';
@@ -17,12 +18,7 @@ import accountNodeShape from '../../../../shapes/accountShape/accountNodeShape';
  * @param {Date} date - objet date
  * @return {string} date donnée au format 'yyyy-mm-dd'
  */
-const formatDate = (date) => {
-  const day = `${date.getDate() < 10 ? '0' : ''}${date.getDate()}`;
-  const month = `${date.getMonth() + 1 < 10 ? '0' : ''}${date.getMonth() + 1}`;
-  const year = `${date.getFullYear()}`;
-  return `${year}-${month}-${day}`;
-};
+const formatDate = (date) => format(date, 'yyyy-MM-dd');
 
 /**
  * Récupère l'indice de l'opération correspondant au compte passé en paramètre dans la
