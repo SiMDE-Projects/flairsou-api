@@ -41,6 +41,10 @@ const Transaction = ({
     }
   }, [transaction.date, date]);
 
+  if (transaction.activeOpId === -1) {
+    return <></>;
+  }
+
   // récupération de l'objet correspondant à l'opération à afficher
   const activeOp = transaction.operations[transaction.activeOpId];
 

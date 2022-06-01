@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import {
   Button,
@@ -10,7 +10,7 @@ import { Link } from 'react-router-dom';
 
 import { centsToStr } from '../../../../utils/currencyFormat';
 import TransactionList from '../../molecules/TransactionList/TransactionList';
-import accountShape from '../../../../shapes/accountShape/accountShape';
+import accountNodeShape from '../../../../shapes/accountShape/accountNodeShape';
 
 import Reconciliation from '../../atoms/Reconciliation/Reconciliation';
 
@@ -19,6 +19,11 @@ const AccountContent = ({ account, readOnlyAccount }) => {
   const [balance, setBalance] = useState(0);
 
   const updateBalance = (newBalance) => setBalance(newBalance);
+
+  // définition initiale du solde au chargement d'un nouveau compte
+  useEffect(() => {
+    setBalance(account.balance);
+  }, [account]);
 
   return (
     <>
@@ -50,18 +55,11 @@ const AccountContent = ({ account, readOnlyAccount }) => {
       </Container>
       <Grid centered>
         <Grid.Column width={14}>
-          {
-            account.virtual
-              ? <>Compte virtuel</>
-              : (
-                <TransactionList
-                  accountID={account.pk}
-                  accountType={account.account_type}
-                  readOnlyAccount={readOnlyAccount}
-                  updateBalanceCallback={updateBalance}
-                />
-              )
-          }
+          <TransactionList
+            account={account}
+            readOnlyAccount={readOnlyAccount || account.virtual}
+            updateBalanceCallback={updateBalance}
+          />
         </Grid.Column>
       </Grid>
     </>
@@ -69,7 +67,7 @@ const AccountContent = ({ account, readOnlyAccount }) => {
 };
 
 AccountContent.propTypes = {
-  account: PropTypes.shape(accountShape).isRequired,
+  account: PropTypes.shape(accountNodeShape).isRequired,
   readOnlyAccount: PropTypes.bool.isRequired,
 };
 
