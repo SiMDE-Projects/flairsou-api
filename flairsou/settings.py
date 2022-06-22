@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 import os
 from pathlib import Path
 import sys
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
 
 # import custom config file
 from . import config
@@ -32,6 +34,15 @@ class bcolors:
 
 env = environ.Env(
     BASE_URL=(str, "/"),
+    FLAIRSOU_ENV=(str, "developpement"),
+    FLAIRSOU_SENTRY_BACKEND_DSN=(
+        str,
+        "https://223d19c3afc242349e5932c1863a067d@o1296214.ingest.sentry.io/6522968",
+    ),
+    FLAIRSOU_SENTRY_FRONT_DSN=(
+        str,
+        "https://223d19c3afc242349e5932c1863a067d@o1296214.ingest.sentry.io/6522968",
+    ),
 )
 environ.Env.read_env()
 
@@ -183,3 +194,13 @@ SPECTACULAR_SETTINGS = {
 
 OAUTH_SETTINGS = config.OAUTH_SETTINGS
 AUTH_USER_MODEL = "oauth_pda_app.User"
+
+sentry_sdk.init(
+    dsn=env("FLAISOU_SENTRY_BACKEND_DSN"),
+    environment=env("FLAIRSOU_ENV"),
+    integrations=[
+        DjangoIntegration(),
+    ],
+    traces_sample_rate=1.0,
+    send_default_pii=True,
+)
