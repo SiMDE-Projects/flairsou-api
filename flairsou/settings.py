@@ -41,7 +41,7 @@ env = environ.Env(
     ),
     FLAIRSOU_SENTRY_FRONT_DSN=(
         str,
-        "https://223d19c3afc242349e5932c1863a067d@o1296214.ingest.sentry.io/6522968",
+        "https://8187426c2af7419d95a640b957cbeb9d@o1296214.ingest.sentry.io/6522978",
     ),
 )
 environ.Env.read_env()
@@ -196,7 +196,7 @@ OAUTH_SETTINGS = config.OAUTH_SETTINGS
 AUTH_USER_MODEL = "oauth_pda_app.User"
 
 sentry_sdk.init(
-    dsn=env("FLAISOU_SENTRY_BACKEND_DSN"),
+    dsn=env("FLAIRSOU_SENTRY_BACKEND_DSN"),
     environment=env("FLAIRSOU_ENV"),
     integrations=[
         DjangoIntegration(),
