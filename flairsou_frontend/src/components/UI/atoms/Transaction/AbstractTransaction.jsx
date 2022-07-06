@@ -151,14 +151,33 @@ const AbstractTransaction = ({
         },
       })
       .then((response) => {
-        // TODO : mettre la gestion d'erreur sur le retour ici
-        if (transaction.pk === 0) {
-          // création
-          transactionCreatedCallback(response);
-        } else {
-          // mise à jour
-          transactionUpdatedCallback(response);
+        if (transaction.pk === 0 && response.status !== 201) {
+          // erreur de création, à gérer ici TODO
         }
+
+        if (transaction.pk !== 0 && response.status !== 200) {
+          // erreur de mise à jour, à gérer ici TODO
+        }
+
+        // ici, la création ou mise à jour est OK
+        response.json().then((transactionResp) => {
+          // reconstruction de la transaction mise à jour en prenant les données initiales
+          // (transaction) et en remplaçant les champs nécessaires par le retour de l'API
+          // (transactionResp). Ceci permet de conserver les champs ajoutés pour le traitement
+          // de l'affichage (clé locales...) tout en récupérant correctement les éventuelles
+          // corrections de l'API.
+          const updatedTransaction = { ...transaction, ...transactionResp };
+          updatedTransaction.operations = transaction.operations.map((op, id) => (
+            { ...op, ...transactionResp.operations[id] }));
+
+          if (transaction.pk === 0) {
+          // création
+            transactionCreatedCallback(updatedTransaction);
+          } else {
+          // mise à jour
+            transactionUpdatedCallback(updatedTransaction);
+          }
+        });
       });
   };
 
@@ -254,9 +273,15 @@ AbstractTransaction.propTypes = {
    * TODO
    */
   displayType: PropTypes.oneOf(Object.keys(DisplayTypes)).isRequired,
-  transactionCreatedCallback: PropTypes.func.isRequired,
-  transactionUpdatedCallback: PropTypes.func.isRequired,
-  transactionDeletedCallback: PropTypes.func.isRequired,
+  transactionCreatedCallback: PropTypes.func,
+  transactionUpdatedCallback: PropTypes.func,
+  transactionDeletedCallback: PropTypes.func,
+};
+
+AbstractTransaction.defaultProps = {
+  transactionCreatedCallback: (response) => {}, /* eslint-disable-line no-unused-vars */
+  transactionUpdatedCallback: (response) => {}, /* eslint-disable-line no-unused-vars */
+  transactionDeletedCallback: (response, pk) => {}, /* eslint-disable-line no-unused-vars */
 };
 
 export default memo(AbstractTransaction);

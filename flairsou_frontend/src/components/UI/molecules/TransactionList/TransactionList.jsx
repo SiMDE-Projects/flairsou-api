@@ -282,65 +282,53 @@ const TransactionList = ({
   /**
    * TODO
    */
-  const updateTransactionFetchCallback = (response) => {
-    if (response.status === 200) {
-      response.json().then((updatedTransaction) => {
-        // on construit une nouvelle liste de transactions avec la mise à jour
-        // de la transaction récupérée
-        const newTransactionList = transactionList.map((tmpTransaction) => {
-          if (tmpTransaction.pk === updatedTransaction.pk) {
-            // renvoi de la nouvelle transaction mise à jour par l'API
-            return ({
-              ...updatedTransaction,
-              balance: 0, // solde à recalculer par la suite
-              activeOpId: getActiveOpID(updatedTransaction, accountID),
-            });
-          }
-          return (tmpTransaction);
+  const updateTransactionFetchCallback = (updatedTransaction) => {
+    // on construit une nouvelle liste de transactions avec la mise à jour
+    // de la transaction récupérée
+    const newTransactionList = transactionList.map((tmpTransaction) => {
+      if (tmpTransaction.pk === updatedTransaction.pk) {
+        // renvoi de la nouvelle transaction mise à jour par l'API
+        return ({
+          ...updatedTransaction,
+          balance: 0, // solde à recalculer par la suite
+          activeOpId: getActiveOpID(updatedTransaction, accountID),
         });
+      }
+      return (tmpTransaction);
+    });
 
-        // tri des transactions par date
-        newTransactionList.sort(compareTransactions);
+    // tri des transactions par date
+    newTransactionList.sort(compareTransactions);
 
-        // recherche de la transaction mise à jour
-        const trIndex = findTransactionIndex(newTransactionList, updatedTransaction);
+    // recherche de la transaction mise à jour
+    const trIndex = findTransactionIndex(newTransactionList, updatedTransaction);
 
-        setTransactionList(recomputeBalances(newTransactionList, invert, trIndex));
-      });
-    } else {
-      console.log('error');
-    }
+    setTransactionList(recomputeBalances(newTransactionList, invert, trIndex));
   };
 
   /**
    * TODO
    */
-  const createdTransactionFetchCallback = (response) => {
-    if (response.status === 201) { // 201 created
-      response.json().then((createdTransaction) => {
-        // on ajoute la nouvelle transaction à la liste des transactions affichées
-        const newTransactionList = [...transactionList, {
-          ...createdTransaction,
-          balance: 0,
-          activeOpId: getActiveOpID(createdTransaction, accountID),
-        }];
+  const createdTransactionFetchCallback = (createdTransaction) => {
+    // on ajoute la nouvelle transaction à la liste des transactions affichées
+    const newTransactionList = [...transactionList, {
+      ...createdTransaction,
+      balance: 0,
+      activeOpId: getActiveOpID(createdTransaction, accountID),
+    }];
 
-        // tri de la liste des transactions par date
-        newTransactionList.sort(compareTransactions);
+    // tri de la liste des transactions par date
+    newTransactionList.sort(compareTransactions);
 
-        // récupération de l'indice de la nouvelle transaction
-        const trIndex = findTransactionIndex(newTransactionList, createdTransaction);
+    // récupération de l'indice de la nouvelle transaction
+    const trIndex = findTransactionIndex(newTransactionList, createdTransaction);
 
-        // on met à jour l'état
-        setTransactionList(
-          recomputeBalances(newTransactionList, invert, trIndex),
-        );
+    // on met à jour l'état
+    setTransactionList(
+      recomputeBalances(newTransactionList, invert, trIndex),
+    );
 
-        setNewTransactionVal(newTransactionVal + 1);
-      });
-    } else {
-      console.log('error');
-    }
+    setNewTransactionVal(newTransactionVal + 1);
   };
 
   return (
