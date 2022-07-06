@@ -1,9 +1,11 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, {
+  useState, useEffect, useContext, memo,
+} from 'react';
 import { useParams, Redirect } from 'react-router-dom';
 
 import ContentWrapper from '../../UI/organisms/ContentWrapper/ContentWrapper';
-import TransactionForm from '../../UI/molecules/TransactionForm/TransactionForm';
 import { AppContext } from '../../contexts/contexts';
+import AbstractTransaction, { DisplayTypes } from '../../UI/atoms/Transaction/AbstractTransaction';
 
 import { Forbidden, NotFound } from '../errors/Errors';
 
@@ -35,7 +37,7 @@ const TransactionEdit = () => {
         if (response.status === 200) {
         // accès autorisé
           response.json().then((resp) => {
-            setTransactionObject(resp);
+            setTransactionObject({ ...resp, balance: 0 });
           });
         } else {
           setTransactionObject({ pk: -1 });
@@ -67,8 +69,17 @@ const TransactionEdit = () => {
   */
 
   return (
-    <ContentWrapper content={<TransactionForm transaction={transactionObject} />} />
+    <ContentWrapper content={(
+      <AbstractTransaction
+        initialTransaction={transactionObject}
+        readOnly={false}
+        displayType={DisplayTypes.details}
+        transactionCreatedCallback={(response) => setTransactionObject(response)}
+        transactionUpdatedCallback={(response) => setTransactionObject(response)}
+      />
+    )}
+    />
   );
 };
 
-export default TransactionEdit;
+export default memo(TransactionEdit);
