@@ -128,7 +128,6 @@ OneLineTransaction.propTypes = {
       accountFullName: PropTypes.string.isRequired,
     })).isRequired,
   }).isRequired,
-  activeOpId: PropTypes.number.isRequired,
   readOnly: PropTypes.bool.isRequired,
   operationsUpdatedCallback: PropTypes.func.isRequired,
   transactionValidatedCallback: PropTypes.func.isRequired,
