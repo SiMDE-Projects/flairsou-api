@@ -1,10 +1,38 @@
 import React, { memo, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 
-import { cloneDeep, isEqual } from 'lodash';
+import { cloneDeep } from 'lodash';
 
 import TransactionLine from './TransactionLine';
 import TransactionDetail from './TransactionDetail';
+
+/**
+ * Vérification de l'égalité entre deux transactions. Cette fonction se base sur le contenu
+ * des transactions renvoyé par l'API pouvant être modifiés directement par l'interface.
+ * Cette fonction ne tient pas compte des pièces justificatives associées aux transactions
+ * car l'ajout ou la suppression des PJ entraîneront une mise à jour directe de la transaction.
+ * L'intérêt de cette fonction est de ne vérifier que les composantes propres aux transactions
+ * et pas les éléments annexes ajoutés pour la gestion de l'interface (clés locales...)
+ */
+const transactionEqual = (tr1, tr2) => {
+  // paramètres propres à la transaction
+  if (tr1.pk !== tr2.pk) return false;
+  if (tr1.date !== tr2.date) return false;
+  if (tr1.checked !== tr2.checked) return false;
+
+  // nombre d'opérations
+  if (tr1.operations.length !== tr2.operations.length) return false;
+  // contenu des opérations
+  for (let i = 0; i < tr1.operations.length; i += 1) {
+    if (tr1.operations[i].pk !== tr2.operations[i].pk) return false;
+    if (tr1.operations[i].credit !== tr2.operations[i].credit) return false;
+    if (tr1.operations[i].debit !== tr2.operations[i].debit) return false;
+    if (tr1.operations[i].label !== tr2.operations[i].label) return false;
+    if (tr1.operations[i].account !== tr2.operations[i].account) return false;
+  }
+
+  return true;
+};
 
 const DisplayTypes = {
   list: 'list', /** affichage de la transaction dans la liste des transactions d'un compte */
@@ -35,7 +63,7 @@ const AbstractTransaction = ({
 
   // mise à jour du statut de modification
   useEffect(() => {
-    if (!isEqual(transaction, initialTransaction)) setModified(true);
+    if (!transactionEqual(transaction, initialTransaction)) setModified(true);
     else setModified(false);
   }, [transaction, initialTransaction]);
 
