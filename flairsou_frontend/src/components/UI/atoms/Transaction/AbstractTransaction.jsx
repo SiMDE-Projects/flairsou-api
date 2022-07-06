@@ -53,7 +53,7 @@ const AbstractTransaction = ({
    * état interne de la transaction enregistrée, similaire à initialTransaction mais maintenu
    * à jour par rapport aux modifications effectuées dans l'interface
    */
-  const [transaction, setTransaction] = useState(cloneDeep(initialTransaction));
+  const [transaction, setTransaction] = useState({ ...cloneDeep(initialTransaction), balance: 0 });
 
   /**
    * état indiquant si la transaction est en cours de modification ou non par rapport
@@ -81,9 +81,11 @@ const AbstractTransaction = ({
 
   /**
    * Callback de mise à jour de l'état de check de la transaction
+   *
+   * @param { boolean } checked : nouvelle valeur à mettre dans la transaction
    */
-  const checkedUpdated = (data) => {
-    setTransaction({ ...transaction, checked: data.checked });
+  const checkedUpdated = (checked) => {
+    setTransaction({ ...transaction, checked });
   };
 
   /**

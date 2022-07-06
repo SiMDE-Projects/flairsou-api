@@ -73,7 +73,7 @@ const TransactionLine = ({
           <Checkbox
             checked={transaction.checked}
             disabled={readOnly}
-            onChange={updateCheck}
+            onChange={(event, data) => updateCheck(data.checked)}
           />
         </Table.Cell>
         <Table.Cell textAlign="center" collapsing>
