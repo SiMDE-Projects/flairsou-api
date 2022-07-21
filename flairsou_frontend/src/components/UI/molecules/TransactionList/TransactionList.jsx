@@ -7,7 +7,8 @@ import {
 } from 'semantic-ui-react';
 import { format } from 'date-fns';
 
-import Transaction from '../../atoms/Transaction/Transaction';
+import AbstractTransaction, { DisplayTypes } from '../../atoms/Transaction/AbstractTransaction';
+import { NO_ACCOUNT } from '../../atoms/Transaction/Operation/Operation';
 import AccountTypes from '../../../../assets/accountTypeMapping';
 import { compareTransactions, findTransactionIndex } from '../../../../utils/transaction_utils';
 import { findAccount } from '../../../../utils/accountTreeFunctions';
@@ -77,8 +78,6 @@ const recomputeBalances = (transactionList, invert, i0 = 0, balanceIni = 0) => {
     balance = balanceIni;
   }
 
-  // TODO voir si ça peut pas se remplacer par une boucle normale plutôt qu'un map
-  // pour les questions de performances
   return transactionList.map((transaction, i) => {
     if (i < i0) {
       return transaction;
@@ -284,8 +283,6 @@ const TransactionList = ({
     is_reconciliated: false,
     checked: false,
     invoice: null,
-    balance: 0,
-    activeOpId: 0, // l'opération active est toujours la première
     operations: [
       { // opération 1 : opération associée au compte actuel
         pk: 0,
@@ -300,10 +297,12 @@ const TransactionList = ({
         credit: 0,
         debit: 0,
         label: '',
-        account: 0,
+        account: NO_ACCOUNT,
         accountFullName: '',
       },
     ],
+    balance: 0,
+    activeOpId: 0, // l'opération active est toujours la première
   };
 
   // nombre de mois à charger par défaut
@@ -363,163 +362,82 @@ const TransactionList = ({
    *
    * @param {number} transactionPk - clé primaire de la transaction à supprimer
    */
-  const deleteTransaction = (transactionPk) => {
-    fetch(`${process.env.BASE_URL}api/transactions/${transactionPk}/`, { method: 'DELETE' })
-      .then((response) => {
-        if (response.status === 204) {
-          // on veut supprimer la transaction de la liste courante
-          // on construit un nouveau tableau (le spreading est nécessaire pour faire
-          // une vraie copie et pas prendre une référence)
-          const newTransactionList = [...transactionList];
+  const transactionDeletedCallback = (response, transactionPk) => {
+    if (response.status === 204) {
+      // on veut supprimer la transaction de la liste courante
+      // on construit un nouveau tableau (le spreading est nécessaire pour faire
+      // une vraie copie et pas prendre une référence)
+      const newTransactionList = [...transactionList];
 
-          // 1 - on recherche l'indice de la transaction à supprimer dans transactionList
-          let index = 0;
-          for (let i = 0; i < newTransactionList.length; i += 1) {
-            if (newTransactionList[i].pk === transactionPk) {
-              index = i;
-              break;
-            }
-          }
-
-          // 2 - on enlève la transaction à supprimer de la liste
-          newTransactionList.splice(index, 1);
-
-          // mise à jour de la liste des transactions
-          setTransactionList(recomputeBalances(newTransactionList, invert, index));
-        } else {
-          console.error(`Erreur de suppression de la transaction ${transactionPk}`);
+      // 1 - on recherche l'indice de la transaction à supprimer dans transactionList
+      let index = 0;
+      for (let i = 0; i < newTransactionList.length; i += 1) {
+        if (newTransactionList[i].pk === transactionPk) {
+          index = i;
+          break;
         }
-      });
+      }
+
+      // 2 - on enlève la transaction à supprimer de la liste
+      newTransactionList.splice(index, 1);
+
+      // mise à jour de la liste des transactions
+      setTransactionList(recomputeBalances(newTransactionList, invert, index));
+    } else {
+      console.error(`Erreur de suppression de la transaction ${transactionPk}`);
+    }
   };
 
   /**
-   * Met à jour la transaction envoyée
-   *
-   * Envoie la demande de mise à jour de la transaction sur l'API
-   *
-   * @param {Object} transaction - Transaction à mettre à jour
-   * @param {function} resetTransactionModifiedStatus - callback pour réinitialiser l'icône de
-   *                                                    statut de la transaction (disquette orange
-   *                                                    vers cadenas vert)
+   * TODO
    */
-  const updateTransaction = (transaction, resetTransactionModifiedStatus) => {
-    fetch(`${process.env.BASE_URL}api/transactions/${transaction.pk}/`,
-      {
-        method: 'PUT',
-        // construction de l'objet transaction à envoyer à l'API
-        body: JSON.stringify({
-          pk: transaction.pk,
-          date: transaction.date,
-          checked: transaction.checked,
-          invoice: null,
-          operations: transaction.operations.map((operation) => ({
-            pk: operation.pk,
-            credit: operation.credit,
-            debit: operation.debit,
-            label: operation.label,
-            account: operation.account,
-          })),
-        }),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-      .then((response) => {
-        if (response.status === 200) {
-          // la réponse est valide, on remet à jour le flag de modification
-          resetTransactionModifiedStatus();
+  const updateTransactionFetchCallback = (updatedTransaction) => {
+    // on construit une nouvelle liste de transactions avec la mise à jour
+    // de la transaction récupérée
+    const newTransactionList = transactionList.map((tmpTransaction) => {
+      if (tmpTransaction.pk === updatedTransaction.pk) {
+        // renvoi de la nouvelle transaction mise à jour par l'API
+        return ({
+          ...updatedTransaction,
+          balance: 0, // solde à recalculer par la suite
+          activeOpId: getActiveOpID(updatedTransaction, account)[0],
+        });
+      }
+      return (tmpTransaction);
+    });
 
-          response.json().then((updatedTransaction) => {
-            // on construit une nouvelle liste de transactions avec la mise à jour
-            // de la transaction récupérée
-            const newTransactionList = transactionList.map((tmpTransaction) => {
-              if (tmpTransaction.pk === updatedTransaction.pk) {
-                // renvoi de la nouvelle transaction mise à jour par l'API
-                const activeOp = getActiveOpID(updatedTransaction, account);
-                if (activeOp.length === 0) {
-                  console.error('<TransactionList:updateTransaction> getActiveOpId a renvoyé une liste vide !');
-                }
-                return ({
-                  ...updatedTransaction,
-                  activeOpId: activeOp[0],
-                  balance: 0, // solde à recalculer par la suite
-                });
-              }
-              return (tmpTransaction);
-            });
+    // tri des transactions par date
+    newTransactionList.sort(compareTransactions);
 
-            // tri des transactions par date
-            newTransactionList.sort(compareTransactions);
+    // recherche de la transaction mise à jour
+    const trIndex = findTransactionIndex(newTransactionList, updatedTransaction);
 
-            // recherche de la transaction mise à jour
-            const trIndex = findTransactionIndex(newTransactionList, updatedTransaction);
-
-            setTransactionList(recomputeBalances(newTransactionList, invert, trIndex));
-          });
-        } else {
-          console.log('error');
-        }
-      });
+    setTransactionList(recomputeBalances(newTransactionList, invert, trIndex));
   };
 
   /**
-   * Crée une nouvelle transaction
-   *
-   * Envoie la demande de création de la transaction sur l'API
-   *
-   * @params {object} transaction - Transaction à créer
+   * TODO
    */
-  const createTransaction = (transaction) => {
-    fetch(`${process.env.BASE_URL}api/transactions/`,
-      {
-        method: 'POST',
-        // construction de l'objet transaction à envoyer à l'API
-        body: JSON.stringify({
-          date: transaction.date,
-          checked: transaction.checked,
-          invoice: null,
-          operations: transaction.operations.map((operation) => ({
-            credit: operation.credit,
-            debit: operation.debit,
-            label: operation.label,
-            account: operation.account,
-          })),
-        }),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-      .then((response) => {
-        if (response.status === 201) { // 201 created
-          response.json().then((createdTransaction) => {
-            // on ajoute la nouvelle transaction à la liste des transactions affichées
-            const activeOps = getActiveOpID(createdTransaction, account);
-            if (activeOps.length === 0) {
-              console.error('<TransactionList:createTransaction> getActiveOpId a renvoyé une liste vide !');
-            }
-            const newTransactionList = [...transactionList, {
-              ...createdTransaction,
-              activeOpId: activeOps[0],
-              balance: 0,
-            }];
+  const createdTransactionFetchCallback = (createdTransaction) => {
+    // on ajoute la nouvelle transaction à la liste des transactions affichées
+    const newTransactionList = [...transactionList, {
+      ...createdTransaction,
+      balance: 0,
+      activeOpId: getActiveOpID(createdTransaction, account)[0],
+    }];
 
-            // tri de la liste des transactions par date
-            newTransactionList.sort(compareTransactions);
+    // tri de la liste des transactions par date
+    newTransactionList.sort(compareTransactions);
 
-            // récupération de l'indice de la nouvelle transaction
-            const trIndex = findTransactionIndex(newTransactionList, createdTransaction);
+    // récupération de l'indice de la nouvelle transaction
+    const trIndex = findTransactionIndex(newTransactionList, createdTransaction);
 
-            // on met à jour l'état
-            setTransactionList(
-              recomputeBalances(newTransactionList, invert, trIndex),
-            );
+    // on met à jour l'état
+    setTransactionList(
+      recomputeBalances(newTransactionList, invert, trIndex),
+    );
 
-            setNewTransactionVal(newTransactionVal + 1);
-          });
-        } else {
-          console.log('error');
-        }
-      });
+    setNewTransactionVal(newTransactionVal + 1);
   };
 
   return (
@@ -544,12 +462,7 @@ const TransactionList = ({
               title="Transaction pointée ou non"
             />
           </Table.HeaderCell>
-          <Table.HeaderCell>
-            <Icon
-              name="attach"
-              title="Justificatif de transaction"
-            />
-          </Table.HeaderCell>
+          <Table.HeaderCell />
           <Table.HeaderCell />
         </Table.Row>
       </Table.Header>
@@ -581,25 +494,27 @@ const TransactionList = ({
         }
         {
            transactionList.map((transaction) => (
-             <Transaction
-               key={`transaction-${transaction.pk}-${transaction.activeOpId}`}
-               transaction={transaction}
-               readOnlyAccount={readOnlyAccount}
-               deleteCallback={deleteTransaction}
-               updateCallback={updateTransaction}
-               createCallback={createTransaction}
+             <AbstractTransaction
+               key={transaction.operations[transaction.activeOpId].pk}
+               initialTransaction={transaction}
+               readOnly={readOnlyAccount}
+               displayType={DisplayTypes.list}
+               transactionCreatedCallback={createdTransactionFetchCallback}
+               transactionUpdatedCallback={updateTransactionFetchCallback}
+               transactionDeletedCallback={transactionDeletedCallback}
              />
            ))
         }
         { /* affichage de la nouvelle transaction seulement si ce n'est pas en lecture seule */
           !readOnlyAccount && (
-          <Transaction
+          <AbstractTransaction
             key={`new-transaction-${newTransactionVal}`}
-            transaction={emptyTransaction}
-            readOnlyAccount={false}
-            deleteCallback={deleteTransaction}
-            updateCallback={updateTransaction}
-            createCallback={createTransaction}
+            initialTransaction={emptyTransaction}
+            readOnly={false}
+            displayType={DisplayTypes.list}
+            transactionCreatedCallback={createdTransactionFetchCallback}
+            transactionUpdatedCallback={updateTransactionFetchCallback}
+            transactionDeletedCallback={transactionDeletedCallback}
           />
           )
         }
@@ -608,6 +523,9 @@ const TransactionList = ({
   );
 };
 
+/**
+ * TODO
+ */
 TransactionList.propTypes = {
   account: PropTypes.shape(accountNodeShape).isRequired,
   readOnlyAccount: PropTypes.bool.isRequired,

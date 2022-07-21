@@ -1,5 +1,5 @@
 import React, {
-  useState, useEffect, useContext, memo,
+  useState, useEffect, useCallback, useContext, memo,
 } from 'react';
 import PropTypes from 'prop-types';
 import { Table, Input } from 'semantic-ui-react';
@@ -10,6 +10,12 @@ import {
 import { AppContext } from '../../../../contexts/contexts';
 
 import './Operation.css';
+
+/**
+ * Valeur constante indiquant qu'aucun compte n'a été trouvé ou n'est associé à une opération
+ * (dans le cas des nouvelles opérations notamment).
+ */
+const NO_ACCOUNT = -1;
 
 const findAccount = (accountList, hierarchy, level) => {
   for (let i = 0; i < accountList.length; i += 1) {
@@ -26,126 +32,192 @@ const findAccount = (accountList, hierarchy, level) => {
   }
 
   // le compte n'existe pas
-  return -1;
+  return NO_ACCOUNT;
 };
+
+const OpType = {
+  CREDIT: 0,
+  DEBIT: 1,
+};
+
+const formatAmount = (value) => (value > 0 ? centsToStr(value) : '');
 
 /**
  * Composant effectuant le rendu d'une opération particulière
  */
 const Operation = ({
-  operation, accountName, clickToExpand, active, readOnly, updateCallback,
-  transactionModified,
+  initialOp,
+  clickToExpand, active, readOnly, updateCallback,
+  operationValidatedCallback,
 }) => {
-  // affichage du crédit et du débit seulement si le montant est non nul
-  const [credit, setCredit] = useState('');
-  const [debit, setDebit] = useState('');
-  const [account, setAccount] = useState(-1);
-  const [accountError, setAccountError] = useState(null);
-  const [label, setLabel] = useState('');
-
   const appContext = useContext(AppContext);
 
-  useEffect(() => {
-    // met en place les crédits et débits
-    setCredit(operation.credit > 0 ? centsToStr(operation.credit) : '');
-    setDebit(operation.debit > 0 ? centsToStr(operation.debit) : '');
-    setLabel(operation.label);
-  }, [operation.credit, operation.debit, operation.label]);
+  // état interne de l'opération enregistrée, similaire à initialOp mais maintenu
+  // à jour par rapport aux  modifications
+  const [operation, setOperation] = useState(initialOp);
 
-  useEffect(() => {
-    // récupère la clé du compte initialement associé à l'opération
-    // si c'est une transaction simple, on récupère la clé du compte en face, sinon
-    // on utilise la clé du compte associé à l'opération
-    setAccount(accountName
-      ? findAccount(appContext.accountList, accountName.split(':'), 0)
-      : operation.account);
-  }, [accountName, appContext.accountList, operation.account]);
+  // variables pour gérer l'affichage du crédit et du débit
+  const [credit, setCredit] = useState(formatAmount(initialOp.credit));
+  const [debit, setDebit] = useState(formatAmount(initialOp.debit));
 
-  const updateCredit = (event) => {
-    setCredit(filterCurrencyInput(event.target.value));
-    transactionModified();
+  // état pour la saisie du nom du compte
+  const [accountInput, setAccountInput] = useState(initialOp.label);
+
+  // erreur sur le compte sélectionné
+  const [accountError, setAccountError] = useState(null);
+
+  /**
+   * Fonction permettant d'actualiser les formats des montants
+   */
+  const resetFormat = () => {
+    setCredit(formatAmount(operation.credit));
+    setDebit(formatAmount(operation.debit));
   };
 
-  const updateDebit = (event) => {
-    setDebit(filterCurrencyInput(event.target.value));
-    transactionModified();
+  /**
+   * Fonction mettant à jour l'état de l'opération dans le composant et
+   * appelant le callback de mise à jour.
+   */
+  const updateOperation = useCallback((updatedOp) => {
+    // mise à jour de l'objet opération
+    setOperation(updatedOp);
+
+    // appel du callback suite à la mise à jour de l'état de l'opération
+    updateCallback(updatedOp);
+  }, [updateCallback]);
+
+  /**
+   * Callback appelé lors de la mise à jour d'un montant de l'opération
+   */
+  const updateAmount = (event, opType) => {
+    // récupération de la nouvelle valeur par filtrage de la saisie
+    const strValue = filterCurrencyInput(event.target.value);
+
+    // nouvel objet opération à mettre à jour
+    const updatedOp = { ...operation };
+
+    // mise à jour selon le type d'opération
+    switch (opType) {
+      case OpType.CREDIT:
+        setCredit(strValue);
+        updatedOp.credit = strToCents(strValue);
+        break;
+      case OpType.DEBIT:
+        setDebit(strValue);
+        updatedOp.debit = strToCents(strValue);
+        break;
+      default:
+        break;
+    }
+
+    // mise à jour et callback
+    updateOperation(updatedOp);
   };
 
-  const updateAccount = (event) => {
+  /**
+   * Callback appelé lors de la mise à jour du compte lié à l'opération
+   */
+  const updateAccount = useCallback((accountNameInput) => {
     setAccountError(null);
-    const newAccount = event.target.value;
+
+    // on met à jour l'affichage avec la valeur saisie
+    setAccountInput(accountNameInput);
 
     // on découpe le nom du compte pour récupérer son arborescence
-    const hierarchy = newAccount.split(':');
+    const hierarchy = accountNameInput.split(':');
 
     // on trouve la clé du compte et on la met à jour
     const accountPk = findAccount(appContext.accountList, hierarchy, 0);
-    setAccount(accountPk);
-    transactionModified();
-  };
 
+    // mise à jour de l'opération
+    updateOperation({
+      ...operation,
+      account: accountPk,
+      accountFullName: accountPk !== NO_ACCOUNT ? accountNameInput : '',
+    });
+  }, [appContext.accountList, updateOperation, operation]);
+
+  /**
+   * Callback appelé lors de la mise à jour du label de l'opération
+   */
   const updateLabel = (event) => {
-    setLabel(event.target.value);
-    transactionModified();
+    // construction d'un nouvel objet mis à jour
+    const updatedOp = { ...operation, label: event.target.value };
+
+    // mise à jour et callback
+    updateOperation(updatedOp);
   };
 
-  const keyPressedCallback = (event) => {
+  /**
+   * Fonction appelée quand l'utilisateur frappe "Entrée" dans l'opération
+   */
+  const validateOperation = (event) => {
+    // suppression de l'erreur
     setAccountError(null);
+
     if (event.key === 'Enter') {
+      // mise à jour du format des montants
+      resetFormat();
+
       // on vérifie que le compte est valide
-      if (account === -1) {
+      if (operation.account === NO_ACCOUNT) {
         // si le compte n'est pas valide, on ne met pas à jour l'opération
         setAccountError('Compte invalide');
         return;
       }
 
-      updateCallback({
-        ...operation,
-        debit: strToCents(filterCurrencyInput(debit)),
-        credit: strToCents(filterCurrencyInput(credit)),
-        label,
-      }, account);
+      // appel du callback pour signaler la validation
+      operationValidatedCallback();
     }
   };
 
+  /**
+   * Mise à jour de la saisie du compte si la transaction initiale est modifiée, par
+   * exemple suite à une réinitialisation de la transaction
+   */
+  useEffect(() => {
+    if (initialOp.account !== NO_ACCOUNT) {
+      setAccountInput(initialOp.accountFullName);
+      setOperation((op) => ({ ...op, accountFullName: initialOp.accountFullName }));
+    }
+  }, [initialOp.account, initialOp.accountFullName]);
+
   // construction de l'élément correspondant au nom du compte
   let accountNameElement = null;
-  if (accountName !== null) {
-    if (readOnly) {
-      accountNameElement = accountName;
-    } else {
-      accountNameElement = (
-        <>
-          <Input
-            list="accounts"
-            defaultValue={accountName}
-            transparent
-            className="input-full-width"
-            error={accountError !== null}
-            onChange={(event) => updateAccount(event)}
-            onKeyPress={keyPressedCallback}
-          />
-          <p className="ui error">
-            {accountError}
-          </p>
-        </>
-      );
-    }
-  } else {
+  if (clickToExpand !== null) {
     accountNameElement = clickToExpand;
+  } else if (readOnly) {
+    accountNameElement = initialOp.accountFullName;
+  } else {
+    accountNameElement = (
+      <>
+        <Input
+          list="accounts"
+          value={accountInput}
+          transparent
+          className="input-full-width"
+          error={operation.account === NO_ACCOUNT}
+          onChange={(event) => updateAccount(event.target.value)}
+          onKeyPress={validateOperation}
+        />
+        <p className="ui error">
+          {accountError}
+        </p>
+      </>
+    );
   }
 
   return (
     <>
       <Table.Cell active={active}>
-        { readOnly ? operation.label
+        { readOnly ? initialOp.label
           : (
             <Input
               transparent
-              defaultValue={operation.label}
+              value={initialOp.label}
               className="input-full-width"
               onChange={(event) => updateLabel(event)}
-              onKeyPress={keyPressedCallback}
+              onKeyPress={validateOperation}
             />
           )}
       </Table.Cell>
@@ -159,8 +231,9 @@ const Operation = ({
               transparent
               value={credit}
               fluid
-              onChange={(event) => updateCredit(event)}
-              onKeyPress={keyPressedCallback}
+              onChange={(event) => updateAmount(event, OpType.CREDIT)}
+              onBlur={() => resetFormat()}
+              onKeyPress={validateOperation}
               className="input-full-width amount-input"
             />
           )}
@@ -172,8 +245,9 @@ const Operation = ({
               transparent
               value={debit}
               fluid
-              onChange={(event) => updateDebit(event)}
-              onKeyPress={keyPressedCallback}
+              onChange={(event) => updateAmount(event, OpType.DEBIT)}
+              onBlur={() => resetFormat()}
+              onKeyPress={validateOperation}
               className="input-full-width amount-input"
             />
           )}
@@ -183,45 +257,50 @@ const Operation = ({
 };
 
 Operation.propTypes = {
-  // opération à afficher
-  operation: PropTypes.shape({
-    // clé primaire de l'opération dans la base de l'API
+  /** Valeur initiale de l'opération à afficher */
+  initialOp: PropTypes.shape({
+    /** clé primaire de l'opération dans la base de l'API */
     pk: PropTypes.number.isRequired,
-    // montant associé au crédit (centimes)
+    /** montant associé au crédit (centimes) */
     credit: PropTypes.number.isRequired,
-    // montant associé au débit (centimes)
+    /** montant associé au débit (centimes) */
     debit: PropTypes.number.isRequired,
-    // label de l'opération
+    /** label de l'opération */
     label: PropTypes.string.isRequired,
-    // clé primaire du compte lié à l'opération
+    /** clé primaire du compte lié à l'opération */
     account: PropTypes.number.isRequired,
-    // nom complet du compte lié à l'opération
+    /** Nom complet du compte associé à l'opération (hiérarchie complète) */
     accountFullName: PropTypes.string.isRequired,
   }).isRequired,
-  // nom de compte à afficher (ce nom ne correspond pas forcément au nom
-  // du compte lié à l'opération : dans le cas d'une transaction simple, on
-  // affiche le nom de l'autre compte pour indiquer vers quel compte se fait le
-  // transfert). Dans le cas d'une transaction répartie, cette props est null.
-  accountName: PropTypes.string,
-  // bouton permettant d'étendre la transaction dans le cas où elle est répartie
+  /**
+   * Composant permettant d'étendre la transaction dans le cas où elle est répartie. Ce composant
+   * se substitue à l'affichage du nom du compte dans l'opération.
+   */
   clickToExpand: PropTypes.element,
-  // indique si la ligne correspond à l'opération courante dans la liste des opérations
-  // d'une transaction répartie
+  /**
+   * Flag indiquant si la ligne correspond à l'opération courante dans la liste des opérations
+   * d'une transaction répartie.
+   */
   active: PropTypes.bool.isRequired,
-  // indique si l'opération fait partie d'une transaction qui peut être modifiée ou non
+  /**
+   * Flag indiquant si l'opération est en lecture seule (non modifiable) ou non.
+   */
   readOnly: PropTypes.bool.isRequired,
+  /**
+   * Callback appelé à chaque modification de l'opération. Le composant envoie en paramètre
+   * du callback un objet correspondant à l'opération mise à jour.
+   */
   updateCallback: PropTypes.func.isRequired,
-  transactionModified: PropTypes.func.isRequired,
+  /**
+   * Callback appelé comme un signal quand l'utilisateur valide la saisie de l'opération
+   * (frappe sur la touche "Entrée")
+   */
+  operationValidatedCallback: PropTypes.func.isRequired,
 };
 
 Operation.defaultProps = {
-  accountName: null,
-  clickToExpand: null,
-};
-
-Operation.defaultProps = {
-  accountName: null,
   clickToExpand: null,
 };
 
 export default memo(Operation);
+export { NO_ACCOUNT };
