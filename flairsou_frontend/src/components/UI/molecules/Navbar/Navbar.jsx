@@ -11,11 +11,11 @@ import { AssoTypes } from '../../../../assets/assoTypeMapping';
 
 // déploie l'arbre des comptes dans la navbar récursivement en adaptant le
 // niveau de profondeur
-const expandAccountTree = (accountList, depth = 0) => (
+const expandAccountTree = (accountList, prefix = '', depth = 0) => (
   accountList.map((account) => (
-    <Fragment key={`acc-${account.pk}`}>
+    <Fragment key={`acc-${prefix}-${account.pk}`}>
       <NavAccount account={account} depth={depth} />
-      {expandAccountTree(account.account_set, depth + 1)}
+      {expandAccountTree(account.account_set, prefix, depth + 1)}
     </Fragment>
   ))
 );
@@ -47,7 +47,7 @@ const Navbar = () => {
           </Link>
           {
             appContext.assoActive && appContext.assoActive.asso_id === asso.asso_id
-            && expandAccountTree(appContext.accountList)
+            && expandAccountTree(appContext.accountList, prefix)
           }
         </List.Content>
       </List.Item>

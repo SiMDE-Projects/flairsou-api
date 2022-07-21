@@ -14,17 +14,11 @@ const NavAccount = ({ account, depth = 0 }) => {
   return (
     <div className={`nav-account-level-${depth}`}>
       <Icon name="university" />
-      {
-          account.virtual
-            ? account.name
-            : (
-              <Link to={`/accounts/${account.pk}`}>
-                {appContext.accountActive === account.pk
-                  ? (<b>{account.name}</b>)
-                  : account.name}
-              </Link>
-            )
-        }
+      <Link to={`/accounts/${account.pk}`}>
+        {appContext.accountActive === account.pk
+          ? (<b>{account.name}</b>)
+          : account.name}
+      </Link>
     </div>
   );
 };

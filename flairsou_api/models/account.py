@@ -170,3 +170,27 @@ class Account(TimeStampedModel):
             return True
 
         return False
+
+    def get_all_accounts(self) -> list("Account"):
+        sub_accounts = []
+        if self.virtual:
+            for sub_account in self.account_set.all():
+                sub_accounts += sub_account.get_all_accounts()
+        else:
+            sub_accounts.append(self)
+
+        return sub_accounts
+
+    def get_all_transactions_pks(self):
+        """
+        Renvoie la liste de toutes les clés primaires des transactions associées
+        à l'instance du compte
+        """
+        transaction_pks = []
+
+        for acc in self.get_all_accounts():
+            transaction_pks += acc.operation_set.values_list(
+                "transaction__pk", flat=True
+            )
+
+        return transaction_pks

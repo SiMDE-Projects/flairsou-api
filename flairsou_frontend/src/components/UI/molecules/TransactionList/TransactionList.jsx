@@ -1,46 +1,72 @@
 import React, {
-  useState, useEffect, useRef, useCallback, memo,
+  useState, useEffect, memo,
 } from 'react';
 import PropTypes from 'prop-types';
 import {
   Table, Icon, Popup, Loader, Button,
 } from 'semantic-ui-react';
+import { format } from 'date-fns';
 
 import AbstractTransaction, { DisplayTypes } from '../../atoms/Transaction/AbstractTransaction';
 import { NO_ACCOUNT } from '../../atoms/Transaction/Operation/Operation';
 import AccountTypes from '../../../../assets/accountTypeMapping';
 import { compareTransactions, findTransactionIndex } from '../../../../utils/transaction_utils';
+import { findAccount } from '../../../../utils/accountTreeFunctions';
+import accountNodeShape from '../../../../shapes/accountShape/accountNodeShape';
 
-function useNoRenderRef(currentValue) {
-  const ref = useRef(currentValue);
-  ref.current = currentValue;
-  return ref;
-}
+/**
+ * Mise en forme de la date
+ * @param {Date} date - objet date
+ * @return {string} date donnée au format 'yyyy-mm-dd'
+ */
+const formatDate = (date) => format(date, 'yyyy-MM-dd');
 
 /**
  * Récupère l'indice de l'opération correspondant au compte passé en paramètre dans la
  * transaction (par rapport à la liste d'opérations de la transaction)
  *
  * @param {object} transaction - objet représentant la transaction à traiter
- * @param {number} accountID - clé primaire du compte actuel
+ * @param {object} account - compte actuel
  *
- * @return {number} indice de l'opération correspondant au compte
+ * @return {number[]} indice de l'opération correspondant au compte (potentiellement plusieurs
+ *                    opérations correspondantes si le compte est virtuel)
  */
-const getActiveOpID = (transaction, accountID) => {
-  for (let i = 0; i < transaction.operations.length; i += 1) {
-    if (transaction.operations[i].account === accountID) return i;
+const getActiveOpID = (transaction, account) => {
+  const activeOps = [];
+  if (!account.virtual) {
+    // si le compte actuel n'est pas virtuel, on recherche l'opération directement
+    // liée au compte actuel
+    for (let i = 0; i < transaction.operations.length; i += 1) {
+      if (transaction.operations[i].account === account.pk) {
+        activeOps.push(i);
+        return activeOps;
+      }
+    }
+  } else {
+    // on est dans un compte virtuel. Ici, l'opération active correspond à l'opération
+    // reliée à un sous-compte du compte actuel. Il peut y avoir plusieurs opérations
+    // actives
+    for (let i = 0; i < transaction.operations.length; i += 1) {
+      const acc = findAccount(account.account_set, transaction.operations[i].account);
+      if (acc.pk !== -1) {
+        // le compte associé à l'opération i a été trouvé dans les sous comptes du compte
+        // virtuel, on ajoute l'opération à la liste des opérations actives
+        activeOps.push(i);
+      }
+    }
   }
-  return -1;
+
+  return activeOps;
 };
 
 /**
  * Fonction de (re)calcul des soldes partiels dans la liste des opérations
  *
- * @params {?} transactionList - liste de transactions
- * @params {bool} invert - indique si le compte inverse ou non les calculs de solde
- * @params {number} i0 - indique à partir de où les soldes partiels doivent être calculés
- * @params {number} balanceIni - indique le solde initial avant la première transaction (utilisé
- *                    seulement si i0 == 0)
+ * @param {Object[]} transactionList - liste de transactions
+ * @param {boolean} invert - indique si le compte inverse ou non les calculs de solde
+ * @param {number} i0 - indique à partir de où les soldes partiels doivent être calculés
+ * @param {number} balanceIni - indique le solde initial avant la première transaction (utilisé
+ *                              seulement si i0 == 0)
  */
 const recomputeBalances = (transactionList, invert, i0 = 0, balanceIni = 0) => {
   // solde partiel
@@ -52,19 +78,19 @@ const recomputeBalances = (transactionList, invert, i0 = 0, balanceIni = 0) => {
     balance = balanceIni;
   }
 
-  // TODO voir si ça peut pas se remplacer par une boucle normale plutôt qu'un map
-  // pour les questions de performances
   return transactionList.map((transaction, i) => {
     if (i < i0) {
       return transaction;
     }
 
-    // recalcul du solde à partir de l'opération
-    const { credit } = transaction.operations[transaction.activeOpId];
-    const { debit } = transaction.operations[transaction.activeOpId];
+    if (transaction.activeOpId !== -1) {
+      // recalcul du solde à partir de l'opération
+      const { credit } = transaction.operations[transaction.activeOpId];
+      const { debit } = transaction.operations[transaction.activeOpId];
 
-    // mise à jour du solde
-    balance += (invert ? -1 : 1) * (credit - debit);
+      // mise à jour du solde
+      balance += (invert ? -1 : 1) * (credit - debit);
+    }
 
     return {
       ...transaction,
@@ -73,20 +99,180 @@ const recomputeBalances = (transactionList, invert, i0 = 0, balanceIni = 0) => {
   });
 };
 
-const TransactionList = ({
-  accountID, accountType, readOnlyAccount, updateBalanceCallback,
-}) => {
-  /*
-   * accountID : ID du compte dans la base de données Flairsou
-   * accountType : type du compte (voir assets/accountTypeMapping.js)
-   */
+/**
+ * Fonction de calcul des dates limites pour l'API de récupération des transactions
+ *
+ * La fonction détermine les dates fromDate et toDate de façon à demander à l'API la liste
+ * des transactions ayant eu lieu entre fromDate et toDate. La fonction peut prendre en
+ * entrée un paramètre olderDate correspondant à la précédente date fromDate pour reculer
+ * d'une période donnée par NB_MONTHS.
+ *
+ * Si le paramètre olderDate est null, alors la date courante est utilisée. Le paramètre
+ * renvoyé toDate sera donc également null.
+ *
+ * @typedef {Object} DateInterval
+ * @property {Date} fromDate - date de début de l'intervalle de récupération
+ * @property {?Date} toDate - date de fin de l'intervalle de récupération
+ *
+ * @param {?Date} previousFromDate - précédente date minimale de récupération
+ * @param {number} NB_MONTHS - nombre de mois à récupérer par appel à l'API
+ * @returns {DateInterval} intervalle de dates pour la récupération des transactions
+ */
+const computeLimitDates = (previousFromDate, NB_MONTHS) => {
+  let fromDate;
+  let toDate = null;
 
+  if (previousFromDate === null) {
+    // si la date précédente n'a pas déjà été chargée, on charge toutes les transactions
+    // depuis le nombre de mois avant la date courante. Ceci permet de charger initialement
+    // les éventuelles transactions futures.
+    fromDate = new Date(Date.now());
+  } else {
+    // on a déjà récupéré les transactions jusqu'à olderDate, on prend les autres
+    // transactions qui vont jusque la veille
+    toDate = previousFromDate;
+    toDate.setDate(toDate.getDate() - 1);
+    fromDate = new Date(toDate);
+  }
+
+  // on recule la date de début NB_MONTH en amont
+  fromDate.setDate(1);
+  fromDate.setMonth(fromDate.getMonth() - NB_MONTHS + 1);
+
+  return { fromDate, toDate };
+};
+
+/**
+ * Récupère les transactions supplémentaires depuis la date minimale précédente
+ *
+ * La fonction renvoie la Promise résultante du fetch, qui au final renvoie l'objet
+ * retVal construit dans la fonction.
+ *
+ * @param {Object} account - compte actuel correspondant à la liste des transactions affichées
+ * @param {Date} previousFromDate - date minimale de la précédente récupération de transactions
+ * @param {number} NB_MONTHS - nombre de mois à récupérer par récupération de transactions
+ * @returns {Promise} Promise correspondant aux callbacks sur le fetch
+ */
+const retrieveNewTransactions = (account, previousFromDate, NB_MONTHS) => {
+  // structure de l'objet renvoyé
+  const retVal = {
+    moreTransactions: false,
+    fromDate: null,
+    transactionSet: [],
+    initialBalance: 0,
+  };
+
+  // calcule les dates pour la récupération des transactions
+  const { fromDate, toDate } = computeLimitDates(previousFromDate, NB_MONTHS);
+
+  // enregistrement de la nouvelle date minimale récupérée
+  retVal.fromDate = fromDate;
+
+  // construction de l'URL de récupération des transactions
+  let URL = `${process.env.BASE_URL}api/accounts/${account.pk}/transactions/`;
+  URL += `?from=${formatDate(fromDate)}`;
+  URL += toDate ? `&to=${formatDate(toDate)}` : '';
+
+  // récupération de la liste des transactions
+  return fetch(URL)
+    .then((response) => response.json())
+    .then((response) => {
+      // mise à jour de l'indicateur de transactions supplémentaires
+      retVal.moreTransactions = response.more_transactions;
+
+      // enregistrement du solde initial (à la veille de la première transaction de la liste)
+      retVal.initialBalance = response.initial_balance;
+
+      if (response.transaction_set.length > 0) {
+        // récupération des transactions supplémentaires
+        // utilisation d'un flatMap pour pouvoir construire un nombre variable de transactions
+        // en front à partir d'une transaction pour l'API. C'est utile pour les comptes virtuels
+        // qui font intervenir des transferts de fonds entre eux ou des transactions réparties,
+        // pour que toutes les transactions soient correctement affichées et ajustent correctement
+        // le solde du compte.
+        const newTransactionList = response.transaction_set.flatMap((transaction) => {
+          // récupération des opérations actives pour par rapport au compte
+          const activeOps = getActiveOpID(transaction, account);
+
+          // création d'une transaction par opération active (le solde sera mis à jour par la suite)
+          return activeOps.map((opId) => ({ ...transaction, balance: 0, activeOpId: opId }));
+        });
+
+        retVal.transactionSet = newTransactionList;
+      }
+
+      return retVal;
+    });
+};
+
+/**
+ * Cette fonction permet de charger plus de transactions dans la TransactionList
+ *
+ * La fonction est sortie du composant pour éviter d'être re-créée à chaque changement de
+ * compte et pour éviter l'utilisation d'un useCallback qui complique les choses. Ici, la
+ * fonction est fixe mais en contrepartie, elle a une signature importante parce qu'il faut
+ * faire passer tous les callbacks de mise à jour des états.
+ *
+ * @param {Object} account - compte actuel correspondant à la liste des transactions affichées
+ * @param {boolean} invert - indique si le compte inverse les crédits et les débits
+ * @param {?Date} previousFromDate - date minimale de la précédente récupération de transactions
+ * @param {Object[]} transactionList - liste des transactions déjà chargées
+ * @param {number} NB_MONTHS - nombre de mois à récupérer par récupération de transactions
+ * @param {function} setLoading - callback pour l'état loading
+ * @param {function} setPreviousFromDate - callback pour l'état previousFromDate
+ * @param {function} setMoreTransactions - callback pour l'état moreTransactions
+ * @param {function} setTransactionList - callback pour l'état transactionList
+ */
+const loadMoreTransactions = (
+  account, invert, previousFromDate, transactionList, NB_MONTHS,
+  setLoading, setPreviousFromDate, setMoreTransactions, setTransactionList,
+) => {
+  // met en route le loader dans le tableau
+  setLoading(true);
+
+  // récupère les nouvelles transactions depuis la dernière date
+  const prom = retrieveNewTransactions(account, previousFromDate, NB_MONTHS);
+
+  prom.then((retVal) => {
+    // quand les transactions sont reçues, arrête le loader
+    setLoading(false);
+
+    // met à jour les états en fonction du retour de la fonction
+    setPreviousFromDate(retVal.fromDate);
+    setMoreTransactions(retVal.moreTransactions);
+
+    if (retVal.transactionSet.length > 0) {
+      // si des nouvelles transactions ont été récupérées, recalcule les soldes et met à jour
+      // la liste des transactions
+      setTransactionList(
+        recomputeBalances(
+          retVal.transactionSet.concat(transactionList), invert, 0, retVal.initialBalance,
+        ),
+      );
+    }
+  });
+};
+
+/**
+ * Composant d'affichage de la liste des transactions d'un compte
+ *
+ * @param {Object} X - objet paramètres du composant
+ * @param {Object} X.account - compte pour lequel les transactions doivent être affichées
+ * @param {boolean} X.readOnlyAccount - flag indiquant si le compte est accessible en lecture
+ *                                      seule ou en écriture (pilote l'édition des champs et
+ *                                      l'affichage de la transaction vide)
+ * @param {function} X.updateBalanceCallback - callback pour mettre à jour le solde du compte qui
+ *                                             est géré dans le composant AccountContent
+ */
+const TransactionList = ({
+  account, readOnlyAccount, updateBalanceCallback,
+}) => {
   /*
    * Le calcul du solde se fait par défaut avec credit - debit, mais
    * selon le type du compte, on peut avoir besoin d'inverser ce calcul
    */
-  const invert = (accountType === AccountTypes.ASSET
-      || accountType === AccountTypes.EXPENSE);
+  const invert = (account.account_type === AccountTypes.ASSET
+      || account.account_type === AccountTypes.EXPENSE);
 
   /*
    * Transaction vide pour le compte actuel
@@ -103,8 +289,8 @@ const TransactionList = ({
         credit: 0,
         debit: 0,
         label: '',
-        account: accountID,
-        accountFullName: '', // TODO récupérer l'objet complet du compte plutôt que juste l'ID
+        account: account.pk,
+        accountFullName: account.fullName,
       },
       {
         pk: 0,
@@ -124,7 +310,6 @@ const TransactionList = ({
 
   // liste des transactions stockées dans l'état du composant
   const [transactionList, setTransactionList] = useState([]);
-  const transactionListRef = useNoRenderRef(transactionList);
 
   // clé artificielle pour forcer la remise à zéro de la nouvelle transaction après
   // validation.
@@ -134,97 +319,21 @@ const TransactionList = ({
   const [loading, setLoading] = useState(false);
 
   // Date de départ pour la récupération des transactions
-  const [olderDate, setOlderDate] = useState(null);
-  const olderDateRef = useNoRenderRef(olderDate);
+  const [previousFromDate, setPreviousFromDate] = useState(null);
 
+  // indique s'il reste des transactions à charger pour piloter l'affichage du bouton
   const [moreTransactions, setMoreTransactions] = useState(false);
 
   /**
-   * Mise en forme de la date
+   * useEffect initial (appelé à chaque changement de compte)
+   * -> charge les transactions initiale en remettant à zéro la liste
    */
-  const formatDate = (date) => {
-    const day = `${date.getDate() < 10 ? '0' : ''}${date.getDate()}`;
-    const month = `${date.getMonth() + 1 < 10 ? '0' : ''}${date.getMonth() + 1}`;
-    const year = `${date.getFullYear()}`;
-    return `${year}-${month}-${day}`;
-  };
-
-  /**
-   * Charge les transactions entre deux dates et les ajoute à celles déjà chargées
-   *
-   * @params { object } fromDate - date de début
-   * @params { object } toDate - date de fin
-   */
-  const loadMoreTransactions = useCallback(() => {
-    let fromDate;
-    let toDate = null;
-    if (olderDateRef.current === null) {
-      // si la date précédente n'a pas déjà été chargée, on charge toutes les transactions
-      // depuis le nombre de mois avant la date courante
-      fromDate = new Date(Date.now());
-    } else {
-      // on a déjà récupéré les transactions jusqu'à olderDate, on prend les autres
-      // transactions qui vont jusque la veille
-      toDate = olderDateRef.current;
-      toDate.setDate(toDate.getDate() - 1);
-      fromDate = new Date(toDate);
-    }
-
-    // on recule la date de début NB_MONTH en amont
-    fromDate.setDate(1);
-    fromDate.setMonth(fromDate.getMonth() - NB_MONTHS);
-
-    let URL = `${process.env.BASE_URL}api/accounts/${accountID}/transactions/`;
-    URL += `?from=${formatDate(fromDate)}`;
-    URL += toDate ? `&to=${formatDate(toDate)}` : '';
-
-    setLoading(true);
-
-    // récupération de la liste des transactions
-    fetch(URL)
-      .then((response) => response.json())
-      .then((response) => {
-        // mise à jour de l'indicateur de transactions supplémentaires
-        setMoreTransactions(response.more_transactions);
-
-        // remplacement de la date la plus ancienne
-        setOlderDate(fromDate);
-
-        // s'il n'y a pas de transactions dans le retour, on s'arrête ici
-        if (response.transaction_set.length === 0) {
-          setLoading(false);
-          return;
-        }
-
-        // récupération des transactions supplémentaires chargées et ajout en amont du tableau
-        const newTransactionList = response.transaction_set.map((transaction) => (
-          {
-            ...transaction,
-            balance: 0,
-            // récupéation des IDs des opérations actives par transaction
-            activeOpId: getActiveOpID(transaction, accountID),
-          }))
-          .concat(transactionListRef.current);
-
-        // calcul du solde à la veille de la transaction
-        const prevDate = new Date(fromDate);
-        prevDate.setDate(prevDate.getDate() - 1);
-        const URL2 = `${process.env.BASE_URL}api/accounts/${accountID}/balance/?date=${formatDate(prevDate)}`;
-
-        fetch(URL2).then((resp) => resp.json())
-          .then((resp) => {
-            const balanceIni = resp.balance;
-
-            // calcul des soldes partiels depuis le début
-            setTransactionList(recomputeBalances(newTransactionList, invert, 0, balanceIni));
-          });
-      });
-  }, [accountID, invert, olderDateRef, transactionListRef]);
-
   useEffect(() => {
-    // on charge les transactions
-    loadMoreTransactions();
-  }, [loadMoreTransactions]);
+    setTransactionList([]);
+    // charge les transactions depuis la date du jour avec une liste de transactions vides
+    loadMoreTransactions(account, invert, null, [], NB_MONTHS,
+      setLoading, setPreviousFromDate, setMoreTransactions, setTransactionList);
+  }, [account, invert]);
 
   /**
    * Mise à jour du solde global du compte
@@ -291,7 +400,7 @@ const TransactionList = ({
         return ({
           ...updatedTransaction,
           balance: 0, // solde à recalculer par la suite
-          activeOpId: getActiveOpID(updatedTransaction, accountID),
+          activeOpId: getActiveOpID(updatedTransaction, account)[0],
         });
       }
       return (tmpTransaction);
@@ -314,7 +423,7 @@ const TransactionList = ({
     const newTransactionList = [...transactionList, {
       ...createdTransaction,
       balance: 0,
-      activeOpId: getActiveOpID(createdTransaction, accountID),
+      activeOpId: getActiveOpID(createdTransaction, account)[0],
     }];
 
     // tri de la liste des transactions par date
@@ -373,9 +482,11 @@ const TransactionList = ({
             <Table.Row>
               <Table.Cell colSpan="10">
                 <Button
-                  content={`Charger des transactions avant le ${olderDate.toLocaleDateString()}...`}
+                  content={`Charger des transactions avant le ${previousFromDate.toLocaleDateString()}...`}
                   fluid
-                  onClick={() => loadMoreTransactions()}
+                  onClick={() => loadMoreTransactions(account, invert, previousFromDate,
+                    transactionList, NB_MONTHS, setLoading, setPreviousFromDate,
+                    setMoreTransactions, setTransactionList)}
                 />
               </Table.Cell>
             </Table.Row>
@@ -416,8 +527,7 @@ const TransactionList = ({
  * TODO
  */
 TransactionList.propTypes = {
-  accountID: PropTypes.number.isRequired,
-  accountType: PropTypes.number.isRequired,
+  account: PropTypes.shape(accountNodeShape).isRequired,
   readOnlyAccount: PropTypes.bool.isRequired,
   updateBalanceCallback: PropTypes.func.isRequired,
 };
