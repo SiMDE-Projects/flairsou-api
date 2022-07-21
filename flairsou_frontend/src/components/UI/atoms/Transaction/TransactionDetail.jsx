@@ -45,7 +45,7 @@ const hasLocalKey = (op) => Object.prototype.hasOwnProperty.call(op, 'localKey')
 const TransactionDetail = ({
   transaction, modified, readOnly,
   updateDate, updateCheck, updateOperation, updateOperations,
-  validateTransaction, deleteTransaction,
+  validateTransaction, deleteTransaction, reinitializeTransaction,
 }) => {
   /**
    * Quand la transaction est mise à jour dans le composant parent, on met à jour les opérations
@@ -226,7 +226,7 @@ const TransactionDetail = ({
         Enregistrer
       </Button>
 
-      <Button color={modified ? 'brown' : 'grey'} icon labelPosition="left">
+      <Button color={modified ? 'brown' : 'grey'} icon labelPosition="left" onClick={reinitializeTransaction}>
         <Icon name="undo" />
         Réinitialiser
       </Button>
@@ -309,6 +309,10 @@ TransactionDetail.propTypes = {
    * Fonction permettant de supprimer la transaction
    */
   deleteTransaction: PropTypes.func.isRequired,
+  /**
+   * Fonction permettant de réinitialiser la transaction
+   */
+  reinitializeTransaction: PropTypes.func.isRequired,
 };
 
 export default memo(TransactionDetail);

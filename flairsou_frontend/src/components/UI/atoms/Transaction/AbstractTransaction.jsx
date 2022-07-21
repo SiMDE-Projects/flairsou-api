@@ -108,6 +108,13 @@ const AbstractTransaction = ({
   };
 
   /**
+   * Callback de réinitialisation de la transaction
+   */
+  const reinitTransaction = () => {
+    setTransaction({ ...cloneDeep(initialTransaction), balance: 0 });
+  };
+
+  /**
    * Fonction de validation de la transaction par l'API.
    *
    * Cette fonction envoie la requête API pour créer ou mettre à jour la transaction.
@@ -223,6 +230,7 @@ const AbstractTransaction = ({
           updateOperations={updateOperations}
           validateTransaction={validateTransaction}
           deleteTransaction={deleteTransaction}
+          reinitializeTransaction={reinitTransaction}
         />
       );
     default:

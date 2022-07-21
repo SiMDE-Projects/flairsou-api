@@ -1,5 +1,5 @@
 import React, {
-  useState, useContext, memo,
+  useState, useEffect, useCallback, useContext, memo,
 } from 'react';
 import PropTypes from 'prop-types';
 import { Table, Input } from 'semantic-ui-react';
@@ -60,6 +60,9 @@ const Operation = ({
   const [credit, setCredit] = useState(formatAmount(initialOp.credit));
   const [debit, setDebit] = useState(formatAmount(initialOp.debit));
 
+  // état pour la saisie du nom du compte
+  const [accountInput, setAccountInput] = useState(initialOp.label);
+
   // erreur sur le compte sélectionné
   const [accountError, setAccountError] = useState(null);
 
@@ -75,13 +78,13 @@ const Operation = ({
    * Fonction mettant à jour l'état de l'opération dans le composant et
    * appelant le callback de mise à jour.
    */
-  const updateOperation = (updatedOp) => {
+  const updateOperation = useCallback((updatedOp) => {
     // mise à jour de l'objet opération
     setOperation(updatedOp);
 
     // appel du callback suite à la mise à jour de l'état de l'opération
     updateCallback(updatedOp);
-  };
+  }, [updateCallback]);
 
   /**
    * Callback appelé lors de la mise à jour d'un montant de l'opération
@@ -114,12 +117,14 @@ const Operation = ({
   /**
    * Callback appelé lors de la mise à jour du compte lié à l'opération
    */
-  const updateAccount = (event) => {
+  const updateAccount = useCallback((accountNameInput) => {
     setAccountError(null);
-    const newAccount = event.target.value;
+
+    // on met à jour l'affichage avec la valeur saisie
+    setAccountInput(accountNameInput);
 
     // on découpe le nom du compte pour récupérer son arborescence
-    const hierarchy = newAccount.split(':');
+    const hierarchy = accountNameInput.split(':');
 
     // on trouve la clé du compte et on la met à jour
     const accountPk = findAccount(appContext.accountList, hierarchy, 0);
@@ -128,9 +133,9 @@ const Operation = ({
     updateOperation({
       ...operation,
       account: accountPk,
-      accountFullName: accountPk !== NO_ACCOUNT ? newAccount : '',
+      accountFullName: accountPk !== NO_ACCOUNT ? accountNameInput : '',
     });
-  };
+  }, [appContext.accountList, updateOperation, operation]);
 
   /**
    * Callback appelé lors de la mise à jour du label de l'opération
@@ -166,6 +171,17 @@ const Operation = ({
     }
   };
 
+  /**
+   * Mise à jour de la saisie du compte si la transaction initiale est modifiée, par
+   * exemple suite à une réinitialisation de la transaction
+   */
+  useEffect(() => {
+    if (initialOp.account !== NO_ACCOUNT) {
+      setAccountInput(initialOp.accountFullName);
+      setOperation((op) => ({ ...op, accountFullName: initialOp.accountFullName }));
+    }
+  }, [initialOp.account, initialOp.accountFullName]);
+
   // construction de l'élément correspondant au nom du compte
   let accountNameElement = null;
   if (clickToExpand !== null) {
@@ -177,11 +193,11 @@ const Operation = ({
       <>
         <Input
           list="accounts"
-          defaultValue={initialOp.accountFullName}
+          value={accountInput}
           transparent
           className="input-full-width"
-          error={operation.account === -1}
-          onChange={(event) => updateAccount(event)}
+          error={operation.account === NO_ACCOUNT}
+          onChange={(event) => updateAccount(event.target.value)}
           onKeyPress={validateOperation}
         />
         <p className="ui error">
@@ -198,7 +214,7 @@ const Operation = ({
           : (
             <Input
               transparent
-              defaultValue={initialOp.label}
+              value={initialOp.label}
               className="input-full-width"
               onChange={(event) => updateLabel(event)}
               onKeyPress={validateOperation}
