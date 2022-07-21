@@ -89,6 +89,17 @@ const TransactionDetail = ({
     }
   };
 
+  /**
+   * Supprime une ligne d'opération dans le tableau
+   */
+  const deleteOperation = (opLocalKey) => {
+    // on supprime l'opération qui correspond à la clé locale fournie
+    const newOps = transaction.operations.filter((op) => op.localKey !== opLocalKey);
+
+    // on met à jour les opérations
+    updateOperations(newOps);
+  };
+
   // pas de rendu tant que les clés locales n'ont pas été ajoutées
   for (let i = 0; i < transaction.operations.length; i += 1) {
     if (!hasLocalKey(transaction.operations[i])) {
@@ -210,7 +221,17 @@ const TransactionDetail = ({
                 }}
                 operationValidatedCallback={validateTransaction}
               />
-              <Table.Cell textAlign="center" content={<Icon link name="delete" color="red" />} />
+              <Table.Cell
+                textAlign="center"
+                content={(
+                  <Icon
+                    link
+                    name="delete"
+                    color="red"
+                    onClick={() => deleteOperation(operation.localKey)}
+                  />
+                )}
+              />
             </Table.Row>
           ))}
         </Table.Body>
