@@ -34,10 +34,10 @@ const transactionEqual = (tr1, tr2) => {
   return true;
 };
 
-const DisplayTypes = {
+const DisplayTypes = Object.freeze({
   list: 'list', /** affichage de la transaction dans la liste des transactions d'un compte */
   details: 'details', /** affichage des détails d'une transaction sur une page séparée */
-};
+});
 
 /**
  * Composant permettant de réaliser une abstraction de la transaction, indépendamment
