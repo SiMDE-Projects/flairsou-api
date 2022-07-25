@@ -83,14 +83,14 @@ class TransactionSerializer(FlairsouModelSerializer):
 
     class Meta:
         model = Transaction
-        fields = ["pk", "date", "is_reconciliated", "checked", "invoice", "operations"]
+        fields = ["pk", "date", "is_reconciliated", "checked", "invoices", "operations"]
 
     def validate(self, data):
         """
         Validation de la transaction au niveau global. Chaque fonction de
         validation lève une ValidationError si les données ne sont pas
         correctes.
-        data = {'date': Date, 'checked': boolean, 'invoice': file,
+        data = {'date': Date, 'checked': boolean, 'invoices': list(file),
         'operations' : list({'credit': int, 'debit': int, 'label': str,
             'account': Account})}
         """
