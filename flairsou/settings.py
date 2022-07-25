@@ -185,6 +185,12 @@ REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
+if not DEBUG:
+    # Si la config n'est pas en debug (= en prod), on désactive l'interface web de l'API
+    REST_FRAMEWORK["DEFAULT_RENDERER_CLASSES"] = (
+        "rest_framework.renderers.JSONRenderer",
+    )
+
 SPECTACULAR_SETTINGS = {
     "TITLE": "Flairsou API",
     "DESCRIPTION": "Documentation de l'API "
