@@ -36,6 +36,13 @@ class Transaction(TimeStampedModel):
         """
         return self.attachment_set.all()
 
+    def get_entity(self) -> str:
+        """
+        Renvoie l'UUID de l'entité associée à la transaction
+        """
+        operation = self.operations()[0]
+        return str(operation.account.book.entity)
+
     def filter_by_entity(entity: str):
         """
         Filtre les transactions associées à une entité particulière

@@ -4,6 +4,32 @@ from flairsou import config
 from .timestamped import TimeStampedModel
 
 
+def attachment_storage_path(instance, filename) -> str:
+    """
+    Définit le dossier de stockage de la PJ. Le chemin final du fichier est défini comme suit :
+
+    UPLOAD_PATH/{UUID asso}/{année}/{mois}/{jour}/{ID transaction}/{filename}
+
+    Toute l'arborescence est prévue pour faciliter l'exploitation des fichiers en cas
+    de récupération des données par l'utilisateur.
+    """
+    # récupération de l'entité à partir de la transaction associée au modèle
+    entity = instance.transaction.get_entity()
+
+    # récupération de la date de la transaction
+    date_str = instance.transaction.date.isoformat().split("-")
+
+    return r"{}/{}/{}/{}/{}/{}/{}".format(
+        config.UPLOAD_PATH,
+        entity,
+        date_str[0],
+        date_str[1],
+        date_str[2],
+        entity.transaction.pk,
+        filename,
+    )
+
+
 class Attachment(TimeStampedModel):
     """
     Modèle de pièce-jointe justificative attachée à une transaction.
@@ -26,7 +52,7 @@ class Attachment(TimeStampedModel):
 
     document = models.FileField(
         "Document",
-        upload_to=config.UPLOAD_PATH,
+        upload_to=attachment_storage_path,
         blank=False,
         null=True,
     )
