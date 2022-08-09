@@ -46,4 +46,6 @@ urlpatterns = [
         views.TransactionDetail.as_view(),
         name="transaction-detail",
     ),
+    # attachments
+    path("attachments/", views.AttachmentCreate.as_view(), name="attachment-create"),
 ]

@@ -1,5 +1,6 @@
 from rest_framework import mixins
 from rest_framework import generics
+from rest_framework.parsers import MultiPartParser
 
 import flairsou_api.models as fm
 import flairsou_api.serializers as fs
@@ -52,3 +53,19 @@ class TransactionDetail(
         Supprime la transaction
         """
         return self.destroy(request, *args, **kwargs)
+
+
+class AttachmentCreate(mixins.CreateModelMixin, generics.GenericAPIView):
+    """
+    Création d'une nouvelle pièce-jointe
+    """
+
+    serializer_class = fs.AttachmentSerializer
+    parser_classes = [MultiPartParser]
+    permission_classes = [UserAllowed]
+
+    def post(self, request, *args, **kwargs):
+        """
+        Création d'une nouvelle PJ
+        """
+        return self.create(request, *args, **kwargs)
