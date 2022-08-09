@@ -6,12 +6,15 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('flairsou_api', '0002_remove_account_flairsou_api_account_unique_name_in_parent_and_book'),
+        (
+            "flairsou_api",
+            "0002_remove_account_flairsou_api_account_unique_name_in_parent_and_book",
+        ),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='transaction',
-            name='invoice',
+            model_name="transaction",
+            name="invoice",
         ),
     ]
