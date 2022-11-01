@@ -1,8 +1,29 @@
 from .flairsou_serializers import FlairsouModelSerializer
-from flairsou_api.models import Transaction, Operation, Account
+from flairsou_api.models import Transaction, Operation, Account, Attachment
 
 from django.db import transaction
 from rest_framework.exceptions import PermissionDenied
+
+
+class AttachmentSerializer(FlairsouModelSerializer):
+    """
+    Serializer pour les pièces-jointes associées aux transactions
+    """
+
+    class Meta:
+        model = Attachment
+        fields = ["pk", "document", "transaction", "notes"]
+
+    def validate(self, data):
+        if "request" in self.context:
+            # si la création est effectuée à partir d'une requête, on vérifie
+            # que l'utilisateur connecté a les droits sur la transaction pour
+            # ajouter la pièce-jointe
+            transaction = data["transaction"]
+            if not transaction.check_user_allowed(self.context["request"]):
+                raise PermissionDenied()
+
+        return data
 
 
 class OperationSerializer(FlairsouModelSerializer):
@@ -80,17 +101,18 @@ class TransactionSerializer(FlairsouModelSerializer):
     # les opérations dans la transaction. L'option many=True permet de
     # préciser qu'on va avoir une liste d'opérations dans la transaction
     operations = OperationSerializer(many=True)
+    invoices = AttachmentSerializer(many=True, required=False)
 
     class Meta:
         model = Transaction
-        fields = ["pk", "date", "is_reconciliated", "checked", "invoice", "operations"]
+        fields = ["pk", "date", "is_reconciliated", "checked", "invoices", "operations"]
 
     def validate(self, data):
         """
         Validation de la transaction au niveau global. Chaque fonction de
         validation lève une ValidationError si les données ne sont pas
         correctes.
-        data = {'date': Date, 'checked': boolean, 'invoice': file,
+        data = {'date': Date, 'checked': boolean, 'invoices': list(file),
         'operations' : list({'credit': int, 'debit': int, 'label': str,
             'account': Account})}
         """

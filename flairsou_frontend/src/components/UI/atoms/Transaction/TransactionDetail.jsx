@@ -1,7 +1,7 @@
-import React, { useEffect, memo } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import PropTypes from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
-
+import { InputFile } from 'semantic-ui-react-input-file';
 import {
   Container,
   Header,
@@ -13,6 +13,7 @@ import {
   Input,
   Checkbox,
 } from 'semantic-ui-react';
+import ConfirmDeleteObject from '../ConfirmDeleteObject/ConfirmDeleteObject';
 
 import Operation, { NO_ACCOUNT } from './Operation/Operation';
 
@@ -43,9 +44,7 @@ const hasLocalKey = (op) => Object.prototype.hasOwnProperty.call(op, 'localKey')
  * TODO
  */
 const TransactionDetail = ({
-  transaction, modified, readOnly,
-  updateDate, updateCheck, updateOperation, updateOperations,
-  validateTransaction, deleteTransaction, reinitializeTransaction,
+  transaction, modified, readOnly, callbacks,
 }) => {
   /**
    * Quand la transaction est mise à jour dans le composant parent, on met à jour les opérations
@@ -67,9 +66,9 @@ const TransactionDetail = ({
     if (keyAdded) {
       // mise à jour des opérations seulement si une clé a été ajoutée, pour éviter
       // les boucles infinies de mise à jour
-      updateOperations(newOps);
+      callbacks.updateOperations(newOps);
     }
-  }, [transaction, updateOperations]);
+  }, [transaction, callbacks]);
 
   /**
    * Ajoute une nouvelle opération vide à la liste des opérations. Cet ajout se fait seulement si
@@ -85,7 +84,9 @@ const TransactionDetail = ({
     if (oneOpEmpty === false) {
       // toutes les opérations sont remplies, on ajoute une nouvelle opération vide
       // à laquelle on associe une nouvelle clé locale
-      updateOperations([...transaction.operations, { ...emptyOperation, localKey: uuidv4() }]);
+      callbacks.updateOperations(
+        [...transaction.operations, { ...emptyOperation, localKey: uuidv4() }],
+      );
     }
   };
 
@@ -97,7 +98,76 @@ const TransactionDetail = ({
     const newOps = transaction.operations.filter((op) => op.localKey !== opLocalKey);
 
     // on met à jour les opérations
-    updateOperations(newOps);
+    callbacks.updateOperations(newOps);
+  };
+
+  const [invoiceFormDisplay, setInvoiceFormDisplay] = useState(false);
+  const [currentFile, setCurrentFile] = useState(null);
+  const [currentNote, setCurrentNote] = useState('');
+
+  const sendNewInvoice = () => {
+    // API de création des pièces-jointes
+    const URL = `${process.env.BASE_URL}api/attachments/`;
+
+    // données de la requête
+    const formData = new FormData();
+    formData.append('document', currentFile);
+    formData.append('transaction', transaction.pk);
+    formData.append('notes', currentNote);
+
+    // envoi de la requête
+    fetch(URL, {
+      method: 'POST',
+      body: formData,
+    }).then((response) => {
+      if (response.status !== 201) {
+        console.error('Erreur de création de la pièce-jointe');
+        console.error(response);
+      } else {
+        // ajout de la PJ réussi
+        response.json().then((newInvoice) => {
+          const newInvoices = [...transaction.invoices, newInvoice];
+          callbacks.updateInvoices(newInvoices);
+          setInvoiceFormDisplay(false);
+          setCurrentFile(null);
+          setCurrentNote('');
+        });
+      }
+    });
+  };
+
+  /**
+   * Fonction de suppression d'un justificatif.
+   *
+   * Attention, cette fonction supprime le justificatif sans demander de confirmation.
+   * La confirmation doit être demandée au préalable.
+   */
+  const deleteInvoice = (invoiceId) => {
+    // vérifie que le justificatif demandé est bien dans la liste de la transaction
+    // courante
+    const invoice = transaction.invoices.find((inv) => inv.pk === invoiceId);
+
+    if (invoice === undefined) {
+      console.error('Erreur de récupération du justificatif à supprimer');
+      return;
+    }
+
+    const URL = `${process.env.BASE_URL}api/attachments/${invoice.pk}/`;
+
+    fetch(URL, { method: 'DELETE' })
+      .then((response) => {
+        if (response.status !== 204) {
+          console.error('Erreur de suppression du justificatif');
+          return;
+        }
+
+        // met à jour les justificatifs en gardant uniquement ceux qui n'ont pas été
+        // supprimés
+        const newInvoices = transaction.invoices.filter((inv) => inv.pk !== invoice.pk);
+        callbacks.updateInvoices(
+          newInvoices,
+        );
+      });
   };
 
   // pas de rendu tant que les clés locales n'ont pas été ajoutées
@@ -125,7 +195,7 @@ const TransactionDetail = ({
                     type="date"
                     transparent
                     defaultValue={transaction.date}
-                    onChange={updateDate}
+                    onChange={callbacks.updateDate}
                   />
                 )}
             </Table.Cell>
@@ -136,7 +206,7 @@ const TransactionDetail = ({
               <Checkbox
                 checked={transaction.checked}
                 disabled={readOnly}
-                onChange={(event, data) => updateCheck(data.checked)}
+                onChange={(event, data) => callbacks.updateCheck(data.checked)}
               />
             </Table.Cell>
           </Table.Row>
@@ -217,9 +287,9 @@ const TransactionDetail = ({
                 readOnly={readOnly || transaction.is_reconciliated}
                 updateCallback={(updatedOp) => {
                   // mise à jour de l'opération i dans le tableau
-                  updateOperation(updatedOp, i);
+                  callbacks.updateOperation(updatedOp, i);
                 }}
-                operationValidatedCallback={validateTransaction}
+                operationValidatedCallback={callbacks.validateTransaction}
               />
               <Table.Cell
                 textAlign="center"
@@ -237,25 +307,149 @@ const TransactionDetail = ({
         </Table.Body>
       </Table>
 
-      <Button color="blue" icon labelPosition="left" onClick={() => addNewOperation()}>
+      <Button
+        color="blue"
+        icon
+        labelPosition="left"
+        onClick={() => addNewOperation()}
+      >
         <Icon name="add" />
         Ajouter une opération
       </Button>
 
-      <Button color={modified ? 'green' : 'grey'} icon labelPosition="left" onClick={validateTransaction}>
+      <Button
+        color={modified ? 'green' : 'grey'}
+        icon
+        labelPosition="left"
+        onClick={callbacks.validateTransaction}
+      >
         <Icon name="save" />
         Enregistrer
       </Button>
 
-      <Button color={modified ? 'brown' : 'grey'} icon labelPosition="left" onClick={reinitializeTransaction}>
+      <Button
+        color={modified ? 'brown' : 'grey'}
+        icon
+        labelPosition="left"
+        onClick={callbacks.reinitializeTransaction}
+      >
         <Icon name="undo" />
         Réinitialiser
       </Button>
 
       <Divider />
       <Header as="h2">
-        Liste des justificatifs
+        Justificatifs
       </Header>
+
+      {transaction.invoices.length > 0
+        ? (
+          <Table celled>
+            <Table.Header>
+              <Table.Row textAlign="center">
+                <Table.HeaderCell>Document</Table.HeaderCell>
+                <Table.HeaderCell>Nom du fichier</Table.HeaderCell>
+                <Table.HeaderCell>Notes</Table.HeaderCell>
+                <Table.HeaderCell />
+              </Table.Row>
+            </Table.Header>
+            <Table.Body>
+              {transaction.invoices.map((invoice) => (
+                <Table.Row key={`op-tr-invoice-${invoice.pk}`}>
+                  <Table.Cell
+                    textAlign="center"
+                    content={(
+                      <a href={invoice.document}>
+                        <Icon
+                          link
+                          name="file pdf"
+                        />
+                      </a>
+                    )}
+                    collapsing
+                  />
+                  <Table.Cell
+                    textAlign="center"
+                    collapsing
+                    content={invoice.document.split('/').pop()}
+                  />
+                  <Table.Cell
+                    textAlign="left"
+                    content={invoice.notes}
+                  />
+                  <Table.Cell
+                    textAlign="center"
+                    collapsing
+                    content={(
+                      <ConfirmDeleteObject
+                        objectName="justificatif"
+                        objectDetail={invoice.document.split('/').pop()}
+                        onConfirm={() => deleteInvoice(invoice.pk)}
+                      />
+                    )}
+                  />
+                </Table.Row>
+              ))}
+            </Table.Body>
+          </Table>
+        )
+        : <p>Aucun justificatif pour cette transaction !</p>}
+
+      {invoiceFormDisplay
+        ? (
+          <>
+            <p>Nouveau justificatif</p>
+            <Table celled>
+              <Table.Body>
+                <Table.Row>
+                  <Table.Cell
+                    collapsing
+                    content="Fichier à joindre"
+                  />
+                  <Table.Cell>
+                    <InputFile
+                      input={{
+                        id: 'invoice_input_file',
+                        onChange: (event) => { setCurrentFile(event.target.files[0]); },
+                      }}
+                    />
+                    {currentFile ? currentFile.name : ''}
+                  </Table.Cell>
+                </Table.Row>
+                <Table.Row>
+                  <Table.Cell collapsing content="Notes" />
+                  <Table.Cell>
+                    <Input
+                      value={currentNote}
+                      onChange={(event) => { setCurrentNote(event.target.value); }}
+                      fluid
+                      transparent
+                    />
+                  </Table.Cell>
+                </Table.Row>
+              </Table.Body>
+            </Table>
+            <Button
+              color="green"
+              icon
+              labelPosition="left"
+              onClick={() => sendNewInvoice()}
+            >
+              <Icon name="check" />
+              Valider
+            </Button>
+            <Button color="red" icon labelPosition="left" onClick={() => setInvoiceFormDisplay(false)}>
+              <Icon name="cancel" />
+              Annuler
+            </Button>
+          </>
+        )
+        : (
+          <Button color="blue" icon labelPosition="left" onClick={() => setInvoiceFormDisplay(true)}>
+            <Icon name="add" />
+            Ajouter un justificatif
+          </Button>
+        )}
     </Container>
   );
 };
@@ -277,8 +471,17 @@ TransactionDetail.propTypes = {
     // et constatée sur le compte en ligne, l'utilisateur peut la pointer pour indiquer
     // qu'elle est correctement saisie)
     checked: PropTypes.bool.isRequired,
-    // justificatif associé à la transaction (TODO)
-    invoice: PropTypes.string,
+    // justificatifs associés à la transaction
+    invoices: PropTypes.arrayOf(PropTypes.shape({
+      // clé primaire du justificatif
+      pk: PropTypes.number.isRequired,
+      // URL vers le document à télécharger
+      document: PropTypes.string.isRequired,
+      // ID de la transaction courante
+      transaction: PropTypes.number.isRequired,
+      // notes éventuelles sur le document attaché
+      notes: PropTypes.string,
+    })).isRequired,
     // liste des opérations associées à la transaction
     operations: PropTypes.arrayOf(PropTypes.shape({
       // clé primaire de l'opération dans la base de l'API
@@ -305,35 +508,9 @@ TransactionDetail.propTypes = {
    */
   readOnly: PropTypes.bool.isRequired,
   /**
-   * Fonction permettant la mise à jour de la date de la transaction
+   * Ensemble des fonctions de callback
    */
-  updateDate: PropTypes.func.isRequired,
-  /**
-   * Fonction permettant la mise à jour du flag "checked" de la transaction
-   */
-  updateCheck: PropTypes.func.isRequired,
-  /**
-   * Fonction permettant la mise à jour d'une opération particulière. Cette fonction
-   * prend en paramètres la nouvelle opération et son identifiant dans la liste
-   * des opérations de la transaction.
-   */
-  updateOperation: PropTypes.func.isRequired,
-  /**
-   * Fonction permettant la mise à jour de la liste des opérations de la transaction
-   */
-  updateOperations: PropTypes.func.isRequired,
-  /**
-   * Fonction permettant de valider la mise à jour ou la création de la transaction
-   */
-  validateTransaction: PropTypes.func.isRequired,
-  /**
-   * Fonction permettant de supprimer la transaction
-   */
-  deleteTransaction: PropTypes.func.isRequired,
-  /**
-   * Fonction permettant de réinitialiser la transaction
-   */
-  reinitializeTransaction: PropTypes.func.isRequired,
+  callbacks: PropTypes.objectOf(PropTypes.func).isRequired,
 };
 
 export default memo(TransactionDetail);

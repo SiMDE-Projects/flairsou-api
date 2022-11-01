@@ -3,12 +3,14 @@ from .account_serializer import AccountTransactionListSerializer
 from .book_serializer import BookSerializer, BookWithAccountsSerializer
 from .transaction_serializers import OperationSerializer
 from .transaction_serializers import TransactionSerializer
+from .transaction_serializers import AttachmentSerializer
 from .reconciliation_serializers import ReconciliationSerializer
 
 __all__ = [
     AccountSerializer,
     AccountBalanceSerializer,
     AccountTransactionListSerializer,
+    AttachmentSerializer,
     BookSerializer,
     BookWithAccountsSerializer,
     OperationSerializer,

@@ -108,6 +108,13 @@ const AbstractTransaction = ({
   };
 
   /**
+   * Callback de mise à jour des pièces-jointes
+   */
+  const updateInvoices = (updatedInvoices) => {
+    setTransaction({ ...transaction, invoices: updatedInvoices });
+  };
+
+  /**
    * Callback de réinitialisation de la transaction
    */
   const reinitTransaction = () => {
@@ -200,6 +207,17 @@ const AbstractTransaction = ({
 
   const readOnlyTransaction = transaction.is_reconciliated || readOnly;
 
+  const callbacks = {
+    updateDate: dateUpdated,
+    updateCheck: checkedUpdated,
+    updateOperation,
+    updateOperations,
+    validateTransaction,
+    deleteTransaction,
+    reinitializeTransaction: reinitTransaction,
+    updateInvoices,
+  };
+
   /**
    * Modification de l'affichage en fonction du type de rendu désiré
    */
@@ -224,13 +242,7 @@ const AbstractTransaction = ({
           transaction={transaction}
           modified={modified}
           readOnly={readOnlyTransaction}
-          updateDate={dateUpdated}
-          updateCheck={checkedUpdated}
-          updateOperation={updateOperation}
-          updateOperations={updateOperations}
-          validateTransaction={validateTransaction}
-          deleteTransaction={deleteTransaction}
-          reinitializeTransaction={reinitTransaction}
+          callbacks={callbacks}
         />
       );
     default:
@@ -253,8 +265,17 @@ AbstractTransaction.propTypes = {
     // et constatée sur le compte en ligne, l'utilisateur peut la pointer pour indiquer
     // qu'elle est correctement saisie)
     checked: PropTypes.bool.isRequired,
-    // justificatif associé à la transaction (TODO)
-    invoice: PropTypes.string,
+    // justificatifs associés à la transaction
+    invoices: PropTypes.arrayOf(PropTypes.shape({
+      // clé primaire du justificatif
+      pk: PropTypes.number.isRequired,
+      // URL vers le document à télécharger
+      document: PropTypes.string.isRequired,
+      // ID de la transaction courante
+      transaction: PropTypes.number.isRequired,
+      // notes éventuelles sur le document attaché
+      notes: PropTypes.string,
+    })).isRequired,
     // solde partiel suite à cette transaction
     balance: PropTypes.number,
     // liste des opérations associées à la transaction

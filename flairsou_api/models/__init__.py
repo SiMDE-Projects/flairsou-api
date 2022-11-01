@@ -5,6 +5,7 @@ from .operation import Operation
 from .reconciliation import Reconciliation
 from .timestamped import TimeStampedModel
 from .transaction import Transaction
+from .attachment import Attachment
 
 __all__ = [
     Account,
@@ -14,4 +15,5 @@ __all__ = [
     Reconciliation,
     TimeStampedModel,
     Transaction,
+    Attachment,
 ]
