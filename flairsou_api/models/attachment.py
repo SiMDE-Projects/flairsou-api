@@ -25,7 +25,7 @@ def attachment_storage_path(instance, filename) -> str:
         date_str[0],
         date_str[1],
         date_str[2],
-        entity.transaction.pk,
+        instance.transaction.pk,
         filename,
     )
 
