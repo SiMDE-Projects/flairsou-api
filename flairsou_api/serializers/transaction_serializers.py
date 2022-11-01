@@ -12,7 +12,7 @@ class AttachmentSerializer(FlairsouModelSerializer):
 
     class Meta:
         model = Attachment
-        fields = ["document", "transaction", "notes"]
+        fields = ["pk", "document", "transaction", "notes"]
 
     def validate(self, data):
         if "request" in self.context:
