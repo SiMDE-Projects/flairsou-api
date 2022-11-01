@@ -9,6 +9,7 @@ from django.core.exceptions import ValidationError
 
 from datetime import datetime, timedelta
 
+
 import uuid
 
 
@@ -199,7 +200,7 @@ class AccountBalanceSerializer(FlairsouModelSerializer):
         model = Account
         fields = ["pk", "balance"]
 
-    def get_balance(self, instance: Account):
+    def get_balance(self, instance: Account) -> int:
         request = self.context["request"]
         date = request.query_params.get("date")
         if date is not None:
@@ -259,7 +260,7 @@ class AccountTransactionListSerializer(FlairsouModelSerializer):
         model = Account
         fields = ["pk", "initial_balance", "transaction_set", "more_transactions"]
 
-    def get_initial_balance(self, instance: Account):
+    def get_initial_balance(self, instance: Account) -> int:
         initial_balance = 0
         if "request" in self.context:
             params = self.context["request"].query_params

@@ -4,6 +4,7 @@ from .book_serializer import BookSerializer, BookWithAccountsSerializer
 from .transaction_serializers import OperationSerializer
 from .transaction_serializers import TransactionSerializer
 from .reconciliation_serializers import ReconciliationSerializer
+from .reports_serializer import BalanceSheetSerializer
 
 __all__ = [
     AccountSerializer,
@@ -14,4 +15,5 @@ __all__ = [
     OperationSerializer,
     TransactionSerializer,
     ReconciliationSerializer,
+    BalanceSheetSerializer,
 ]

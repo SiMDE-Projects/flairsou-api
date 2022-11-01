@@ -4,6 +4,7 @@ from .book_views import BookDetail, BookListFilter
 from .book_views import BookAccountList
 from .transaction_views import TransactionDetail, TransactionCreate
 from .reconciliation_views import ReconciliationView
+from .report_views import BalanceSheetView
 
 __all__ = [
     AccountDetail,
@@ -16,4 +17,5 @@ __all__ = [
     TransactionDetail,
     TransactionCreate,
     ReconciliationView,
+    BalanceSheetView,
 ]
