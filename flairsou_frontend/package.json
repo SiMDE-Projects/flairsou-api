@@ -46,8 +46,8 @@
   },
   "dependencies": {
     "@artsy/fresnel": "^1.5.0",
-    "lodash": "^4.17.21",
     "date-fns": "^2.28.0",
+    "lodash": "^4.17.21",
     "prop-types": "^15.7.2",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
@@ -60,6 +60,7 @@
     "redux-thunk": "^2.3.0",
     "semantic-ui-css": "^2.4.1",
     "semantic-ui-react": "^2.0.3",
+    "semantic-ui-react-input-file": "^1.0.3",
     "uuid": "^8.3.2"
   },
   "browserslist": "defaults"
