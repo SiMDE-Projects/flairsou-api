@@ -46,4 +46,10 @@ urlpatterns = [
         views.TransactionDetail.as_view(),
         name="transaction-detail",
     ),
+    # routes rapports
+    path(
+        "reports/balance_sheet/<int:pk>/",
+        views.BalanceSheetView.as_view(),
+        name="balance-sheet-view",
+    ),
 ]
