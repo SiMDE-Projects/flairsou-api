@@ -69,3 +69,18 @@ class AttachmentCreate(mixins.CreateModelMixin, generics.GenericAPIView):
         Création d'une nouvelle PJ
         """
         return self.create(request, *args, **kwargs)
+
+
+class AttachmentDetail(mixins.DestroyModelMixin, generics.GenericAPIView):
+    """
+    Vue qui permet de supprimer un justificatif
+    """
+
+    queryset = fm.Attachment.objects.all()
+    permission_classes = [UserAllowed]
+
+    def delete(self, request, *args, **kwargs):
+        """
+        Supprime la transaction
+        """
+        return self.destroy(request, *args, **kwargs)

@@ -48,4 +48,9 @@ urlpatterns = [
     ),
     # attachments
     path("attachments/", views.AttachmentCreate.as_view(), name="attachment-create"),
+    path(
+        "attachments/<int:pk>/",
+        views.AttachmentDetail.as_view(),
+        name="attachment-details",
+    ),
 ]
