@@ -62,7 +62,6 @@ class TransactionAPITestCase(APITestCase):
         data = {
             "date": datetime.date.today(),
             "checked": False,
-            "invoice": None,
             "operations": [op1, op2],
         }
         response = self.client.post(url, data, format="json")

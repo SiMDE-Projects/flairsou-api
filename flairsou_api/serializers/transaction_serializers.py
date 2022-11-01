@@ -101,7 +101,7 @@ class TransactionSerializer(FlairsouModelSerializer):
     # les opérations dans la transaction. L'option many=True permet de
     # préciser qu'on va avoir une liste d'opérations dans la transaction
     operations = OperationSerializer(many=True)
-    invoices = AttachmentSerializer(many=True)
+    invoices = AttachmentSerializer(many=True, required=False)
 
     class Meta:
         model = Transaction
