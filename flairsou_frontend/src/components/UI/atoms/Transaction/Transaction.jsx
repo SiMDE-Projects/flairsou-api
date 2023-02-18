@@ -12,7 +12,7 @@ import ConfirmDeleteObject from '../ConfirmDeleteObject/ConfirmDeleteObject';
  * Composant effectuant le rendu d'une transaction dans l'affichage d'un compte
  */
 const Transaction = ({
-  transaction, deleteCallback, updateCallback, createCallback,
+  transaction, deleteCallback, updateCallback, createCallback, readOnly,
 }) => {
   // indique si la transaction doit être étendue ou non (i.e. si il faut
   // afficher toutes les opérations de la transaction)
@@ -201,6 +201,7 @@ const Transaction = ({
           accountName={otherAccountName}
           clickToExpand={clickToExpand}
           active={false}
+          readOnly={readOnly}
           reconciliated={transaction.is_reconciliated}
           updateCallback={operationValidatedCallback}
           transactionModified={() => setModified(true)}
@@ -209,13 +210,14 @@ const Transaction = ({
         <Table.Cell textAlign="center">
           <Checkbox
             checked={checked}
+            readOnly={readOnly}
             disabled={transaction.is_reconciliated}
             onChange={(event, data) => checkedUpdated(data)}
           />
         </Table.Cell>
         <Table.Cell textAlign="center" collapsing>o</Table.Cell>
         <Table.Cell textAlign="center" collapsing>
-          {!transaction.is_reconciliated && (
+          {!readOnly && !transaction.is_reconciliated && (
             <ConfirmDeleteObject
               objectName="transaction"
               objectDetail={activeOp.label}
@@ -284,6 +286,11 @@ Transaction.propTypes = {
   deleteCallback: PropTypes.func.isRequired,
   updateCallback: PropTypes.func.isRequired,
   createCallback: PropTypes.func.isRequired,
+  readOnly: PropTypes.bool,
+};
+
+Transaction.defaultProps = {
+  readOnly: false,
 };
 
 export default memo(Transaction);
