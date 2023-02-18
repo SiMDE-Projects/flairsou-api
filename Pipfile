@@ -16,7 +16,7 @@ django-extensions = "*"
 Django = ">=4.0"
 drf-spectacular = "*"
 colorama = "*"
-oauth-pda-app = {editable = true, ref = "v0.2.1", git = "https://github.com/SiMDE-Projects/oauth_pda_utc"}
+oauth-pda-app = {editable = true, ref = "v0.2.3", git = "https://github.com/SiMDE-Projects/oauth_pda_utc"}
 pymysql = "*"
 django-environ = "*"
 sentry-sdk = "*"
