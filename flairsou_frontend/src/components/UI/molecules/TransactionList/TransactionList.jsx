@@ -1,4 +1,6 @@
-import React, { useState, useEffect, memo } from 'react';
+import React, {
+  useState, useEffect, memo, useContext,
+} from 'react';
 import PropTypes from 'prop-types';
 import {
   Table, Icon, Popup, Loader,
@@ -60,7 +62,9 @@ const recomputeBalances = (transactionList, invert, i0 = 0) => {
   });
 };
 
-const TransactionList = ({ accountID, accountType, updateBalanceCallback }) => {
+const TransactionList = ({
+  accountID, accountType, updateBalanceCallback, readOnly,
+}) => {
   /*
    * accountID : ID du compte dans la base de données Flairsou
    * accountType : type du compte (voir assets/accountTypeMapping.js)
@@ -359,6 +363,7 @@ const TransactionList = ({ accountID, accountType, updateBalanceCallback }) => {
             : transactionList.map((transaction) => (
               <Transaction
                 key={transaction.operations[transaction.activeOpId].pk}
+                readOnly={readOnly}
                 transaction={transaction}
                 deleteCallback={deleteTransaction}
                 updateCallback={updateTransaction}
@@ -366,13 +371,15 @@ const TransactionList = ({ accountID, accountType, updateBalanceCallback }) => {
               />
             ))
         }
-        <Transaction
-          key={`new-transaction-${newTransactionVal}`}
-          transaction={emptyTransaction}
-          deleteCallback={deleteTransaction}
-          updateCallback={updateTransaction}
-          createCallback={createTransaction}
-        />
+        {!readOnly && (
+          <Transaction
+            key={`new-transaction-${newTransactionVal}`}
+            transaction={emptyTransaction}
+            deleteCallback={deleteTransaction}
+            updateCallback={updateTransaction}
+            createCallback={createTransaction}
+          />
+        ) }
       </Table.Body>
     </Table>
   );
@@ -382,6 +389,11 @@ TransactionList.propTypes = {
   accountID: PropTypes.number.isRequired,
   accountType: PropTypes.number.isRequired,
   updateBalanceCallback: PropTypes.func.isRequired,
+  readOnly: PropTypes.bool,
+};
+
+TransactionList.defaultProps = {
+  readOnly: false,
 };
 
 export default memo(TransactionList);

@@ -2,7 +2,7 @@ import React, { Fragment, useContext } from 'react';
 import PropTypes from 'prop-types';
 
 import { Link } from 'react-router-dom';
-import { Table, Icon } from 'semantic-ui-react';
+import { Icon, Table } from 'semantic-ui-react';
 
 import NavAccount from '../../atoms/NavAccount/NavAccount';
 import { centsToStr } from '../../../../utils/currencyFormat';
@@ -15,32 +15,34 @@ import ErrorLevels from '../../../../assets/errorLevels';
 
 // déploie l'arbre des comptes dans la navbar récursivement en adaptant le
 // niveau de profondeur
-const expandAccountTree = (accountList, deleteAccount, depth = 0) => (
-  accountList.map((account) => (
+const expandAccountTree = (accountList, deleteAccount, assoActive, depth = 0) => {
+  return accountList.map((account) => (
     <Fragment key={`acc-${account.pk}`}>
       <Table.Row>
         <Table.Cell content={<NavAccount account={account} depth={depth} />} />
         <Table.Cell content={AccountTypesString[account.account_type]} />
         <Table.Cell collapsing textAlign="right" content={`${centsToStr(account.balance)} €`} />
         <Table.Cell collapsing>
-          <Link to={`/accounts/edit/${account.pk}`}>
-            <Icon name="edit" title="Modifier le compte" />
-          </Link>
+          { (account.associated_entity !== assoActive) && (
+            <Link to={`/accounts/edit/${account.pk}`}>
+              <Icon name="edit" title="Modifier le compte" />
+            </Link>
+          ) }
         </Table.Cell>
         <Table.Cell collapsing>
-          {account.account_set.length === 0 && (
+          { (account.account_set.length === 0 && account.associated_entity !== assoActive) && (
             <ConfirmDeleteObject
               objectName="compte"
               objectDetail={account.fullName}
               onConfirm={() => deleteAccount(account.pk)}
             />
-          )}
+          ) }
         </Table.Cell>
       </Table.Row>
-      {expandAccountTree(account.account_set, deleteAccount, depth + 1)}
+      { expandAccountTree(account.account_set, deleteAccount, assoActive, depth + 1) }
     </Fragment>
-  ))
-);
+  ));
+};
 
 const AccountList = ({ accounts }) => {
   const appContext = useContext(AppContext);
@@ -80,7 +82,7 @@ const AccountList = ({ accounts }) => {
         </Table.Row>
       </Table.Header>
       <Table.Body>
-        {expandAccountTree(accounts, deleteAccount)}
+        { expandAccountTree(accounts, deleteAccount, appContext.assoActive.asso_id) }
       </Table.Body>
     </Table>
   );

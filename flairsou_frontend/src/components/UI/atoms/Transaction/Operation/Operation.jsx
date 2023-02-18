@@ -34,7 +34,7 @@ const findAccount = (accountList, hierarchy, level) => {
  */
 const Operation = ({
   operation, accountName, clickToExpand, active, reconciliated, updateCallback,
-  transactionModified,
+  transactionModified, readOnly,
 }) => {
   // affichage du crédit et du débit seulement si le montant est non nul
   const [credit, setCredit] = useState('');
@@ -118,6 +118,7 @@ const Operation = ({
         <>
           <Input
             list="accounts"
+            readOnly={readOnly}
             defaultValue={accountName}
             transparent
             className="input-full-width"
@@ -142,6 +143,7 @@ const Operation = ({
           : (
             <Input
               transparent
+              readOnly={readOnly}
               defaultValue={operation.label}
               className="input-full-width"
               onChange={(event) => updateLabel(event)}
@@ -157,6 +159,7 @@ const Operation = ({
           : (
             <Input
               transparent
+              readOnly={readOnly}
               value={credit}
               fluid
               onChange={(event) => updateCredit(event)}
@@ -170,6 +173,7 @@ const Operation = ({
           : (
             <Input
               transparent
+              readOnly={readOnly}
               value={debit}
               fluid
               onChange={(event) => updateDebit(event)}
@@ -213,16 +217,13 @@ Operation.propTypes = {
   reconciliated: PropTypes.bool.isRequired,
   updateCallback: PropTypes.func.isRequired,
   transactionModified: PropTypes.func.isRequired,
+  readOnly: PropTypes.bool,
 };
 
 Operation.defaultProps = {
   accountName: null,
   clickToExpand: null,
-};
-
-Operation.defaultProps = {
-  accountName: null,
-  clickToExpand: null,
+  readOnly: false,
 };
 
 export default memo(Operation);

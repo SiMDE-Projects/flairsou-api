@@ -80,6 +80,9 @@ const App = () => {
   // liste des comptes liés à l'association active dans l'application
   const [accountList, setAccountList] = useState([]);
 
+  // liste des comptes associés à l'association active dans l'application
+  const [associatedAccountList, setAssociatedAccountList] = useState([]);
+
   // datalist pour pré-remplir le champ de compte dans les transactions
   const [accountDatalist, setAccountDatalist] = useState(null);
 
@@ -168,7 +171,7 @@ const App = () => {
     fetch(process.env.BASE_URL.concat(`api/books/${bookPk}/accounts/`))
       .then((response) => response.json())
       .then((response) => {
-        setAccountList(response.account_set);
+        setAccountList([...response.account_set, ...response.associated_account_set]);
       });
   };
 

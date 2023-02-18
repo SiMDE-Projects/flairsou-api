@@ -1,4 +1,4 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useContext, useState } from 'react';
 import PropTypes from 'prop-types';
 import {
   Button,
@@ -13,12 +13,15 @@ import TransactionList from '../../molecules/TransactionList/TransactionList';
 import accountShape from '../../../../shapes/accountShape/accountShape';
 
 import Reconciliation from '../../atoms/Reconciliation/Reconciliation';
+import { AppContext } from '../../../contexts/contexts';
 
 const AccountContent = ({ account }) => {
   // solde affiché du compte
   const [balance, setBalance] = useState(0);
 
   const updateBalance = (newBalance) => setBalance(newBalance);
+
+  const appContext = useContext(AppContext);
 
   return (
     <>
@@ -58,6 +61,7 @@ const AccountContent = ({ account }) => {
                   accountID={account.pk}
                   accountType={account.account_type}
                   updateBalanceCallback={updateBalance}
+                  readOnly={account.associated_entity === appContext.assoActive.asso_id}
                 />
               )
           }
